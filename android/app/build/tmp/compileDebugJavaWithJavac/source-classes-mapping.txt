@@ -1,0 +1,19 @@
+com/hichaty/MainActivity.java
+ com.hichaty.MainActivity
+com/hichaty/hichaty/Hichaty.java
+ com.hichaty.hichaty.Hichaty
+ com.hichaty.hichaty.Hichaty$1
+com/hichaty/MainApplication.java
+ com.hichaty.MainApplication
+ com.hichaty.MainApplication$1
+com/hichaty/BuildConfig.java
+ com.hichaty.BuildConfig
+com/hichaty/hichaty/HichatyPackage.java
+ com.hichaty.hichaty.HichatyPackage
+com/hichaty/ReactNativeFlipper.java
+ com.hichaty.ReactNativeFlipper
+ com.hichaty.ReactNativeFlipper$1
+ com.hichaty.ReactNativeFlipper$2
+ com.hichaty.ReactNativeFlipper$2$1
+com/facebook/react/PackageList.java
+ com.facebook.react.PackageList
