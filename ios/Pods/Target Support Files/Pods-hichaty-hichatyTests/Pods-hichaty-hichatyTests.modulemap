@@ -1,0 +1,6 @@
+module Pods_hichaty_hichatyTests {
+  umbrella header "Pods-hichaty-hichatyTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,116 @@
+{
+  "project_info": {
+    "project_number": "189816713085",
+    "firebase_url": "https://enjoeemsg-a1169.firebaseio.com",
+    "project_id": "enjoeemsg-a1169",
+    "storage_bucket": "enjoeemsg-a1169.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189816713085:android:29cef2a1077c519de5e614",
+        "android_client_info": {
+          "package_name": "com.hichaty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189816713085-efv38mudfd6jsacen9p8134bvvh0t8ku.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hichaty",
+            "certificate_hash": "d20abe76ed524d8e41817ba27d013943dce9c700"
+          }
+        },
+        {
+          "client_id": "189816713085-fisjfg6krhn7c25ntfitinvks3pc22jr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hichaty",
+            "certificate_hash": "5e1d60890f15ae237f2939977acb81cf76229695"
+          }
+        },
+        {
+          "client_id": "189816713085-lnrav8ggsff4m18klnflekm12kv2g9s7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hichaty",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "189816713085-5tt677fap96rib9iv1pt4qch9i8tr1d0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs7kKHPWWQNcBtejNy_GAEhTBaV57O2g4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189816713085-5tt677fap96rib9iv1pt4qch9i8tr1d0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "189816713085-98bsdabl3f9kp2pi3s1cd9v44up3qms5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hichaty"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-8577795871405921~9753507726"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189816713085:android:0dbaf59913735db8e5e614",
+        "android_client_info": {
+          "package_name": "com.intouchmessanger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189816713085-04lhe746rbrt75rtljp3gjgc1388qvsf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.intouchmessanger",
+            "certificate_hash": "6acecd08fa3731c223a98e9b435e803a56ed37b1"
+          }
+        },
+        {
+          "client_id": "189816713085-5tt677fap96rib9iv1pt4qch9i8tr1d0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs7kKHPWWQNcBtejNy_GAEhTBaV57O2g4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189816713085-5tt677fap96rib9iv1pt4qch9i8tr1d0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "189816713085-98bsdabl3f9kp2pi3s1cd9v44up3qms5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hichaty"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,21 @@
+[debug] [2021-02-25T14:22:15.899Z] ----------------------------------------------------------------------
+[debug] [2021-02-25T14:22:15.903Z] Command:       /home/souben/.nvm/versions/node/v14.15.5/bin/node /home/souben/.nvm/versions/node/v14.15.5/bin/firebase init
+[debug] [2021-02-25T14:22:15.903Z] CLI Version:   9.4.0
+[debug] [2021-02-25T14:22:15.904Z] Platform:      linux
+[debug] [2021-02-25T14:22:15.904Z] Node Version:  v14.15.5
+[debug] [2021-02-25T14:22:15.915Z] Time:          Thu Feb 25 2021 15:22:15 GMT+0100 (GMT+01:00)
+[debug] [2021-02-25T14:22:15.916Z] ----------------------------------------------------------------------
+[debug] [2021-02-25T14:22:15.916Z] 
+[debug] [2021-02-25T14:22:15.926Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-02-25T14:22:15.926Z] > authorizing via signed-in user
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/souben/hichatyCode/hichaty
+

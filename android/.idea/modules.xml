@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hichaty.iml" filepath="$PROJECT_DIR$/.idea/modules/hichaty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-2100201161/hichaty.@react-native-firebase_auth.iml" filepath="$PROJECT_DIR$/.idea/modules/-2100201161/hichaty.@react-native-firebase_auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/hichaty.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/hichaty.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/378512972/hichaty.react-native-async-storage_async-storage.iml" filepath="$PROJECT_DIR$/.idea/modules/378512972/hichaty.react-native-async-storage_async-storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/389951682/hichaty.react-native-community_checkbox.iml" filepath="$PROJECT_DIR$/.idea/modules/389951682/hichaty.react-native-community_checkbox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/578542135/hichaty.react-native-community_clipboard.iml" filepath="$PROJECT_DIR$/.idea/modules/578542135/hichaty.react-native-community_clipboard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-996244984/hichaty.react-native-community_masked-view.iml" filepath="$PROJECT_DIR$/.idea/modules/-996244984/hichaty.react-native-community_masked-view.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-890407020/hichaty.react-native-community_progress-bar-android.iml" filepath="$PROJECT_DIR$/.idea/modules/-890407020/hichaty.react-native-community_progress-bar-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1618913906/hichaty.react-native-firebase_app.iml" filepath="$PROJECT_DIR$/.idea/modules/1618913906/hichaty.react-native-firebase_app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-2100201161/hichaty.react-native-firebase_auth.iml" filepath="$PROJECT_DIR$/.idea/modules/-2100201161/hichaty.react-native-firebase_auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1321171594/hichaty.react-native-firebase_database.iml" filepath="$PROJECT_DIR$/.idea/modules/1321171594/hichaty.react-native-firebase_database.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-454180356/hichaty.react-native-firebase_firestore.iml" filepath="$PROJECT_DIR$/.idea/modules/-454180356/hichaty.react-native-firebase_firestore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/823403820/hichaty.react-native-firebase_functions.iml" filepath="$PROJECT_DIR$/.idea/modules/823403820/hichaty.react-native-firebase_functions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-132981867/hichaty.react-native-firebase_messaging.iml" filepath="$PROJECT_DIR$/.idea/modules/-132981867/hichaty.react-native-firebase_messaging.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/465180748/hichaty.react-native-firebase_storage.iml" filepath="$PROJECT_DIR$/.idea/modules/465180748/hichaty.react-native-firebase_storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1197737009/hichaty.react-native-gesture-handler.iml" filepath="$PROJECT_DIR$/.idea/modules/-1197737009/hichaty.react-native-gesture-handler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1285400983/hichaty.react-native-image-picker.iml" filepath="$PROJECT_DIR$/.idea/modules/1285400983/hichaty.react-native-image-picker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-577785887/hichaty.react-native-linear-gradient.iml" filepath="$PROJECT_DIR$/.idea/modules/-577785887/hichaty.react-native-linear-gradient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/346678966/hichaty.react-native-picker_picker.iml" filepath="$PROJECT_DIR$/.idea/modules/346678966/hichaty.react-native-picker_picker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/677338232/hichaty.react-native-safe-area-context.iml" filepath="$PROJECT_DIR$/.idea/modules/677338232/hichaty.react-native-safe-area-context.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1101696368/hichaty.react-native-screens.iml" filepath="$PROJECT_DIR$/.idea/modules/-1101696368/hichaty.react-native-screens.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-2090517834/hichaty.react-native-sound-player.iml" filepath="$PROJECT_DIR$/.idea/modules/-2090517834/hichaty.react-native-sound-player.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/803304173/hichaty.react-native-svg.iml" filepath="$PROJECT_DIR$/.idea/modules/803304173/hichaty.react-native-svg.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1384298905/hichaty.react-native-vector-icons.iml" filepath="$PROJECT_DIR$/.idea/modules/-1384298905/hichaty.react-native-vector-icons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/713716516/hichaty.react-native-webrtc.iml" filepath="$PROJECT_DIR$/.idea/modules/713716516/hichaty.react-native-webrtc.iml" />
+    </modules>
+  </component>
+</project>
