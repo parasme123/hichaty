@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet, PermissionsAndroid, ActivityIndicator, Image, Text,
   View, Keyboard,
-  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView
+  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView, Dimensions
 } from 'react-native';
 import Card from '../components/card';
 import AppContext from '../context/AppContext';
@@ -29,6 +29,7 @@ const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pu
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
 let fcmUnsubscribe = null;
+const { width, height } = Dimensions.get('window')
 
 const contact = ({ navigation, route }) => {
   const { user, users, contacts, setModalChatContact, notifications, setNotifications,
@@ -83,11 +84,11 @@ const contact = ({ navigation, route }) => {
   }
 
   const sendInvitation = (routeName, id, name) => {
-    console.log('-----sendInvitation:' + routeName, id, name)
+    // console.log('-----sendInvitation:' + routeName, id, name)
     setTarget({ id, name });
     setDesiredChat(routeName);
     setModalChatInvitation(true);
-    console.log(";;;;;;;");
+    // console.log(";;;;;;;");
   }
   const [data, setData] = useState("");
 
@@ -138,7 +139,7 @@ const contact = ({ navigation, route }) => {
     if (!showArray[0] && isRefreshing) {
       onScroll();
     }
-    console.log("oooo");
+    // console.log("oooo");
     // console.log(users, "sssssssssssssssssssss>>>>>>>>>>>>>>>>>");
     setshowArray(users)
     navigation.navigate('bottom')
@@ -161,40 +162,32 @@ const contact = ({ navigation, route }) => {
 
   useEffect(() => {
     fcmUnsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log("A new Message arrived to Contacts screen -- > : " + JSON.stringify(remoteMessage));
       var val = remoteMessage.data.senderId;
       let data = remoteMessage.data;
       let type = data.msgType;
-      console.log('data>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + JSON.stringify(data))
-      console.log('type>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + type)
       switch (type) {
         case "new invitation":
           if (user.id !== data.senderId) {
             setTarget({ id: data.senderId, name: data.senderName });
             setDesiredChat(data.desiredChat);
             setModalChatContact(true);
-            console.log("new invitation>>>>>>>>>>>>>>>>>>>>>");
           } else {
             console.log("new invitation_second>>>>>>>>>>>>>>>>>>>>>");
-
           }
           break;
         case "invitation accepted":
-          console.log("data.code invitation accepted>>>>>>>>>>>>>>>>>>>>>", data.code);
           if (user.id !== data.senderId && data.roomRef == "NotConfirmRequest") {
             setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
             setDesiredChat(data.desiredChat);
             setRoomRef(data.roomRef);
             setCode(data.code);
             setModalChatCodeReceived(true);
-            console.log("invitation accepted>>>>>>>>>>>>>>>>>>>>>");
 
           }
           else if (user.id !== data.senderId && data.roomRef != "NotConfirmRequest") {
             setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
             setDesiredChat(data.desiredChat);
             setRoomRef(data.roomRef);
-            console.log("invitation accepted second>>>>>>>>>>>>>>>>>>>>>");
             navigation.navigate(data.desiredChat, { roomRef: data.roomRef, remotePeerName: data.senderName, remotePeerId: data.senderId, remotePic: data.senderPicture, type: 'caller' })
 
           }
@@ -231,7 +224,6 @@ const contact = ({ navigation, route }) => {
           setTargetvideo(lastNotif);
           break;
         case "voicecall invitation":
-          console.log("from constacts", "voicecall");
           setAudioroomref(lastNotif.roomRef);
           setModalAudioInvitation(true);
           setTargetaudio(lastNotif);
@@ -256,17 +248,12 @@ const contact = ({ navigation, route }) => {
   }
 
   const getContractHistory = (arrContactList) => {
-    // console.log("list>>>>>>>>>>>>>>>>");
-
     if (arrContactList.length > 0) {
-      // console.log("yes>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       let ads = { isTemp: true }
       arrContactList.map((e, i) => {
         if ((i + 1) % 5 == 0) {
           arrContactList.splice(i, 0, ads);
-
         }
-
       });
       let totalPagec = Math.ceil((arrContactList.length) / perPageRecord);
       settotalPage(totalPagec);
@@ -277,13 +264,9 @@ const contact = ({ navigation, route }) => {
 
   }
   const onScroll = () => {
-    console.log("scroll>>>>>>>>>>>>>>>>");
-
     setisRefreshing(false)
     if (showLoaderPageing == false && currentPage < totalPage) {
       setshowLoaderPageing(true)
-      console.log("scroll test>>>>>>>>>>>>>>>>");
-
       let addItem = mainArray.length - currentPage * perPageRecord
       let mainArraycopy = [...mainArray]
       let newArray = [...showArray, ...mainArraycopy.splice(currentPage * perPageRecord, addItem > perPageRecord ? perPageRecord : addItem)];
@@ -297,7 +280,6 @@ const contact = ({ navigation, route }) => {
 
   }
   const render_Activity_footer = () => {
-    // console.log("yes")
     var footer_View = (
       <View style={{ flex: 1, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', padding: 15 }}>
         <ActivityIndicator size="large" color={"blue"} />
@@ -312,7 +294,6 @@ const contact = ({ navigation, route }) => {
 
 
   const renderGridItem = ({ item, index, rowIndex }) => {
-    // console.log(item, "item>>>>>>>>>");
     if (!item?.isTemp) {
       return (
         <Card
@@ -339,7 +320,7 @@ const contact = ({ navigation, route }) => {
         <View style={{ flex: 1, width: 180, height: 225, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', }}>
           <BannerAd
             unitId={adUnitId}
-            size={"180x225"}
+            size={`${Math.floor(width / 2) - 20}x225`}
             requestOptions={{
               requestNonPersonalizedAdsOnly: false,
             }}
@@ -361,17 +342,12 @@ const contact = ({ navigation, route }) => {
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log("result.activityType", result.activityType);
           // shared with activity type of result.activityType
         } else {
           console.log("result");
-
-          // shared
         }
       } else if (result.action === Share.dismissedAction) {
-        // dismissed
         console.log("dismissed>>>>>>>>>>>>.");
-
       }
     } catch (error) {
       alert(error.message);
@@ -443,19 +419,16 @@ const contact = ({ navigation, route }) => {
       )
         .then(() => Contacts.getAll())
         .then(contacts => {
-          console.log(contacts, "contacts>>>>>>>>>>>>>>>");
           setcontactList(contacts)
           setshowLoaderPageing(true)
           let arrUserAndContact = [...mainArray, ...contactList]
           setshowArray(arrUserAndContact)
           AsyncStorageHelper.setData("Contact_Status", "status")
-          console.log(arrUserAndContact, "arrUserAndContact");
           setTimeout(() => {
             setshowLoaderPageing(false)
           }, 1000);
 
         }).catch((error) => {
-          console.log("Api call error");
           alert("Contacts not sync please try again.");
         });
 
@@ -466,7 +439,6 @@ const contact = ({ navigation, route }) => {
 
   const showKeywordsearch = () => {
     setKeyword(true)
-    // console.log("kkk>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
   }
   const userFirstPositionInvitation = (UserId) => {
     var val = UserId;

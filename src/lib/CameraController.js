@@ -31,15 +31,15 @@ export default class CameraController {
             android: androidType,
             ios: iosType
         })).then(result => {
-            console.log(result,"result>>>>>>>>>>");
+            // console.log(result,"result>>>>>>>>>>");
             if (result === "granted") {
-                console.log('already allow the location');
+                // console.log('already allow the location');
                 this.selecteImage(cb, launchType, iscrop);
                 return;
             }
             if (result === "blocked" || result === "unavailable") {
                 Helper.permissionConfirm("Access to the camera has been prohibited; please enable it in the Settings app to continue.", ((status) => {
-                    console.log(status, "sssssss")
+                    // console.log(status, "sssssss")
                     if (status) {
                         openSettings().catch(() => {
                             console.warn('cannot open settings')
@@ -54,12 +54,12 @@ export default class CameraController {
                     ios: iosType
                 })
             ).then((status) => {
-                console.log(status,"status");
+                // console.log(status,"status");
                 if (status === "granted") {
-                    console.log('You can use the location');
+                    // console.log('You can use the location');
                     this.selecteImage(cb, launchType, iscrop);
                 } else {
-                    console.log('location permission denied');
+                    // console.log('location permission denied');
                     openSettings().catch(() => {
                         console.warn('cannot open settings')
                     });

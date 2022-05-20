@@ -26,7 +26,7 @@ function Headerset(props) {
   const showMenu = () => {
     _menu.show();
   };
-  console.log(props.remotePic, "props.remotePic");
+  // console.log(props.remotePic, "props.remotePic");
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={props.back}>

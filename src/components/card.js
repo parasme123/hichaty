@@ -47,12 +47,12 @@ const Cardset = (props) => {
             (change) => {
               if (change.type === 'added' && change.doc.id === props.id) {
                 var msg = "User " + change.doc.id + " isOnline";
-                console.log(msg);
+                // console.log(msg);
                 setIsOnline(true);
               }
               if (change.type === 'removed' && change.doc.id === props.id) {
                 var msg = "User " + change.doc.id + " isOffline";
-                console.log(msg);
+                // console.log(msg);
                 setIsOnline(false);
               }
             }

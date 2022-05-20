@@ -19,7 +19,7 @@ const ModalChatInvitation = (props) => {
   const [loadingno, setLoadingNo] = useState(false);
   const { user } = useContext(AppContext);
   const onPress = async () => {
-    console.log('sending invitation... by ', user.id)
+    // console.log('sending invitation... by ', user.id)
     setLoading(true);
     firebase.functions().httpsCallable('onNewInvitation')({
       senderId: user.id,

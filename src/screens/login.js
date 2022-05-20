@@ -37,7 +37,7 @@ const login = (props) => {
 
   useEffect(() => {
     const Countdown = () => {
-      console.log(secondes, minutes)
+      // console.log(secondes, minutes)
       if (secondes > 0) {
         setSecondes(secondes - 1)
       }
@@ -75,9 +75,7 @@ const login = (props) => {
         console.log("doc:" + JSON.stringify({ id: documentSnapshot.id, ...documentSnapshot.data() }))
       })
     }
-
-    console.log('querySnapshot', !!querySnapshot.empty)
-    return { isNew: !!querySnapshot.empty, data }
+    return { isNew: querySnapshot.empty, data }
   }
 
   useEffect(() => {
@@ -245,7 +243,7 @@ const login = (props) => {
               <Text style={styles.forgot}>Forgot Password?</Text>
               <Text style={styles.forgot}>|</Text>
               <TouchableOpacity onPress={() => navigation.navigate('register')}>
-                <Text style={[styles.forgot], { color: '#53A8CB' }}>Signup Here!</Text>
+                <Text style={[styles.forgot, { color: '#53A8CB' }]}>Signup Here!</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -261,6 +259,51 @@ const login = (props) => {
           </View>
         </Modal> */}
         </KeyboardAwareScrollView>
+        <Modal
+          animationType={'slide'}
+          transparent={true}
+          visible={modalVisible}>
+          <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+            <View style={styles.modal1}>
+              {/* <SvgXml xml={success} /> */}
+              <Text style={styles.modaltext1}> Phone verification </Text>
+              <Text style={styles.modaltext1}>
+                Please enter the code you received in your phone!
+              </Text>
+              <Text style={styles.modaltext1}>
+                {minutes}:{secondes}
+              </Text>
+              <OTPInputView
+                style={{ width: "100%", height: 50 }}
+                pinCount={6}
+                autoFocusOnLoad={false}
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled={(code) => {
+                  setCode(code);
+                  console.log(`Code is ${code}`);
+                }}
+              />
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
+
+                  }]}
+                  onPress={() => cancelCode()}>
+                  <Text style={styles.buttontext}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
+                  }]}
+                  onPress={() => confirmCode()}>
+                  <Text style={styles.buttontext}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
       {loading ?
         <View style={{ flex: 1, backgroundColor: '#000000aa', alignItems: 'center', justifyContent: 'center', width: "100%", height: "100%", position: 'absolute', zIndex: 1 }}>
@@ -269,51 +312,6 @@ const login = (props) => {
         </View>
         : null}
 
-      <Modal
-        animationType={'slide'}
-        transparent={true}
-        visible={modalVisible}>
-        <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
-          <View style={styles.modal1}>
-            {/* <SvgXml xml={success} /> */}
-            <Text style={styles.modaltext1}> Phone verification </Text>
-            <Text style={styles.modaltext1}>
-              Please enter the code you received in you phone!
-            </Text>
-            <Text style={styles.modaltext1}>
-              {minutes}:{secondes}
-            </Text>
-            <OTPInputView
-              style={{ width: "100%", height: 100 }}
-              pinCount={6}
-              autoFocusOnLoad
-              codeInputFieldStyle={styles.underlineStyleBase}
-              codeInputHighlightStyle={styles.underlineStyleHighLighted}
-              onCodeFilled={(code) => {
-                setCode(code);
-                console.log(`Code is ${code}`);
-              }}
-            />
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
-
-                }]}
-                onPress={() => cancelCode()}>
-                <Text style={styles.buttontext}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
-                }]}
-                onPress={() => confirmCode()}>
-                <Text style={styles.buttontext}>Submit</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
 
   );

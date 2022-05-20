@@ -80,9 +80,9 @@ import {
   }
 
   useEffect( () => {
-    console.log("holla");
+    // console.log("holla");
     _onFinishedPlayingSubscription = SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
-      console.log('finished playing', success);
+      // console.log('finished playing', success);
       onClickReject();
     })
     try {

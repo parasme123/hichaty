@@ -110,7 +110,7 @@ const Chat = ({ navigation, route }) => {
   )
 
   const postMessage = (emoji) => {
-    console.log("ye");
+    // console.log("ye");
     let messagetext = emoji ? emoji : textMessage
     setEmojyData(false)
     const data = {
@@ -124,13 +124,13 @@ const Chat = ({ navigation, route }) => {
       }
     }
     messagesCollection.doc(roomRef).set(data, { merge: true });
-    console.log({
-      tokens: tokens,
-      senderId: user.id,
-      receiverId: remotePeerId,
-      message: messagetext,
-      roomRef: roomRef,
-    })
+    // console.log({
+    //   tokens: tokens,
+    //   senderId: user.id,
+    //   receiverId: remotePeerId,
+    //   message: messagetext,
+    //   roomRef: roomRef,
+    // })
     firebase.functions().httpsCallable('onNewMessage')({
       senderId: user.id,
       senderName: user.name,
@@ -158,10 +158,10 @@ const Chat = ({ navigation, route }) => {
 
   }
 
-  useEffect(() => {
-    console.log('unreadMessages', unreadMessages);
-    console.log('myUnreadMessages', myUnreadMessages);
-  }, [unreadMessages])
+  // useEffect(() => {
+    // console.log('unreadMessages', unreadMessages);
+    // console.log('myUnreadMessages', myUnreadMessages);
+  // }, [unreadMessages])
 
   var _menu = null;
   const setMenuRef = (ref) => {
@@ -252,7 +252,7 @@ const Chat = ({ navigation, route }) => {
   const gotoattachmentFile = () => {
     setEmojyData(false)
     CameraController.attachmentFile((response) => {
-      console.log(response.path, "response");
+      // console.log(response.path, "response");
       if (response.path) {
         // (async () => await uploadImage(response.path))();
 

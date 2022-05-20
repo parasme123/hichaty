@@ -67,7 +67,7 @@ const ModalVideocall = (props) => {
   useEffect( () => {
     if(focused && modalVideoInvitation ){
       _onFinishedPlayingSubscription = SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
-        console.log('finished playing', success);
+        // console.log('finished playing', success);
         onClickReject();
       })
       try {
