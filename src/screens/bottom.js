@@ -25,8 +25,14 @@ const Tab = createBottomTabNavigator();
 
 export default function Bottom() {
   const [loading, setLoading] = useState(false);
-  const { user, users, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
+  const { user, users, teamChatNotifications, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
     setTeamChatContacts, setAcceptedRequests, setRooms, setBlockedUsers } = useContext(AppContext);
+
+  useEffect(() => {
+    if (teamChatNotifications.length > 0 && teamChatNotifications[0].type == "code") {
+      console.log("Temchat");
+    }
+  }, [teamChatNotifications])
 
   useEffect(() => {
     if (user) {
@@ -42,7 +48,7 @@ export default function Bottom() {
     let subscription11 = DeviceEventEmitter.addListener("GotoHomePage", (event) => { gotoReloadeetss() })
     const friends = user && user.friends;
     const blockedUsersFromDatabase = user && user.blockedUsers;
-    if(user == null){
+    if (user == null) {
       return;
     }
     const getContacts = usersCollection.onSnapshot(
@@ -152,7 +158,7 @@ export default function Bottom() {
       tabBarOptions={{
         style: {
           // flex:1,
-          flexDirection:'row',
+          flexDirection: 'row',
           // height:Platform.OS=="ios"?0: 57,
           // paddingVertical: 28,
           // paddingHorizontal: 2.2,
@@ -231,9 +237,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#184564',
   },
   notSelected: {
-    flex:1,
+    flex: 1,
     textAlign: 'center',
-    width:'100%',
+    width: '100%',
   },
   unselectedtext: {
     color: '#184564',

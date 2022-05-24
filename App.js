@@ -271,9 +271,7 @@ const App = () => {
   /* App ready ---> let's go !
   */
   return (
-
     <AppContext.Provider
-
       value={{
         user, permissions, users, notifications, modalVideoInvitation, teamChatNotifications,
         teamChatContacts, acceptedRequests, modalChatContact, uri, modalAudioInvitation, rooms,
@@ -282,23 +280,21 @@ const App = () => {
         setModalAudioInvitation, setModalVideoInvitation, setModalChatContact, setUser, setUsers,
         setNotifications, setTeamChatNotifications, setTeamChatContacts, setAcceptedRequests, setRooms, setContacts
       }}>
-
       <NavigationContainer
         linking={
           {
             prefixes: ['hichaty://'],
             async getInitialURL() {
-              log_message("App opened via a deep link", "Video or audio Call");
               // Check if app was opened from a deep link
               const url = await Linking.getInitialURL();
               if (url != null) {
+                log_message("App opened via a deep link", "Video or audio Call");
                 return url;
               }
             }
           }
         }
         ref={navigationRef} >
-
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -342,8 +338,6 @@ const App = () => {
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
-
-
   );
 }
 export default App;

@@ -13,7 +13,7 @@ import {
   Modal,
   Keyboard,
   Dimensions,
-  SafeAreaView,Platform
+  SafeAreaView, Platform
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { more } from '../assets/cardicons';
@@ -27,10 +27,11 @@ const messagesCollection = firestore().collection('messages');
 const usersCollection = firestore().collection('users');
 const windowWidth = Dimensions.get('screen').width;
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import { dateDiff } from '../lib/helpers';
 
 const Temporary = ({ navigation, route }) => {
 
-  const [secondes, setSecondes] = useState(0);
+  const [secondes, setSecondes] = useState(null);
   const [minutes, setMinutes] = useState(null);
   const [hours, setHours] = useState(null);
   const { roomRef, remotePeerName, remotePeerId } = route.params;
@@ -143,32 +144,11 @@ const Temporary = ({ navigation, route }) => {
       setcontactId(contactId)
       setTimeDataAll(startTime)
 
-      // console.log(duration, "duration");
-      // console.log(startTime, "startTime");
-      duration = duration.split("h:");
-      // startTime = startTime.split(":");
-      let str = duration;
-      // console.log(str, "str");
-      let document;
-      document = str[1].slice(0, -3);
-      str[1] = document;
-      str[2] = "00"
-      // console.log("strrrr>>>>>>>>>>>>>>>>>>>>>", str)
-      // console.log(document, "documentdocumentdocument");
-      // console.log(startTime, "startTimedddddddd");
-      const duration_Secondes = Number(str[0]) * 3600 + Number(str[1]) * 60 + Number(str[2]);
-      // console.log(duration_Secondes, "duration_Secondes");
-
-      const durationLeftt = calculateTimeLeft(startTime, duration_Secondes);
-      var durationLeft = Number(parseInt(durationLeftt / 1000))
-
-      // console.log(durationLeftt, "durationLeftt>>>>>>>>>>>>");
-      // console.log(durationLeft, "durationLeft>>>>>");
+      const durationLeft = calculateTimeLeft(startTime, duration);
       const setDataTime = formatTimeCounteDown(durationLeft)
-      // console.log(setDataTime, "setDataTime>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       setTimeDuracation(setDataTime)
 
-      if (durationLeft < 0 || durationLeftt == undefined || durationLeft == NaN) {
+      if (durationLeft < 0 || durationLeft == undefined || durationLeft == NaN) {
         setModalVisible(true);
         usersCollection.doc(user.id).update({
           teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
@@ -180,13 +160,14 @@ const Temporary = ({ navigation, route }) => {
       let minutes = ((durationLeft - secondes) / 60) % 60;
       let hours = (((durationLeft - secondes) / 60) - minutes) / 60;
       const arr = [secondes, minutes, hours];
-      // console.log('s', secondes)
-      // console.log('m', minutes)
-      // console.log('h', hours)
+      console.log('s', secondes)
+      console.log('m', minutes)
+      console.log('h', hours)
       setHours(hours);
       setMinutes(minutes);
       setSecondes(secondes);
       if (hours == NaN || minutes == NaN || secondes == NaN) {
+        console.log("all time NAN");
         setModalVisible(true);
         usersCollection.doc(user.id).update({
           teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
@@ -196,7 +177,7 @@ const Temporary = ({ navigation, route }) => {
       }
 
     }
-  }, [teamChatContacts])
+  }, [])
   const _keyboardDidShow = (e) => {
     // setStatedata({ shortHeight: Platform.OS == 'android' ? 0 : e.endCoordinates.height });
     setKeyboardword(true)
@@ -220,16 +201,22 @@ const Temporary = ({ navigation, route }) => {
 
     }
   }
-  const calculateTimeLeft = (startTime, duration_Secondes) => {
-
+  const calculateTimeLeft = (startTime, duration) => {
     const actualTime = Number(firestore.Timestamp.now().toMillis());
-    let actualTime_Secondes = actualTime;
-    let startTime_Secondes = Number(startTime);
-    let total = (duration_Secondes * 1000) + startTime_Secondes
-    if (Number(total - actualTime_Secondes) > 0) {
-      return Number(total - actualTime_Secondes)
-    }
-
+    let totalTime = dateDiff(startTime, actualTime);
+    let totalDurationHours = duration.split("h:")[0];
+    let totalDurationMinutes = duration.split("h:")[1].slice(0, -3);
+    let totalDuration = (totalDurationHours * 60 * 60) + (totalDurationMinutes * 60);
+    let remainingTime = totalDuration - totalTime;
+    // console.warn("remainingTime : ", remainingTime);
+    return remainingTime;
+    // const actualTime = Number(firestore.Timestamp.now().toMillis());
+    // let actualTime_Secondes = actualTime;
+    // let startTime_Secondes = Number(startTime);
+    // let total = (duration_Secondes * 1000) + startTime_Secondes
+    // if (Number(total - actualTime_Secondes) > 0) {
+    //   return Number(total - actualTime_Secondes)
+    // }
   }
   useEffect(() => {
     const Countdown = () => {
@@ -256,12 +243,9 @@ const Temporary = ({ navigation, route }) => {
           }
         }
       }
-
-
-
     }
     if (minutes !== null && hours !== null) {
-      setTimeout(Countdown, 998);
+      setTimeout(Countdown, 1000);
     }
 
   }, [secondes, minutes, hours])
@@ -274,23 +258,22 @@ const Temporary = ({ navigation, route }) => {
         return chat.contactId !== contactId;
       })
 
-    })
-      .then(() => {
-        usersCollection.doc(user.id).update({
-          teamChatContact: [...teamChatContactForMe, {
-            contactId: contactId,
-            duration: TimeDuracation,
-            startTime: TimeDataAll
-          }]
-
-        })
+    }).then(() => {
+      usersCollection.doc(user.id).update({
+        teamChatContact: [...teamChatContactForMe, {
+          contactId: contactId,
+          duration: TimeDuracation,
+          startTime: TimeDataAll
+        }]
 
       })
+
+    })
 
     var teamChatContactForMe1 = [];
     usersCollection.doc(contactId).get().then(async querySnapshot => {
       teamChatContactForMe1 = await querySnapshot.data().teamChatContact.filter((chat) => {
-        return chat.contactId !== contactId;
+        return chat.contactId !== user.id;
       })
 
     })

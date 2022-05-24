@@ -43,25 +43,30 @@ const Cardset = (props) => {
       .where('state', '==', 'online')
       .onSnapshot(
         (snapShot) => {
-          snapShot.docChanges().forEach(
-            (change) => {
-              if (change.type === 'added' && change.doc.id === props.id) {
-                var msg = "User " + change.doc.id + " isOnline";
-                // console.log(msg);
-                setIsOnline(true);
-              }
-              if (change.type === 'removed' && change.doc.id === props.id) {
-                var msg = "User " + change.doc.id + " isOffline";
-                // console.log(msg);
-                setIsOnline(false);
-              }
-            }
-          )
+          let online = snapShot.docChanges().findIndex((data) => (data.type === 'added' && data.doc.id == props.id));
+          let offline = snapShot.docChanges().findIndex((data) => (data.type === 'removed' && data.doc.id == props.id));
+
+          if(online != -1)setIsOnline(true);
+          if(offline != -1)setIsOnline(false);
+          // snapShot.docChanges().forEach(
+          //   (change) => {
+          //     if (change.type === 'added' && change.doc.id === props.id) {
+          //       var msg = "User " + change.doc.id + " isOnline";
+          //       // console.log(msg);
+          //       setIsOnline(true);
+          //     }
+          //     if (change.type === 'removed' && change.doc.id === props.id) {
+          //       var msg = "User " + change.doc.id + " isOffline";
+          //       // console.log(msg);
+          //       setIsOnline(false);
+          //     }
+          //   }
+          // )
         }
       )
   }, [])
 
-
+  // console.warn("Card props : ", props)
 
   return (
     <View style={styles.card}>
@@ -73,8 +78,6 @@ const Cardset = (props) => {
           <CardItem
             cardBody
           >
-
-
             <Image source={props.picture ? { uri: props.picture } : require("../assets/appicon.png")}
               // source={props.picture ? { uri: props.picture } : image}
               style={styles.imagse} />

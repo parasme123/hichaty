@@ -16,7 +16,7 @@ import { SvgXml } from 'react-native-svg';
 import { loading } from '../assets/tabicons';
 import { sync } from '../assets/loginsignupIcons';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Avatar from '../components/avatar'
+import Avatar from '../components/avatar';
 
 // import { Image } from 'native-base';
 import { SectionGrid } from 'react-native-super-grid';
@@ -51,9 +51,7 @@ const temchat = ({ navigation, route }) => {
   const [submitttCode, setSubmitCode] = useState(null)
   const [durationset, setDuration] = useState(0)
   const [ClearNotification, setClearNotification] = useState(false)
-
-
-
+  const [chatList, setChatList] = useState([])
 
   const checkTeamChatContacts = (target) => {
     // console.log(target, "targettargettarget");
@@ -66,7 +64,7 @@ const temchat = ({ navigation, route }) => {
         .where("participants", "in", [[user.id, target.key], [target.key, user.id]])
         .get()
         .then(querySnapshot => {
-          console.log(querySnapshot.size)
+          // console.log(querySnapshot.size)
           querySnapshot.forEach(documentSnapshot => {
             roomRef = documentSnapshot.id
           })
@@ -87,7 +85,7 @@ const temchat = ({ navigation, route }) => {
     } else {
       setLoadingShare(true)
       // console.log('-----shareCode:' + id);
-      let StartEndTime = selectedHours + "h" + ":" + selectedMinutes + "min"
+      let StartEndTime = ("0" + selectedHours).slice(-2) + "h" + ":" + ("0" + selectedMinutes).slice(-2) + "min"
       // console.log({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime }, "ddddddddddddddddddddd>>>>>>>>>>>>>>>>>>>>>>>>>");
       usersCollection.doc(id).update({
         teamChatNotification: firestore.FieldValue.arrayUnion({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime })
@@ -214,7 +212,7 @@ const temchat = ({ navigation, route }) => {
         case "temporary room":
           setTarget(lastTempNotif);
           setRoomRef(lastTempNotif.roomRef);
-          setDuration(lastTempNotif.duration)
+          setDuration(lastTempNotif.duration);
           setSetup('done');
           break;
       }
@@ -224,12 +222,6 @@ const temchat = ({ navigation, route }) => {
       // }, 50000);
     }
   }, [teamChatContacts])
-
-  const deleteTeamChatNotification1 = (notif) => {
-    usersCollection.doc(user.id).update({
-      teamChatContact: firestore.FieldValue.arrayRemove(notif)
-    })
-  }
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -325,6 +317,13 @@ const temchat = ({ navigation, route }) => {
       setsearchList(filteredDataall)
     }
   }
+
+  useEffect(()=>{
+    let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
+  // console.warn("chatListAll : ", chatListAll);
+  setChatList(chatListAll)
+  }, [])
+
   return (
     <SafeAreaView style={styles.container}>
       {/* <Header gosetting={() => navigation.navigate('changetheme')} 
@@ -371,12 +370,31 @@ const temchat = ({ navigation, route }) => {
               )}
             />
           ) : (
-            <View style={{ flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', }}>
-              <SvgXml
-                xml={loading}
-              // style={{  alignItems: 'center', justifyContent: 'center', }}
-              />
-            </View>
+            <SectionGrid
+              itemDimension={150}
+              sections={[
+                {
+                  data: chatList,
+                },
+              ]}
+              style={styles.gridView}
+              renderItem={({ item, section, index }) => (
+                <Card
+                  number={item.key}
+                  name={item.name}
+                  picture={item.picture}
+                  modal={() => checkTeamChatContacts(item)}
+                  status={item.status}
+
+                />
+              )}
+            />
+            // <View style={{ flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', }}>
+            //   <SvgXml
+            //     xml={loading}
+            //   // style={{  alignItems: 'center', justifyContent: 'center', }}
+            //   />
+            // </View>
 
           )}
         </View>
@@ -473,6 +491,11 @@ const temchat = ({ navigation, route }) => {
                 style={styles.buttondone}
                 onPress={() => submitCode()}>
                 {!loadingSubmit ? <Text style={styles.buttontext}>Submit</Text> : <ActivityIndicator size="small" color="white" />}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.buttondone, { backgroundColor: 'white' }]}
+                onPress={() => setModalVisible2(false)}>
+                {!loadingSubmit ? <Text style={[styles.buttontext, { color: 'black' }]}>Cancel</Text> : <ActivityIndicator size="small" color="white" />}
               </TouchableOpacity>
             </View>
           </View>
@@ -612,7 +635,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'white',
     justifyContent: 'center',
-    alignItems:'center',
+    alignItems: 'center',
   },
   icon: {
     marginRight: 11,
