@@ -31,8 +31,8 @@ const temchat = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
-  const [selectedHours, setSelectedHours] = useState(0);
-  const [selectedMinutes, setSelectedMinutes] = useState(0);
+  const [selectedHours, setSelectedHours] = useState(12);
+  const [selectedMinutes, setSelectedMinutes] = useState(59);
   const [codeReceveid, setCodeReceveid] = useState(false);
   const [setup, setSetup] = useState('in progress');
   const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact } = useContext(AppContext);
@@ -79,13 +79,14 @@ const temchat = ({ navigation, route }) => {
   }
 
   const shareCode = (id, code) => {
-    // console.log("code", code);
+    console.log("selectedHours", selectedMinutes);
+    // return
     if (code == null || code == "") {
       alert("Please enter your code and share.")
     } else {
       setLoadingShare(true)
       // console.log('-----shareCode:' + id);
-      let StartEndTime = ("0" + selectedHours).slice(-2) + "h" + ":" + ("0" + selectedMinutes).slice(-2) + "min"
+      let StartEndTime = selectedHours + "h" + ":" + selectedMinutes + "min"
       // console.log({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime }, "ddddddddddddddddddddd>>>>>>>>>>>>>>>>>>>>>>>>>");
       usersCollection.doc(id).update({
         teamChatNotification: firestore.FieldValue.arrayUnion({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime })
@@ -252,7 +253,7 @@ const temchat = ({ navigation, route }) => {
 
   useEffect(() => {
     if (setup == 'done') {
-      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
+      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.contactId })
       //   const userRef = usersCollection.doc(user.id);
       //   userRef.update({
       //     teamChatContact:

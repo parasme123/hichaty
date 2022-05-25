@@ -60,7 +60,7 @@ const Temporary = ({ navigation, route }) => {
       .onSnapshot(documentSnapshot => {
         if (documentSnapshot.exists) {
           let msgs = documentSnapshot.data();
-          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.id > b.id))
+          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((b, a) => a.id > b.id))
         }
       })
   }
@@ -123,6 +123,19 @@ const Temporary = ({ navigation, route }) => {
   //   let startTime_Secondes = Number(startTime[0]) * 3600 + Number(startTime[1]) * 60 + Number(startTime[2]);
   //   return actualTime_Secondes - startTime_Secondes;
   // }
+
+  const removeTempChatOnTimeUp = () => {
+    const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === remotePeerId);
+    usersCollection.doc(user.id).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
+      groups: firestore.FieldValue.arrayRemove(roomRef)
+    })
+    usersCollection.doc(remotePeerId).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
+      groups: firestore.FieldValue.arrayRemove(roomRef)
+    })
+  }
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -135,10 +148,10 @@ const Temporary = ({ navigation, route }) => {
 
 
 
-    // console.log("yessssss");
     const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === remotePeerId);
-    // console.log(teamChatDetails, "teamChatDetailsteamChatDetails");
+    // console.log("teamChatDetailsteamChatDetails", teamChatContacts);
     if (teamChatDetails.length > 0) {
+      // console.log("yessssss");
       setTeamChatDetails(teamChatDetails[0]);
       let { duration, startTime, contactId } = teamChatDetails[0];
       setcontactId(contactId)
@@ -150,10 +163,7 @@ const Temporary = ({ navigation, route }) => {
 
       if (durationLeft < 0 || durationLeft == undefined || durationLeft == NaN) {
         setModalVisible(true);
-        usersCollection.doc(user.id).update({
-          teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
-          groups: firestore.FieldValue.arrayRemove(roomRef)
-        })
+        removeTempChatOnTimeUp();
         setTimeout(() => navigation.navigate('bottom'), 1000)
       }
       let secondes = durationLeft % 60;
@@ -169,10 +179,7 @@ const Temporary = ({ navigation, route }) => {
       if (hours == NaN || minutes == NaN || secondes == NaN) {
         console.log("all time NAN");
         setModalVisible(true);
-        usersCollection.doc(user.id).update({
-          teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
-          groups: firestore.FieldValue.arrayRemove(roomRef)
-        })
+        removeTempChatOnTimeUp();
         setTimeout(() => navigation.navigate('bottom'), 1000)
       }
 
@@ -220,24 +227,27 @@ const Temporary = ({ navigation, route }) => {
   }
   useEffect(() => {
     const Countdown = () => {
-      // console.log(secondes, minutes, hours, "ll")
+      // console.log(secondes, minutes, hours, "secondes, minutes, hours")
       if (secondes > 0) {
         setSecondes(secondes - 1)
-        perSecondHit()
+        // perSecondHit()
       }
       else if (secondes === 0) {
         if (minutes > 0) {
           setMinutes(minutes - 1);
           setSecondes(59);
+          // perSecondHit()
         } else {
           if (hours > 0) {
             setHours(hours - 1);
             setMinutes(59);
             setSecondes(59)
+            // perSecondHit()
           }
           else {
             setModalVisible(true);
-            setTimesUp(true)
+            setTimesUp(true);
+            removeTempChatOnTimeUp();
             clearTimeout(Countdown, 1000);
             setTimeout(() => navigation.navigate('bottom'), 1000)
           }
@@ -248,7 +258,7 @@ const Temporary = ({ navigation, route }) => {
       setTimeout(Countdown, 1000);
     }
 
-  }, [secondes, minutes, hours])
+  }, [secondes])
 
 
   const perSecondHit = () => {

@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hichaty"
+    android:targetSandboxVersion="2"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="29" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WRITE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- TODO(salakar) Not sure if this should be part of the package manifest or leave to users app manifest code? -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <!-- For browser content -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data android:scheme="https" />
+        </intent> <!-- End of browser content -->
+        <!-- For CustomTabsService -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries> <!-- Required by older versions of Google Play services to create IID tokens -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name="com.hichaty.MainApplication"
+        android:allowBackup="false"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true" >
+        <activity
+            android:name="com.hichaty.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="hichaty" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="500" />
+
+        <!-- ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8577795871405921~9753507726" />
+        <meta-data
+            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
+            android:value="false" />
+
+        <service android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingHeadlessService" />
+        <service
+            android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="io.invertase.firebase.messaging.ReactNativeFirebaseMessagingReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/white" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.hichaty.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <provider
+            android:name="com.imagepicker.ImagePickerProvider"
+            android:authorities="com.hichaty.imagepickerprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/imagepicker_provider_paths" />
+        </provider>
+        <provider
+            android:name="cl.json.RNShareFileProvider"
+            android:authorities="com.hichaty.rnshare.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/share_download_paths" />
+        </provider>
+
+        <activity
+            android:name="com.google.firebase.auth.internal.GenericIdpActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="firebase.auth"
+                    android:path="/"
+                    android:scheme="genericidp" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.google.firebase.auth.internal.RecaptchaActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="firebase.auth"
+                    android:path="/"
+                    android:scheme="recaptcha" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.google.firebase.auth.api.fallback.service.FirebaseAuthFallbackService"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.auth.api.gms.service.START" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.google.firebase.components.ComponentDiscoveryService"
+            android:directBootAware="true"
+            android:exported="false" >
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.auth.FirebaseAuthRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.functions.FunctionsRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.iid.Registrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.storage.StorageRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.database.DatabaseRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+            <meta-data
+                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+                android:value="com.google.firebase.components.ComponentRegistrar" />
+        </service>
+
+        <receiver
+            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </receiver>
+        <!--
+             FirebaseMessagingService performs security checks at runtime,
+             but set to not exported to explicitly avoid allowing another app to call it.
+        -->
+        <service
+            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+            android:directBootAware="true"
+            android:exported="false" >
+            <intent-filter android:priority="-500" >
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            android:exported="false" >
+            <meta-data
+                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+                android:value="cct" />
+        </service>
+
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="com.hichaty.firebaseinitprovider"
+            android:directBootAware="true"
+            android:exported="false"
+            android:initOrder="100" />
+
+        <service
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+
+        <receiver
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+            android:exported="false" />
+
+        <activity
+            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!--
+            Service handling Google Sign-In user revocation. For apps that do not integrate with
+            Google Sign-In, this service will never be started.
+        -->
+        <service
+            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+            android:exported="true"
+            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
+            android:visibleToInstantApps="true" />
+
+        <activity
+            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <receiver
+            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
+
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementJobService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" /> <!-- Include the AdActivity and InAppPurchaseActivity configChanges and themes. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent" />
+
+        <provider
+            android:name="com.google.android.gms.ads.MobileAdsInitProvider"
+            android:authorities="com.hichaty.mobileadsinitprovider"
+            android:exported="false"
+            android:initOrder="100" />
+
+        <service
+            android:name="com.google.android.gms.ads.AdService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="com.hichaty.workmanager-init"
+            android:directBootAware="false"
+            android:exported="false"
+            android:multiprocess="true" />
+
+        <service
+            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+            android:directBootAware="false"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false" />
+        <service
+            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+            android:directBootAware="false"
+            android:enabled="@bool/enable_system_job_service_default"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY" />
+                <action android:name="android.intent.action.BATTERY_LOW" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+            android:directBootAware="false"
+            android:enabled="@bool/enable_system_alarm_service_default"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            android:exported="false" />
+    </application>
+
+</manifest>
