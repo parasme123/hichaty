@@ -17,6 +17,7 @@ import { loading } from '../assets/tabicons';
 import { sync } from '../assets/loginsignupIcons';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Avatar from '../components/avatar';
+import { dateDiff } from '../lib/helpers';
 
 // import { Image } from 'native-base';
 import { SectionGrid } from 'react-native-super-grid';
@@ -315,6 +316,28 @@ const temchat = ({ navigation, route }) => {
     }
   }
 
+  const calculateTimeLeft = (item) => {
+    let startTime = item.teamChatContact[0].startTime;
+    let duration = item.teamChatContact[0].duration;
+    const actualTime = Number(firestore.Timestamp.now().toMillis());
+    let totalTime = dateDiff(startTime, actualTime);
+    let totalDurationHours = duration?.split("h:")[0];
+    let totalDurationMinutes = duration?.split("h:")[1].slice(0, -3);
+    let totalDuration = (totalDurationHours * 60 * 60) + (totalDurationMinutes * 60);
+    let remainingTime = totalDuration - totalTime;
+    let remainingseconds = remainingTime % 60;
+    let remainingMinutes = (remainingTime - remainingseconds) / 60;
+    let remainingHours = (remainingMinutes / 60) < 1 ? 0 : remainingMinutes / 60;
+    console.log("remainingTime : ", remainingTime)
+    if (remainingTime <= 0) {
+      return "0h : 0m";
+    } else if (remainingTime < 60 && remainingTime > 0) {
+      return "0h : 0m" + remainingTime + "s";
+    } else {
+      return remainingHours + "h : " + remainingMinutes % 60 + "m";
+    }
+  }
+
   useEffect(() => {
     let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
     // console.warn("chatListAll : ", chatListAll);
@@ -362,7 +385,6 @@ const temchat = ({ navigation, route }) => {
                   picture={item.picture}
                   modal={() => checkTeamChatContacts(item)}
                   status={item.status}
-
                 />
               )}
             />
@@ -382,6 +404,7 @@ const temchat = ({ navigation, route }) => {
                   picture={item.picture}
                   modal={() => checkTeamChatContacts(item)}
                   status={item.status}
+                  remainingTime={() => calculateTimeLeft(item)}
 
                 />
               )}

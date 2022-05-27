@@ -60,7 +60,7 @@ const Temporary = ({ navigation, route }) => {
       .onSnapshot(documentSnapshot => {
         if (documentSnapshot.exists) {
           let msgs = documentSnapshot.data();
-          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((b, a) => a.id > b.id))
+          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.createdAt < b.createdAt))
         }
       })
   }
