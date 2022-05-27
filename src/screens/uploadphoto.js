@@ -73,7 +73,7 @@ const Uploadphoto = (props) => {
     CameraController.open((response) => {
       console.log(response.path, "response");
       if (response.path) {
-        // setPhoto(response)
+        setPhoto(response)
         setPicture(response.path), setavatar(response.path)
       }
     });
@@ -126,24 +126,27 @@ const Uploadphoto = (props) => {
     changemodel0();
     let photoUri = photo.path;
     const filename = photoUri.substring(photoUri.lastIndexOf('/') + 1);
-    const uploadUri = photoUri;
-    console.log('uploadUri', uploadUri)
-    const task = storage().ref(`Profile-Images/${filename}`).putFile(uploadUri);
-    console.log(task, "task>>>>>>>>>>>>");
-    console.log(task.on(), "task>>>>>>>>>>>>on>>>>>");
-
+    const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+    // console.log('uploadUri', uploadUri)
+    const task = storage()
+      .ref(`Profile-Images/${filename}`)
+      .putFile(uploadUri);
     // set progress state
-    task.on('state_changed', snapshot => {
-      setTransferred(
-        Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
-      );
-    },
+    task.on('state_changed',
+      snapshot => {
+        setTransferred(
+          Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+        );
+      },
       error => {
         setError({ message: 'Something went wrong, please try again ' })
       },
       () => {
-        console.log('ref>>>>>>>', task);
-        task.snapshot.ref.getDownloadURL().then(url => setPicture(url), setavatar(url))
+        console.log('ref', task.snapshot.ref.path);
+        task.snapshot.ref.getDownloadURL().then(url => {
+          setPicture(url);
+          setavatar(url);
+        })
       }
     );
     try {
@@ -151,15 +154,15 @@ const Uploadphoto = (props) => {
     } catch (e) {
       console.error(e);
     }
-    setPicture(`Profile-Images/${filename}`);
-    setavatar(`Profile-Images/${filename}`);
+    // setPicture(`Profile-Images/${filename}`);
+    // setavatar(`Profile-Images/${filename}`);
     setPhoto(null);
     setModalVisible0(false)
   };
 
   useEffect(() => {
 
-    if (photo) {
+    if (photo && photo != null) {
       (async () => await uploadImage(photo))();
     }
     if (error) {
@@ -169,7 +172,7 @@ const Uploadphoto = (props) => {
 
   const onClickDone = () => {
     if (picture) {
-      usersCollection.doc(user.id).update({ name, picture, status })
+      usersCollection.doc(user.id).update({ name, avatar, picture, status })
       setModalVisible1(true);
     } else {
       setError({ message: 'Please add an image' })

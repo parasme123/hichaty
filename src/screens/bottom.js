@@ -28,11 +28,11 @@ export default function Bottom() {
   const { user, users, teamChatNotifications, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
     setTeamChatContacts, setAcceptedRequests, setRooms, setBlockedUsers } = useContext(AppContext);
 
-  useEffect(() => {
-    if (teamChatNotifications.length > 0 && teamChatNotifications[0].type == "code") {
-      console.log("Temchat");
-    }
-  }, [teamChatNotifications])
+  // useEffect(() => {
+  //   if (teamChatNotifications.length > 0 && teamChatNotifications[0].type == "code") {
+  //     console.log("Temchat");
+  //   }
+  // }, [teamChatNotifications])
 
   useEffect(() => {
     if (user) {

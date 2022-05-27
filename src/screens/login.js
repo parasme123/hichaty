@@ -83,6 +83,20 @@ const login = (props) => {
     return subscriber;
   }, [])
 
+  const resendOTP = () => {
+    setSecondes(30)
+    setMinutes(1)
+    auth().signInWithPhoneNumber(mobile)
+      .then(confirmation => {
+        console.log('-----res>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ' + JSON.stringify(confirmation))
+      })
+      .catch(error => {
+        alert(`Sign In With Phone Number Error: ${error.message}`)
+        console.log(error.message, "error.message>>>>>>>>>>>");
+        // setError({ message: `Sign In With Phone Number Error: ${error.message}`})
+      });
+  }
+
   const signInWithPhoneNumber = async () => {
     if (mobile == '' || mobile == null) {
       alert("Enter country code and mobile number.")
@@ -284,6 +298,17 @@ const login = (props) => {
                   console.log(`Code is ${code}`);
                 }}
               />
+              {
+                minutes === 0 && secondes === 0 ? (
+                  <View style={{ marginTop: 10, flexDirection: 'row' }}>
+                    <Text>Not Received ? </Text>
+                    <TouchableOpacity onPress={() => resendOTP()}>
+                      <Text style={{ color: '#53A8CB' }}> Resend</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : null
+              }
+
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <TouchableOpacity
                   style={[styles.buttondone, {

@@ -30,7 +30,7 @@ const roomsCollection = firestore().collection('rooms');
 const temchat = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
-  const [modalVisible2, setModalVisible2] = useState(false);
+  // const [modalVisible2, setModalVisible2] = useState(false);
   const [selectedHours, setSelectedHours] = useState(12);
   const [selectedMinutes, setSelectedMinutes] = useState(59);
   const [codeReceveid, setCodeReceveid] = useState(false);
@@ -38,7 +38,7 @@ const temchat = ({ navigation, route }) => {
   const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact } = useContext(AppContext);
   const [roomRef, setRoomRef] = useState(null)
   const [code, setCode] = useState(null)
-  const [notificationcode, setNotificationcode] = useState("6")
+  // const [notificationcode, setNotificationcode] = useState("6")
   const [target, setTarget] = useState(null);
   const [targetContact, setTargetContact] = useState(null);
   const [desiredChat, setDesiredChat] = useState();
@@ -98,80 +98,73 @@ const temchat = ({ navigation, route }) => {
     }
   }
 
-  const submitCode = async () => {
-    // console.log(submitttCode, "submitttCode>>>>>>>>>>>>>>");
-    // console.log(notificationcode, "notificationcode>>>>>>>>>>>>>>");
+  // Comment by tarachand
 
-    if (submitttCode == null || submitttCode == "") {
-      alert("Enter your code.")
-    } else if (submitttCode != notificationcode) {
-      alert("User password and enter password do not match.")
-    } else {
-      setLoadingSubmit(true)
-      if (target && target.id) {
-        const docRef = await roomsCollection.add({
-          participants: [user.id, target.id],
-          temporary: true,
-          audio: {
-            answer: "",
-            from: "",
-            offer: "",
-            step: "",
-            type: "leave"
-          },
-          video: {
-            answer: "",
-            from: "",
-            offer: "",
-            step: "",
-            type: "leave"
-          }
-        });
-        let batch = firestore().batch();
-        const userRef = usersCollection.doc(user.id);
-        batch.update(userRef, {
-          groups:
-            firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
-          teamChatContact:
-            // firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
-            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  // const submitCode = async () => {
+  //   // console.log(submitttCode, "submitttCode>>>>>>>>>>>>>>");
+  //   // console.log(notificationcode, "notificationcode>>>>>>>>>>>>>>");
 
+  //   if (submitttCode == null || submitttCode == "") {
+  //     alert("Enter your code.")
+  //   } else if (submitttCode != notificationcode) {
+  //     alert("User password and enter password do not match.")
+  //   } else {
+  //     setLoadingSubmit(true)
+  //     if (target && target.id) {
+  //       const docRef = await roomsCollection.add({
+  //         participants: [user.id, target.id],
+  //         temporary: true,
+  //         audio: {
+  //           answer: "",
+  //           from: "",
+  //           offer: "",
+  //           step: "",
+  //           type: "leave"
+  //         },
+  //         video: {
+  //           answer: "",
+  //           from: "",
+  //           offer: "",
+  //           step: "",
+  //           type: "leave"
+  //         }
+  //       });
+  //       let batch = firestore().batch();
+  //       const userRef = usersCollection.doc(user.id);
+  //       batch.update(userRef, {
+  //         groups:
+  //           firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
+  //         teamChatContact:
+  //           // firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
+  //           firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       })
 
-        })
+  //       const targetRef = usersCollection.doc(target.id);
+  //       targetRef.update({
+  //         teamChatContact:
+  //           // firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
+  //           firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       })
 
-        const targetRef = usersCollection.doc(target.id);
-        targetRef.update({
-          teamChatContact:
-            // firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
-            firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       batch.commit()
+  //         .then(() => console.log('submitted successfully ...'))
+  //         .then(() => {
+  //           setLoadingSubmit(false);
+  //           setModalVisible2(false);
+  //           navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
+  //           setClearNotification(true)
+  //         })
+  //     }
 
-        })
-          .then(() => {
+  //   }
 
-          })
-
-        batch.commit()
-          .then(() => console.log('submitted successfully ...'))
-          .then(() => {
-            setLoadingSubmit(false);
-            setModalVisible2(false);
-            navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
-            setClearNotification(true)
-          })
-      }
-
-    }
-
-
-  }
-
-
+  // }
 
   useEffect(() => {
     if (teamChatNotifications.length > 0) {
       // console.log('notifications', teamChatNotifications)
       let lastTempNotif = teamChatNotifications[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
+      // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif,"lastTempNotif>>>>>>>>>>>>>>>>>>>>>>>>>>")
       switch (lastTempNotif.type) {
         case "code":
@@ -205,13 +198,16 @@ const temchat = ({ navigation, route }) => {
   useEffect(() => {
     // console.log('teamChatContacts --------->', teamChatContacts)
     if (teamChatContacts.length > 0) {
-      // console.log('notifications', teamChatContacts)
+      let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1);
+      setChatList(chatListAll);
+
+      let targetOnNotification = userlist.find((data) => teamChatContacts[0].contactId == data.id)
       let lastTempNotif = teamChatContacts[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
+      // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif)
       switch (lastTempNotif.type) {
         case "temporary room":
-          setTarget(lastTempNotif);
+          setTarget(targetOnNotification);
           setRoomRef(lastTempNotif.roomRef);
           setDuration(lastTempNotif.duration);
           setSetup('done');
@@ -245,15 +241,17 @@ const temchat = ({ navigation, route }) => {
     })
   }
 
-  useEffect(() => {
-    if (codeReceveid) {
-      setModalVisible2(true);
-    }
-  }, [codeReceveid])
+  // useEffect(() => {
+  //   if (codeReceveid) {
+  //     setModalVisible2(true);
+  //   }
+  // }, [codeReceveid])
 
   useEffect(() => {
     if (setup == 'done') {
-      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.contactId })
+      console.log("target : ", target);
+
+      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
       //   const userRef = usersCollection.doc(user.id);
       //   userRef.update({
       //     teamChatContact:
@@ -264,14 +262,12 @@ const temchat = ({ navigation, route }) => {
       //     })
       gotoClearChatNotification();
     }
-    if (ClearNotification == true) {
-      gotoClearChatNotification();
-    }
-  }, [setup, ClearNotification])
+  }, [setup])
+
   const gotoClearChatNotification = () => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
+      // setNotificationcode(lastTempNotif.codeConfirmation)
       setTeamChatContacts([]);
       deleteTeamChatNotification(lastTempNotif);
     }
@@ -319,10 +315,10 @@ const temchat = ({ navigation, route }) => {
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
-  // console.warn("chatListAll : ", chatListAll);
-  setChatList(chatListAll)
+    // console.warn("chatListAll : ", chatListAll);
+    setChatList(chatListAll)
   }, [])
 
   return (
@@ -462,7 +458,8 @@ const temchat = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
-        <Modal
+        {/* Comment by tarachand */}
+        {/* <Modal
           animationType={'slide'}
           transparent={true}
           visible={modalVisible2}>
@@ -493,14 +490,9 @@ const temchat = ({ navigation, route }) => {
                 onPress={() => submitCode()}>
                 {!loadingSubmit ? <Text style={styles.buttontext}>Submit</Text> : <ActivityIndicator size="small" color="white" />}
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.buttondone, { backgroundColor: 'white' }]}
-                onPress={() => setModalVisible2(false)}>
-                {!loadingSubmit ? <Text style={[styles.buttontext, { color: 'black' }]}>Cancel</Text> : <ActivityIndicator size="small" color="white" />}
-              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
       </ScrollView>
     </SafeAreaView>
   );

@@ -110,10 +110,10 @@ const Updateaccount = (props) => {
     const uploadImage = async (photo) => {
         setTransferred(0);
         changemodel0();
-        let photoUri = photo.uri;
+        let photoUri = photo.path;
         const filename = photoUri.substring(photoUri.lastIndexOf('/') + 1);
         const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
-        console.log('uploadUri', uploadUri)
+        // console.log('uploadUri', uploadUri)
         const task = storage()
             .ref(`Profile-Images/${filename}`)
             .putFile(uploadUri);
@@ -129,7 +129,10 @@ const Updateaccount = (props) => {
             },
             () => {
                 console.log('ref', task.snapshot.ref.path);
-                task.snapshot.ref.getDownloadURL().then(url => { setPicture(url), setAvatar(url) })
+                task.snapshot.ref.getDownloadURL().then(url => { 
+                    setPicture(url);
+                    setAvatar(url);
+                })
             }
         );
         try {
@@ -137,14 +140,14 @@ const Updateaccount = (props) => {
         } catch (e) {
             console.error(e);
         }
-        setPicture(`Profile-Images/${filename}`);
-        setAvatar(`Profile-Images/${filename}`);
+        // setPicture(`Profile-Images/${filename}`);
+        // setAvatar(`Profile-Images/${filename}`);
         setPhoto(null);
         setModalVisible0(false)
     };
 
     useEffect(() => {
-        if (photo) {
+        if (photo && photo != null) {
             (async () => await uploadImage(photo))();
         }
         if (error) {
@@ -164,12 +167,10 @@ const Updateaccount = (props) => {
 
     const CameraControllerClass = async () => {
         CameraController.open((response) => {
-            console.log(response, "response>>>");
-            console.log(response.path, "response");
-
             if (response.path) {
-                // setPhoto(response)
-                setPicture(response.path), setAvatar(response.path)
+                setPhoto(response);
+                setPicture(response.path);
+                setAvatar(response.path);
             }
         });
 

@@ -14,6 +14,7 @@ import ModalAudioCall from '../components/modalAudioinvitation';
 import ModalChatInvitation from '../components/modalChatInvitation';
 import ModalChatCodeGen from '../components/modalChatCodeGen';
 import ModalChatCodeReceived from '../components/modalChatCodeReceveid';
+import ModalChatRequestAccept from '../components/modalChatRequestAccept';
 import { SectionGrid } from 'react-native-super-grid';
 import Avatar from '../components/avatar';
 import { sync } from '../assets/loginsignupIcons';
@@ -33,8 +34,8 @@ const { width, height } = Dimensions.get('window')
 
 const contact = ({ navigation, route }) => {
   const { user, users, contacts, setModalChatContact, notifications, setNotifications,
-    setModalVideoInvitation, setModalAudioInvitation,
-    myUnreadMessages, redirectToContacts, setRedirectToContacts,
+    setModalVideoInvitation, setModalAudioInvitation, setTeamChatContacts,
+    myUnreadMessages, redirectToContacts, setRedirectToContacts, teamChatContacts, teamChatNotifications
   } = useContext(AppContext)
 
   const [modalChatInvitation, setModalChatInvitation] = useState(false);
@@ -63,7 +64,105 @@ const contact = ({ navigation, route }) => {
   const [searchlist, setsearchList] = useState([])
   const [ContactStatus, setContactStatus] = useState(false);
 
+  // ADD by TARACHAND
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const [submitttCode, setSubmitCode] = useState(null)
+  const [notificationcode, setNotificationcode] = useState("6")
+  const [ClearNotification, setClearNotification] = useState(false)
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [durationset, setDuration] = useState(0)
 
+  useEffect(() => {
+    if (teamChatNotifications.length > 0) {
+      let lastTempNotif = teamChatNotifications[0];
+      setNotificationcode(lastTempNotif.codeConfirmation)
+      switch (lastTempNotif.type) {
+        case "code":
+          setTarget(lastTempNotif);
+          setModalVisible2(true);
+          setDuration(lastTempNotif.duration)
+          break;
+      }
+    }
+  }, [teamChatNotifications])
+
+  useEffect(() => {
+    if (ClearNotification == true) {
+      gotoClearChatNotification();
+    }
+  }, [ClearNotification])
+
+  const gotoClearChatNotification = () => {
+    if (teamChatNotifications.length > 0) {
+      let lastTempNotif = teamChatNotifications[0];
+      // setNotificationcode(lastTempNotif.codeConfirmation)
+      setTeamChatContacts([]);
+      deleteTeamChatNotification(lastTempNotif);
+    }
+  }
+
+  const deleteTeamChatNotification = (notif) => {
+    usersCollection.doc(user.id).update({
+      teamChatNotification: firestore.FieldValue.arrayRemove(notif)
+    })
+  }
+
+  const submitCode = async () => {
+    if (submitttCode == null || submitttCode == "") {
+      alert("Enter your code.")
+    } else if (submitttCode != notificationcode) {
+      alert("User password and enter password do not match.")
+    } else {
+      setLoadingSubmit(true)
+      if (target && target.id) {
+        const docRef = await roomsCollection.add({
+          participants: [user.id, target.id],
+          temporary: true,
+          audio: {
+            answer: "",
+            from: "",
+            offer: "",
+            step: "",
+            type: "leave"
+          },
+          video: {
+            answer: "",
+            from: "",
+            offer: "",
+            step: "",
+            type: "leave"
+          }
+        });
+        let batch = firestore().batch();
+        const userRef = usersCollection.doc(user.id);
+        batch.update(userRef, {
+          groups:
+            firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
+          teamChatContact:
+            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+        })
+
+        const targetRef = usersCollection.doc(target.id);
+        targetRef.update({
+          teamChatContact:
+            firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+        })
+
+        batch.commit()
+          .then(() => console.log('submitted successfully ...'))
+          .then(() => {
+            setLoadingSubmit(false);
+            setModalVisible2(false);
+            navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
+            setClearNotification(true)
+          })
+      }
+
+    }
+
+  }
+
+  // ADD by TARACHAND
 
   const navigateTo = async (routeName, target) => {
     let roomRef;
@@ -375,10 +474,6 @@ const contact = ({ navigation, route }) => {
 
   }
 
-
-
-
-
   const gosetting = () => {
     navigation.navigate('changetheme', { id: user && user.id })
   }
@@ -434,8 +529,6 @@ const contact = ({ navigation, route }) => {
 
     }
   }
-
-
 
   const showKeywordsearch = () => {
     setKeyword(true)
@@ -544,6 +637,11 @@ const contact = ({ navigation, route }) => {
       {targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
       {targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
 
+      {/* Add By TaraChand */}
+
+      {target && <ModalChatRequestAccept target={target} setVisible={setModalVisible2} visible={modalVisible2} submitttCode={submitttCode} setSubmitCode={setSubmitCode} submitCode={submitCode} notificationcode={notificationcode} loadingSubmit={loadingSubmit} />}
+
+      {/* Add By Tarachand */}
     </SafeAreaView>
   );
 };
