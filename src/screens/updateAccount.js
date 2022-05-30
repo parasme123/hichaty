@@ -125,11 +125,11 @@ const Updateaccount = (props) => {
                 );
             },
             error => {
-                setError({ message: "Update account " + error.message })
+                setError({ message: 'Something went wrong, please try again ' })
             },
             () => {
                 console.log('ref', task.snapshot.ref.path);
-                task.snapshot.ref.getDownloadURL().then(url => {
+                task.snapshot.ref.getDownloadURL().then(url => { 
                     setPicture(url);
                     setAvatar(url);
                 })

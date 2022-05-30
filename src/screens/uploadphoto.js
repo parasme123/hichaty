@@ -139,8 +139,7 @@ const Uploadphoto = (props) => {
         );
       },
       error => {
-        // alert("upload photo error : " + error);
-        setError({ message: "Update account " + error.message })
+        setError({ message: 'Something went wrong, please try again ' })
       },
       () => {
         console.log('ref', task.snapshot.ref.path);
