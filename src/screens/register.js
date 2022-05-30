@@ -222,6 +222,7 @@ const register = (props) => {
   };
 
   const submitOtp = async () => {
+    await confirmResult.confirm(code);
     const querySnapshot = await usersCollection.where("mobile", "==", userData.mobile).limit(1).get();
     if (!querySnapshot.empty) {
       querySnapshot.forEach(documentSnapshot => {

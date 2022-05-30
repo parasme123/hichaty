@@ -125,11 +125,11 @@ const Updateaccount = (props) => {
                 );
             },
             error => {
-                setError({ message: 'Something went wrong, please try again ' })
+                setError({ message: "Update account " + error.message })
             },
             () => {
                 console.log('ref', task.snapshot.ref.path);
-                task.snapshot.ref.getDownloadURL().then(url => { 
+                task.snapshot.ref.getDownloadURL().then(url => {
                     setPicture(url);
                     setAvatar(url);
                 })
@@ -237,7 +237,7 @@ const Updateaccount = (props) => {
                         <View style={styles.sectionStyle}>
                             <TextInput
                                 style={styles.inputfield}
-                                placeholder="Life is Hell"
+                                placeholder="Update your Status"
                                 placeholderTextColor="white"
                                 value={status}
                                 onChange={e => setStatus(e.nativeEvent.text)}

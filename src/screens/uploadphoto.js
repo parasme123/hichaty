@@ -139,7 +139,8 @@ const Uploadphoto = (props) => {
         );
       },
       error => {
-        setError({ message: 'Something went wrong, please try again ' })
+        // alert("upload photo error : " + error);
+        setError({ message: "Update account " + error.message })
       },
       () => {
         console.log('ref', task.snapshot.ref.path);
@@ -252,7 +253,7 @@ const Uploadphoto = (props) => {
             <View style={styles.sectionStyle}>
               <TextInput
                 style={styles.inputfield}
-                placeholder="Life is Hell"
+                placeholder="Update your Status"
                 placeholderTextColor="white"
                 value={status}
                 onChange={e => setStatus(e.nativeEvent.text)}

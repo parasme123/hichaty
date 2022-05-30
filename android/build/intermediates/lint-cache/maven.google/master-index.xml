@@ -41,6 +41,7 @@
   <androidx.databinding/>
   <androidx.datastore/>
   <androidx.documentfile/>
+  <androidx.draganddrop/>
   <androidx.drawerlayout/>
   <androidx.dynamicanimation/>
   <androidx.emoji/>
@@ -50,6 +51,7 @@
   <androidx.fragment/>
   <androidx.games/>
   <androidx.gaming/>
+  <androidx.glance/>
   <androidx.gridlayout/>
   <androidx.health/>
   <androidx.heifwriter/>
@@ -64,6 +66,7 @@
   <androidx.media2/>
   <androidx.media3/>
   <androidx.mediarouter/>
+  <androidx.metrics/>
   <androidx.multidex/>
   <androidx.navigation/>
   <androidx.navigation.safeargs/>
@@ -115,14 +118,19 @@
   <com.android.asset-pack/>
   <com.android.asset-pack-bundle/>
   <com.android.billingclient/>
+  <com.android.car.setupwizardlib/>
+  <com.android.car.ui/>
   <com.android.databinding/>
   <com.android.dynamic-feature/>
+  <com.android.fused-library/>
   <com.android.installreferrer/>
+  <com.android.internal.settings/>
   <com.android.java.tools.build/>
   <com.android.library/>
   <com.android.lint/>
   <com.android.ndk.thirdparty/>
   <com.android.reporting/>
+  <com.android.settings/>
   <com.android.support/>
   <com.android.support.constraint/>
   <com.android.support.test/>
@@ -157,6 +165,7 @@
   <com.google.android.ads/>
   <com.google.android.ads.consent/>
   <com.google.android.apps.common.testing.accessibility.framework/>
+  <com.google.android.car.connectionservice/>
   <com.google.android.datatransport/>
   <com.google.android.enterprise.connectedapps/>
   <com.google.android.exoplayer/>
@@ -164,6 +173,7 @@
   <com.google.android.flexbox/>
   <com.google.android.games/>
   <com.google.android.gms/>
+  <com.google.android.gms.strict-version-matcher-plugin/>
   <com.google.android.instantapps/>
   <com.google.android.instantapps.thirdpartycompat/>
   <com.google.android.libraries.car/>
@@ -190,7 +200,11 @@
   <com.google.devtools.ksp/>
   <com.google.fhir/>
   <com.google.firebase/>
+  <com.google.firebase.appdistribution/>
+  <com.google.firebase.crashlytics/>
+  <com.google.firebase.firebase-perf/>
   <com.google.gms/>
+  <com.google.gms.google-services/>
   <com.google.jacquard/>
   <com.google.mediapipe/>
   <com.google.mlkit/>
