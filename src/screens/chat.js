@@ -159,8 +159,8 @@ const Chat = ({ navigation, route }) => {
   }
 
   // useEffect(() => {
-    // console.log('unreadMessages', unreadMessages);
-    // console.log('myUnreadMessages', myUnreadMessages);
+  // console.log('unreadMessages', unreadMessages);
+  // console.log('myUnreadMessages', myUnreadMessages);
   // }, [unreadMessages])
 
   var _menu = null;
@@ -310,11 +310,13 @@ const Chat = ({ navigation, route }) => {
           voicecall={() => navigateTo('voicecall')}
           videocall={() => navigateTo('videocall')}
           remotePic={remotePic}
+          roomRef={roomRef}
+          setMessages={setMessages}
         />
         {user && !!messages && messages.length > 0 ?
           <FlatList
             ref={flatListRef}
-            onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end  
+            // onContentSizeChange={() => setTimeout(() => flatListRef?.current?.scrollToEnd(), 200)} // scroll end  
             // contentContainerStyle={{flex:1}}
             showsVerticalScrollIndicator={false}
             inverted={true}

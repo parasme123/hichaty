@@ -55,7 +55,7 @@ MERGED from [com.google.firebase:firebase-installations:17.0.0] C:\Users\HP\.gra
 MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.0-beta01] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\c8350e971f88a24ab5e73add90ec35a2\jetified-firebase-appcheck-interop-16.0.0-beta01\AndroidManifest.xml:15:1-26:12
 MERGED from [com.google.firebase:firebase-common:20.0.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\e5e46561e2ce60aac49a2817145500b0\jetified-firebase-common-20.0.0\AndroidManifest.xml:15:1-40:12
 MERGED from [com.google.android.datatransport:transport-runtime:3.0.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\f7a06700f9a9fa4c2a6e01ba31f05624\jetified-transport-runtime-3.0.0\AndroidManifest.xml:15:1-41:12
-MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\23d9ab06c091ff6510f99b82d1e64d01\jetified-consent-library-1.0.6\AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\37f0008142ad16f5ff796db23aa88d90\jetified-consent-library-1.0.6\AndroidManifest.xml:2:1-9:12
 MERGED from [com.github.yalantis:ucrop:2.2.6-native] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\5c0ff7915f9b2dee088622e48bbd23c0\jetified-ucrop-2.2.6-native\AndroidManifest.xml:2:1-11:12
 MERGED from [com.google.android.material:material:1.1.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\86c607475b3fb9d87d5be3dfb583e44f\material-1.1.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat:1.1.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\f70fb5faecbe8a25e821a76cbd72ba7f\appcompat-1.1.0\AndroidManifest.xml:17:1-24:12
@@ -599,8 +599,8 @@ MERGED from [com.google.firebase:firebase-common:20.0.0] C:\Users\HP\.gradle\cac
 MERGED from [com.google.firebase:firebase-common:20.0.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\e5e46561e2ce60aac49a2817145500b0\jetified-firebase-common-20.0.0\AndroidManifest.xml:20:5-22:41
 MERGED from [com.google.android.datatransport:transport-runtime:3.0.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\f7a06700f9a9fa4c2a6e01ba31f05624\jetified-transport-runtime-3.0.0\AndroidManifest.xml:18:5-20:41
 MERGED from [com.google.android.datatransport:transport-runtime:3.0.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\f7a06700f9a9fa4c2a6e01ba31f05624\jetified-transport-runtime-3.0.0\AndroidManifest.xml:18:5-20:41
-MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\23d9ab06c091ff6510f99b82d1e64d01\jetified-consent-library-1.0.6\AndroidManifest.xml:5:5-7:41
-MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\23d9ab06c091ff6510f99b82d1e64d01\jetified-consent-library-1.0.6\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\37f0008142ad16f5ff796db23aa88d90\jetified-consent-library-1.0.6\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.android.ads.consent:consent-library:1.0.6] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\37f0008142ad16f5ff796db23aa88d90\jetified-consent-library-1.0.6\AndroidManifest.xml:5:5-7:41
 MERGED from [com.github.yalantis:ucrop:2.2.6-native] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\5c0ff7915f9b2dee088622e48bbd23c0\jetified-ucrop-2.2.6-native\AndroidManifest.xml:7:5-9:41
 MERGED from [com.github.yalantis:ucrop:2.2.6-native] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\5c0ff7915f9b2dee088622e48bbd23c0\jetified-ucrop-2.2.6-native\AndroidManifest.xml:7:5-9:41
 MERGED from [com.google.android.material:material:1.1.0] C:\Users\HP\.gradle\caches\transforms-2\files-2.1\86c607475b3fb9d87d5be3dfb583e44f\material-1.1.0\AndroidManifest.xml:20:5-44

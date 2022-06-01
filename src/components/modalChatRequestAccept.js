@@ -26,7 +26,7 @@ const ModalChatRequestAccept = (props) => {
                     <Text style={styles.modaltext2}>Hello</Text>
                     <Text style={styles.modaltext2}>{user && user.name}</Text>
                     <Text style={styles.modaltext2}>
-                        Please enter pin as shared by {target && target.name} for Tem. Chat. Enjoy
+                        Please enter pin as shared by {target && target.name} for Quiet mode. Enjoy
                         Messenger services on HiChaty
                     </Text>
                     <Text style={styles.codeText}>{notificationcode}</Text>

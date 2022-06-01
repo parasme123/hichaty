@@ -374,7 +374,7 @@ const Temporary = ({ navigation, route }) => {
         {user && !!messages && messages.length > 0 &&
           <FlatList
             ref={flatListRef}
-            onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end  
+            // onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end  
             showsVerticalScrollIndicator={false}
             inverted={true}
             keyboardShouldPersistTaps="handled"

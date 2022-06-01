@@ -210,7 +210,7 @@ export default function Bottom() {
           tabBarLabel: ({ tintColor, focused }) => (
             <View style={[styles.notSelected, focused ? styles.selected : null]}>
               <SvgXml xml={focused ? activetempchat : tempchat} style={styles.icon} />
-              <Text style={focused ? styles.selectedtext : styles.unselectedtext}>Tem. Chat</Text>
+              <Text style={focused ? styles.selectedtext : styles.unselectedtext}>Quiet mode</Text>
             </View>
           ),
         }}

@@ -425,9 +425,9 @@ const temchat = ({ navigation, route }) => {
         >
           <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
             <View style={styles.modal}>
-              <Text style={styles.modalheading}>Welcome to Tem. Chat</Text>
+              <Text style={styles.modalheading}>Welcome to Quiet mode</Text>
               <Text style={styles.modaltext}>
-                Select your duration for Tem. chat
+                Select your duration for Quiet mode
               </Text>
               <Text>{selectedHours}h: {selectedMinutes}min</Text>
               <View style={styles.sectionStyle}>
@@ -491,7 +491,7 @@ const temchat = ({ navigation, route }) => {
               <Text style={styles.modaltext2}>Hello</Text>
               <Text style={styles.modaltext2}>{user && user.name}</Text>
               <Text style={styles.modaltext2}>
-                Please enter pin as shared by {target && target.name} for Tem. Chat. Enjoy
+                Please enter pin as shared by {target && target.name} for Quiet mode. Enjoy
                 Messenger services on HiChaty
               </Text>
               <Text style={styles.codeText}>{notificationcode}</Text>
