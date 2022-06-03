@@ -113,7 +113,8 @@ const contact = ({ navigation, route }) => {
     } else if (submitttCode != notificationcode) {
       alert("User password and enter password do not match.")
     } else {
-      setLoadingSubmit(true)
+      setModalVisible2(false);
+      setLoadingSubmit(true);
       if (target && target.id) {
         const docRef = await roomsCollection.add({
           participants: [user.id, target.id],

@@ -24,7 +24,7 @@ import { SectionGrid } from 'react-native-super-grid';
 import AppContext from '../context/AppContext';
 import ModalChatContact from '../components/modalChatContact';
 import firestore from '@react-native-firebase/firestore';
-
+import { useIsFocused } from '@react-navigation/native';
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
 
@@ -36,7 +36,7 @@ const temchat = ({ navigation, route }) => {
   const [selectedMinutes, setSelectedMinutes] = useState(59);
   const [codeReceveid, setCodeReceveid] = useState(false);
   const [setup, setSetup] = useState('in progress');
-  const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact } = useContext(AppContext);
+  const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact, setTeamChatNotifications } = useContext(AppContext);
   const [roomRef, setRoomRef] = useState(null)
   const [code, setCode] = useState(null)
   // const [notificationcode, setNotificationcode] = useState("6")
@@ -52,8 +52,9 @@ const temchat = ({ navigation, route }) => {
   const [submitttCode, setSubmitCode] = useState(null)
   const [durationset, setDuration] = useState(0)
   const [ClearNotification, setClearNotification] = useState(false)
-  const [chatList, setChatList] = useState([])
-
+  const [chatList, setChatList] = useState([]);
+  const [searchText, setSearchText] = useState("")
+  const isFocused = useIsFocused();
   const checkTeamChatContacts = (target) => {
     // console.log(target, "targettargettarget");
     // console.log('team', teamChatContacts);
@@ -80,7 +81,7 @@ const temchat = ({ navigation, route }) => {
   }
 
   const shareCode = (id, code) => {
-    console.log("selectedHours", selectedMinutes);
+    // console.log("selectedHours", selectedMinutes);
     // return
     if (code == null || code == "") {
       alert("Please enter your code and share.")
@@ -93,6 +94,7 @@ const temchat = ({ navigation, route }) => {
         teamChatNotification: firestore.FieldValue.arrayUnion({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime })
       })
       setTimeout(() => {
+        setSearchText("");
         setLoadingShare(false)
         setModalVisible1(false);
       }, 200);
@@ -197,17 +199,20 @@ const temchat = ({ navigation, route }) => {
   }
 
   useEffect(() => {
-    // console.log('teamChatContacts --------->', teamChatContacts)
     if (teamChatContacts.length > 0) {
-      let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1);
+      let chatListAll = users.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1);
       setChatList(chatListAll);
-
-      let targetOnNotification = userlist.find((data) => teamChatContacts[0].contactId == data.id)
-      let lastTempNotif = teamChatContacts[0];
+      // console.log("userlist", users)
+      let teamChatContactsLatestIndex = teamChatContacts.length - 1;
+      // console.log("Got the last index")
+      let targetOnNotification = users.find((data) => teamChatContacts[teamChatContactsLatestIndex].contactId == data.id)
+      // console.log("filter data targetOnNotification", targetOnNotification)
+      let lastTempNotif = teamChatContacts[teamChatContactsLatestIndex];
       // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif)
       switch (lastTempNotif.type) {
         case "temporary room":
+          // console.log("data from temporary room", lastTempNotif)
           setTarget(targetOnNotification);
           setRoomRef(lastTempNotif.roomRef);
           setDuration(lastTempNotif.duration);
@@ -250,9 +255,12 @@ const temchat = ({ navigation, route }) => {
 
   useEffect(() => {
     if (setup == 'done') {
-      console.log("target : ", target);
-
-      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
+      // if (teamChatContacts.length > 1) {
+      // setSetup("in progress");
+      alert("Request Accepted, You can chat now");
+      // } else {
+      // navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
+      // }
       //   const userRef = usersCollection.doc(user.id);
       //   userRef.update({
       //     teamChatContact:
@@ -301,14 +309,9 @@ const temchat = ({ navigation, route }) => {
 
   }
   const searchString = (text) => {
-    let lowercasedFilter = text.toLowerCase();
-    let trucks = userlist
-    let filteredData = trucks.length > 0 && trucks.filter(function (item) {
-      return item?.name !== undefined
-    });
-    let filteredDataall = filteredData.length > 0 && filteredData.filter(function (item) {
-      return item?.name.includes(text)
-    })
+    setSearchText(text);
+    let trucks = users
+    let filteredDataall = trucks.length > 0 && trucks.filter((item) => item?.name?.toLowerCase()?.includes(text?.toLowerCase()) && item?.name !== undefined)
     if (!text || text == '') {
       setsearchList([])
     } else {
@@ -316,33 +319,53 @@ const temchat = ({ navigation, route }) => {
     }
   }
 
+  const removeTempChatOnTimeUp = (item) => {
+    const chatWith = item.teamChatContact.filter((data) => data.contactId == user.id)
+    const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === item.id);
+    usersCollection.doc(user.id).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
+      groups: firestore.FieldValue.arrayRemove(roomRef)
+    })
+    usersCollection.doc(item.id).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(chatWith[0]),
+      groups: firestore.FieldValue.arrayRemove(roomRef)
+    })
+  }
+
   const calculateTimeLeft = (item) => {
-    let startTime = item.teamChatContact[0].startTime;
-    let duration = item.teamChatContact[0].duration;
-    const actualTime = Number(firestore.Timestamp.now().toMillis());
-    let totalTime = dateDiff(startTime, actualTime);
-    let totalDurationHours = duration?.split("h:")[0];
-    let totalDurationMinutes = duration?.split("h:")[1].slice(0, -3);
-    let totalDuration = (totalDurationHours * 60 * 60) + (totalDurationMinutes * 60);
-    let remainingTime = totalDuration - totalTime;
-    let remainingseconds = remainingTime % 60;
-    let remainingMinutes = (remainingTime - remainingseconds) / 60;
-    let remainingHours = (remainingMinutes / 60) < 1 ? 0 : remainingMinutes / 60;
-    console.log("remainingTime : ", remainingTime)
-    if (remainingTime <= 0) {
-      return "0h : 0m";
-    } else if (remainingTime < 60 && remainingTime > 0) {
-      return "0h : 0m" + remainingTime + "s";
+    // console.log("item.teamChatContact : ", item);
+    let chatWith = item.teamChatContact.filter((data) => data.contactId == user.id);
+    if (chatWith.length > 0) {
+      let startTime = chatWith[0].startTime;
+      let duration = chatWith[0].duration;
+      const actualTime = Number(firestore.Timestamp.now().toMillis());
+      let totalTime = dateDiff(startTime, actualTime);
+      let totalDurationHours = duration?.split("h:")[0];
+      let totalDurationMinutes = duration?.split("h:")[1].slice(0, -3);
+      let totalDuration = (totalDurationHours * 60 * 60) + (totalDurationMinutes * 60);
+      let remainingTime = totalDuration - totalTime;
+      let remainingseconds = remainingTime % 60;
+      let remainingMinutes = (remainingTime - remainingseconds) / 60;
+      let remainingHours = (remainingMinutes / 60) < 1 ? 0 : (remainingMinutes - (remainingMinutes % 60)) / 60;
+      // console.log("remainingTime : ", remainingTime)
+      if (remainingTime <= 0) {
+        removeTempChatOnTimeUp(item);
+        return "0h : 0m";
+      } else if (remainingTime < 60 && remainingTime > 0) {
+        return "0h : 0m : " + remainingTime + "s";
+      } else {
+        return remainingHours + "h : " + remainingMinutes % 60 + "m";
+      }
     } else {
-      return remainingHours + "h : " + remainingMinutes % 60 + "m";
+      return "0h : 0m";
     }
   }
 
   useEffect(() => {
-    let chatListAll = userlist.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
+    let chatListAll = users.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
     // console.warn("chatListAll : ", chatListAll);
     setChatList(chatListAll)
-  }, [])
+  }, [isFocused])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -357,6 +380,7 @@ const temchat = ({ navigation, route }) => {
           <TextInput
             style={styles.input}
             placeholder="Search"
+            value={searchText}
             onChangeText={searchString}
             underlineColorAndroid="transparent"
           />

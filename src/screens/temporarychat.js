@@ -13,7 +13,7 @@ import {
   Modal,
   Keyboard,
   Dimensions,
-  SafeAreaView, Platform
+  SafeAreaView, Platform, Linking
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { more } from '../assets/cardicons';
@@ -28,6 +28,8 @@ const usersCollection = firestore().collection('users');
 const windowWidth = Dimensions.get('screen').width;
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { dateDiff } from '../lib/helpers';
+import CameraController from '../lib/CameraController';
+import storage from '@react-native-firebase/storage';
 
 const Temporary = ({ navigation, route }) => {
 
@@ -37,7 +39,7 @@ const Temporary = ({ navigation, route }) => {
   const { roomRef, remotePeerName, remotePeerId } = route.params;
   const [messages, setMessages] = useState([]);
   const [textMessage, setTextMessage] = useState(null);
-  const { user, teamChatContacts } = useContext(AppContext);
+  const { user, users, teamChatContacts } = useContext(AppContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [teamChatDetails, setTeamChatDetails] = useState(null);
   const [timesUp, setTimesUp] = useState(false);
@@ -48,7 +50,8 @@ const Temporary = ({ navigation, route }) => {
   const flatListRef = useRef();
   const [Keyboardword, setKeyboardword] = useState(false);
   const [shortHeight, setshortHeight] = useState(0);
-
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const changeMapToObject = (key, value) => {
     return { id: key, ...value };
@@ -125,13 +128,16 @@ const Temporary = ({ navigation, route }) => {
   // }
 
   const removeTempChatOnTimeUp = () => {
+    const chatWithData = users.filter(data => data.id == remotePeerId);
+    const currentChatData = chatWithData[0].teamChatContact.filter(data => data.contactId == user.id);
+
     const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === remotePeerId);
     usersCollection.doc(user.id).update({
       teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
       groups: firestore.FieldValue.arrayRemove(roomRef)
     })
     usersCollection.doc(remotePeerId).update({
-      teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
+      teamChatContact: firestore.FieldValue.arrayRemove(currentChatData[0]),
       groups: firestore.FieldValue.arrayRemove(roomRef)
     })
   }
@@ -311,8 +317,6 @@ const Temporary = ({ navigation, route }) => {
     }
   }, [timesUp])
 
-
-
   const postMessage = (emoji) => {
     setEmojyData(false)
     const data = {
@@ -345,6 +349,69 @@ const Temporary = ({ navigation, route }) => {
 
   };
 
+  const gotoattachmentFile = () => {
+    setEmojyData(false)
+    CameraController.attachmentFile((response) => {
+      if (response.path) {
+        (async () => await uploadImage(response))();
+      }
+    });
+  }
+
+  const uploadImage = async (photo) => {
+    let filetype = "";
+    if (photo.mime.includes("image")) {
+      filetype = "imageFirebaseUser"
+    } else {
+      filetype = "FileFirebaseUser"
+    }
+    // let finalImageUrl = roomRef + "-" + filetype + "-" + firestore.Timestamp.now()
+    let photoUri = photo.path;
+    const filename = filetype + "-" + photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+    // console.log('uploadUri', uploadUri)
+    const task = storage()
+      .ref(`Chat-Images/${filename}`)
+      .putFile(uploadUri);
+    // set progress state
+    task.on('state_changed',
+      snapshot => {
+        // setTransferred(
+        //   Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+        // );
+      },
+      error => {
+        console.log('error', error);
+        setError({ message: 'Something went wrong, please try again ' })
+      },
+      () => {
+        console.log('ref', task.snapshot.ref.path);
+        task.snapshot.ref.getDownloadURL().then(url => {
+          console.log('URL', url);
+          setTextMessage(url);
+          postMessage(url);
+        })
+      }
+    );
+    try {
+      await task;
+    } catch (e) {
+      console.error(e);
+    }
+    // setPicture(`Profile-Images/${filename}`);
+    // setAvatar(`Profile-Images/${filename}`);
+    // setPhoto(null);
+    // setModalVisible0(false)
+  }
+
+  const handleOpenLinkInBrowser = (url) => {
+    Linking.openURL(url);
+  }
+
+  const handleOpenLinkInModal = (url) => {
+    setImageUrl(url)
+    setImageModalVisible(true);
+  }
 
   const gotoSendEmojy = () => {
     Keyboard.dismiss()
@@ -361,6 +428,7 @@ const Temporary = ({ navigation, route }) => {
       setEmojyData(false)
     }
   }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
 
@@ -391,12 +459,7 @@ const Temporary = ({ navigation, route }) => {
               let inMessage = item.userId !== user.id;
               let itemStyle = inMessage ? styles.itemIn : styles.itemOut;
               return (
-                <View
-                  style={
-                    inMessage
-                      ? [styles.item, itemStyle]
-                      : [styles.itemright, itemStyle]
-                  }>
+                <View>
                   <View
                     style={
                       inMessage ? styles.nameanddate : styles.nameanddateright
@@ -408,8 +471,33 @@ const Temporary = ({ navigation, route }) => {
                       {/* {item && item.createdAt && item.createdAt.split(' ')[4]} */}
                     </Text>
                   </View>
-                  <View style={[styles.balloon]}>
-                    <Text style={styles.textmessage}>{item.text}</Text>
+                  <View
+                    style={
+                      inMessage
+                        ? [styles.item, itemStyle]
+                        : [styles.itemright, itemStyle]
+                    }>
+                    <View style={[styles.balloon]}>
+                      {/* Add by Tarachand */}
+                      {
+                        item.text?.includes("imageFirebaseUser") ? (
+                          <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)}>
+                            <Image style={{ height: 200, width: 200, resizeMode: "cover" }}
+                              source={{ uri: item.text }} />
+                          </TouchableOpacity>
+                        ) : item.text?.includes("FileFirebaseUser") ? (
+                          <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)}>
+                            <Icon style={{ fontSize: 100, color: 'white' }}
+                              name="download" />
+                          </TouchableOpacity>
+                        ) : (
+                          <Text style={styles.textmessage}>{item.text}</Text>
+                        )
+                      }
+                      {/* Add by Tarachand */}
+
+                      {/* <Text style={styles.textmessage}>{item.text}</Text> */}
+                    </View>
                   </View>
                 </View>
               );
@@ -423,6 +511,37 @@ const Temporary = ({ navigation, route }) => {
           <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
             <View style={styles.modal}>
               <Text style={styles.modalheading}>Time's up</Text>
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          animationType={'slide'}
+          transparent={true}
+          visible={imageModalVisible}
+          onRequestClose={() => setImageModalVisible(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+            <TouchableOpacity onPress={() => setImageModalVisible(false)} style={{ alignSelf: 'flex-end', marginBottom: 20, padding: 5, paddingHorizontal: 20 }}>
+              <Text style={{ color: 'white', fontSize: 30 }}>X</Text>
+            </TouchableOpacity>
+            <View style={{
+              // display: 'flex',
+              // position: 'absolute',
+              flex: 1,
+              padding: 15,
+              // paddingVertical: 10,
+              // backgroundColor: 'white',
+              width: '100%',
+              alignContent: 'center',
+              // marginVertical: 200,
+              borderRadius: 15,
+              paddingTop: 10,
+              // alignSelf: 'center',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Image style={{ height: 400, width: '100%', resizeMode: "cover" }}
+                source={{ uri: imageUrl }} />
             </View>
           </View>
         </Modal>
@@ -456,7 +575,11 @@ const Temporary = ({ navigation, route }) => {
               <Image style={{ height: 20, width: 20, resizeMode: "contain" }}
                 source={require("../assets/emojy.png")} />
             </TouchableOpacity>
-            <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => { gotoattachmentFile() }} style={{ padding: 10, }}>
+              <Image style={{ height: 20, width: 20, resizeMode: "contain" }}
+                source={require("../assets/attachment.png")} />
+            </TouchableOpacity>
+            {/* <View style={{ flexDirection: 'row' }}>
 
               <Menu
                 ref={setMenuRef}
@@ -477,7 +600,7 @@ const Temporary = ({ navigation, route }) => {
                   </MenuItem>
                 </View>
               </Menu>
-            </View>
+            </View> */}
             <TouchableOpacity style={styles.btnSend} onPress={() => textMessage == null ? null : postMessage()}>
               <Text style={styles.send}>Send</Text>
             </TouchableOpacity>
@@ -551,7 +674,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   balloon: {
-    maxWidth: 250,
+    maxWidth: windowWidth - 150,
     paddingBottom: 7,
     paddingHorizontal: 6,
   },
@@ -573,14 +696,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 12,
     marginLeft: 8,
-    color: '#fff',
+    color: '#000',
   },
   name: {
     alignSelf: 'flex-end',
     fontSize: 17,
     marginRight: 4,
     paddingTop: 4,
-    color: '#fff',
+    color: '#000',
   },
   nameleft: {
     alignSelf: 'flex-start',
@@ -624,10 +747,12 @@ const styles = StyleSheet.create({
   nameanddate: {
     display: 'flex',
     flexDirection: 'row',
+    maxWidth: windowWidth - 150
   },
   nameanddateright: {
     display: 'flex',
     flexDirection: 'row-reverse',
+    maxWidth: windowWidth - 150
   },
 
 
