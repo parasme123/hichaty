@@ -32,8 +32,8 @@ const temchat = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
   // const [modalVisible2, setModalVisible2] = useState(false);
-  const [selectedHours, setSelectedHours] = useState(12);
-  const [selectedMinutes, setSelectedMinutes] = useState(59);
+  const [selectedHours, setSelectedHours] = useState(0);
+  const [selectedMinutes, setSelectedMinutes] = useState(0);
   const [codeReceveid, setCodeReceveid] = useState(false);
   const [setup, setSetup] = useState('in progress');
   const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact, setTeamChatNotifications } = useContext(AppContext);
@@ -256,7 +256,7 @@ const temchat = ({ navigation, route }) => {
   useEffect(() => {
     if (setup == 'done') {
       // if (teamChatContacts.length > 1) {
-      // setSetup("in progress");
+      setSetup("in progress");
       alert("Request Accepted, You can chat now");
       // } else {
       // navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
@@ -284,10 +284,16 @@ const temchat = ({ navigation, route }) => {
 
 
   const changemodel1 = () => {
+    let error = true;
+    if(selectedHours > 0){
+      error = false;
+    }else if(selectedMinutes >= 30){
+      error = false
+    }
     // console.log(selectedHours, "selectedHours");
     // console.log(selectedMinutes, "selectedMinutes");
-    if (selectedHours == "undefined" || selectedHours == 0 || selectedMinutes == "undefined" || selectedMinutes.length == 0) {
-      alert("Please select time...")
+    if (error) {
+      alert("Please select minimum 30 minutes...")
     } else {
       setLoadingGenerate(true);
       setModalVisible(false);

@@ -174,7 +174,7 @@ const Permissions = ({ navigation }) => {
                     <Text style={styles.text}> Camera</Text>
                 </View>
                 <CheckBox
-                    tintColors={"white", "white"}
+                    tintColors={"white"}
                     style={styles.checkbox}
                     disabled={false}
                     value={toggleCheckBox["Camera"]}
@@ -191,7 +191,7 @@ const Permissions = ({ navigation }) => {
                     <Text style={styles.text}> Microphone </Text>
                 </View>
                 <CheckBox
-                    tintColors={"white", "white"}
+                    tintColors={"white"}
                     disabled={false}
                     style={styles.checkbox}
                     value={toggleCheckBox["Audio"]}

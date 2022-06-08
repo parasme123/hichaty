@@ -41,6 +41,8 @@ import io.invertase.firebase.storage.ReactNativeFirebaseStoragePackage;
 import com.reactnativecommunity.picker.RNCPickerPackage;
 // react-native-contacts
 import com.rt2zz.reactnativecontacts.ReactNativeContacts;
+// react-native-document-picker
+import com.reactnativedocumentpicker.DocumentPickerPackage;
 // react-native-gesture-handler
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 // react-native-image-crop-picker
@@ -65,6 +67,8 @@ import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 // react-native-webrtc
 import com.oney.WebRTCModule.WebRTCModulePackage;
+// rn-fetch-blob
+import com.RNFetchBlob.RNFetchBlobPackage;
 
 public class PackageList {
   private Application application;
@@ -125,6 +129,7 @@ public class PackageList {
       new ReactNativeFirebaseStoragePackage(),
       new RNCPickerPackage(),
       new ReactNativeContacts(),
+      new DocumentPickerPackage(),
       new RNGestureHandlerPackage(),
       new PickerPackage(),
       new ImagePickerPackage(),
@@ -136,7 +141,8 @@ public class PackageList {
       new RNSoundPlayerPackage(),
       new SvgPackage(),
       new VectorIconsPackage(),
-      new WebRTCModulePackage()
+      new WebRTCModulePackage(),
+      new RNFetchBlobPackage()
     ));
   }
 }

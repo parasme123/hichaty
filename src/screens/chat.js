@@ -251,6 +251,7 @@ const Chat = ({ navigation, route }) => {
   const gotoattachmentFile = () => {
     setEmojyData(false)
     CameraController.attachmentFile((response) => {
+      console.log("file response : ", response);
       if (response.path) {
         (async () => await uploadImage(response))();
       }

@@ -30,6 +30,7 @@ import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { dateDiff } from '../lib/helpers';
 import CameraController from '../lib/CameraController';
 import storage from '@react-native-firebase/storage';
+import { Icon } from 'native-base';
 
 const Temporary = ({ navigation, route }) => {
 
@@ -352,6 +353,7 @@ const Temporary = ({ navigation, route }) => {
   const gotoattachmentFile = () => {
     setEmojyData(false)
     CameraController.attachmentFile((response) => {
+      console.log("file upload response : ", response)
       if (response.path) {
         (async () => await uploadImage(response))();
       }
@@ -369,7 +371,7 @@ const Temporary = ({ navigation, route }) => {
     let photoUri = photo.path;
     const filename = filetype + "-" + photoUri.substring(photoUri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
-    // console.log('uploadUri', uploadUri)
+    console.log('uploadUri', uploadUri)
     const task = storage()
       .ref(`Chat-Images/${filename}`)
       .putFile(uploadUri);
@@ -434,7 +436,7 @@ const Temporary = ({ navigation, route }) => {
 
       <View style={styles.container}>
         <Header
-          comment="Temporary Chat"
+          comment="Quite Mode"
           typetime="timer"
           timeLeft={{ secondes, minutes, hours }}
           back={() => navigation.goBack()}
@@ -709,7 +711,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 17,
     marginLeft: 4,
-    color: '#fff',
+    color: '#000',
   },
   item: {
     marginVertical: 14,
@@ -745,14 +747,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   nameanddate: {
-    display: 'flex',
+    // display: 'flex',
     flexDirection: 'row',
-    maxWidth: windowWidth - 150
+    alignSelf:'flex-start',
+    maxWidth: windowWidth - 150,
   },
   nameanddateright: {
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    maxWidth: windowWidth - 150
+    flexDirection:'row',
+    alignSelf:'flex-end',
+    maxWidth: windowWidth - 150,
   },
 
 

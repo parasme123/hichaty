@@ -13,11 +13,13 @@ function Headermain(props) {
 
   return (
     <View style={styles.container}>
+      <View style={{flexDirection:'row', alignItems:'center'}}>
       <TouchableOpacity onPress={props.back} >
       <SvgXml xml={back} color="#53A8CB" />
       </TouchableOpacity>
     
       <Text style={styles.hi}>{props.comment}</Text>
+      </View>
       <View>
         {props.typetime === 'timer' ? (
           <View style={styles.time}>
@@ -36,6 +38,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: '100%',
     alignItems: 'center',
+    justifyContent:'space-between',
     alignSelf: 'center',
     paddingHorizontal: 3,
     paddingLeft: 5

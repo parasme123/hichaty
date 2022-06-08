@@ -36,6 +36,7 @@
   <androidx.contentpager/>
   <androidx.coordinatorlayout/>
   <androidx.core/>
+  <androidx.core.uwb/>
   <androidx.cursoradapter/>
   <androidx.customview/>
   <androidx.databinding/>
