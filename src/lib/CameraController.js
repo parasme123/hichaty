@@ -8,26 +8,26 @@ export default class CameraController {
     static async open(cb, iscrop) {
         Helper.cameraAlert("Select image from...", "Camera", "Gallery", "Cancel", (statusCamera) => {
             if (statusCamera) {
-                CameraController.checkPremission(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.IOS.CAMERA, cb, "Camera", iscrop);
+                CameraController.checkPremission(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.IOS.CAMERA, cb, "Camera", iscrop, 'image');
             }
         }, (statusGallery) => {
             if (statusGallery) {
-                CameraController.checkPremission(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE, PERMISSIONS.IOS.PHOTO_LIBRARY, cb, "Gallery", iscrop);
+                CameraController.checkPremission(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE, PERMISSIONS.IOS.PHOTO_LIBRARY, cb, "Gallery", iscrop, 'image');
             }
         })
     }
     static async attachmentFile(cb, iscrop) {
         Helper.attachmentFileAlert("Select attachment file from...", "Camera", "Gallery", "Cancel", (statusCamera) => {
             if (statusCamera) {
-                CameraController.checkPremission(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.IOS.CAMERA, cb, "Camera", iscrop);
+                CameraController.checkPremission(PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.IOS.CAMERA, cb, "Camera", iscrop, "allFiles");
             }
         }, (statusGallery) => {
             if (statusGallery) {
-                CameraController.checkPremission(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE, PERMISSIONS.IOS.PHOTO_LIBRARY, cb, "Gallery", iscrop);
+                CameraController.checkPremission(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE, PERMISSIONS.IOS.PHOTO_LIBRARY, cb, "Gallery", iscrop, "allFiles");
             }
         })
     }
-    static checkPremission = async (androidType, iosType, cb, launchType, iscrop) => {
+    static checkPremission = async (androidType, iosType, cb, launchType, iscrop, fileOpen) => {
         await check(Platform.select({
             android: androidType,
             ios: iosType
@@ -35,7 +35,7 @@ export default class CameraController {
             // console.log(result,"result>>>>>>>>>>");
             if (result === "granted") {
                 // console.log('already allow the location');
-                this.selecteImage(cb, launchType, iscrop);
+                this.selecteImage(cb, launchType, iscrop, fileOpen);
                 return;
             }
             if (result === "blocked" || result === "unavailable") {
@@ -58,7 +58,7 @@ export default class CameraController {
                 // console.log(status,"status");
                 if (status === "granted") {
                     // console.log('You can use the location');
-                    this.selecteImage(cb, launchType, iscrop);
+                    this.selecteImage(cb, launchType, iscrop, fileOpen);
                 } else {
                     // console.log('location permission denied');
                     openSettings().catch(() => {
@@ -91,7 +91,7 @@ export default class CameraController {
         }
     }
 
-    static async selecteImage(cb, launchType, iscrop) {
+    static async selecteImage(cb, launchType, iscrop, fileOpen) {
         const permissionGranted = this.requestStoragePermission();
         if (!permissionGranted) {
             console.log("not granted");
@@ -118,7 +118,7 @@ export default class CameraController {
                 });
             }
         } else {
-            if (iscrop) {
+            if (fileOpen == "allFiles") {
                 try {
                     const response = await DocumentPicker.pickSingle({
                         presentationStyle: 'fullScreen',
@@ -147,50 +147,26 @@ export default class CameraController {
                 } catch (err) {
                     console.log(err);
                 }
-                // ImageCropPicker.openPicker({
-                //     width: 400,
-                //     height: 400,
-                //     cropping: true,
-                //     mediaType: "any"
-                // }).then(image => {
-                //     console.log("file upload response : ", image);
-                //     cb(image);
-                // });
             } else {
-                try {
-                    const response = await DocumentPicker.pickSingle({
-                        presentationStyle: 'fullScreen',
-                        type: [types.allFiles],
+                if (iscrop) {
+                    ImageCropPicker.openPicker({
+                        width: 400,
+                        height: 400,
+                        cropping: true,
+                        mediaType: "any"
+                    }).then(image => {
+                        console.log("file upload response : ", image);
+                        cb(image);
                     });
-                    console.log("response.uri : ", response.uri);
-                    if (Platform.OS === "android") {
-                        RNFetchBlob.fs.stat(response.uri)
-                            .then((stats) => {
-                                cb({
-                                    ...response,
-                                    path: `file://${stats.path}`,
-                                    mime: response.type
-                                });
-                            })
-                            .catch((err) => { console.log("stats error", err) })
-                    } else {
-                        cb({
-                            ...response,
-                            path: response.uri,
-                            mime: response.type
-                        });
-                    }
-
-                } catch (err) {
-                    console.log(err);
+                } else {
+                    ImageCropPicker.openPicker({
+                        cropping: true,
+                        mediaType: "any"
+                    }).then(image => {
+                        console.log("file upload response : ", image);
+                        cb(image);
+                    });
                 }
-                // ImageCropPicker.openPicker({
-                //     cropping: true,
-                //     mediaType: "any"
-                // }).then(image => {
-                //     console.log("file upload response : ", image);
-                //     cb(image);
-                // });
             }
         }
     }
