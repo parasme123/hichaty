@@ -353,12 +353,21 @@ const Temporary = ({ navigation, route }) => {
   const gotoattachmentFile = () => {
     setEmojyData(false)
     CameraController.attachmentFile((response) => {
-      console.log("file upload response : ", response)
       if (response.path) {
         (async () => await uploadImage(response))();
       }
     });
   }
+
+  const gotoattachmentImages = () => {
+    setEmojyData(false)
+    CameraController.open((response) => {
+      if (response.path) {
+        (async () => await uploadImage(response))();
+      }
+    });
+  }
+
 
   const uploadImage = async (photo) => {
     let filetype = "";
@@ -577,12 +586,11 @@ const Temporary = ({ navigation, route }) => {
               <Image style={{ height: 20, width: 20, resizeMode: "contain" }}
                 source={require("../assets/emojy.png")} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { gotoattachmentFile() }} style={{ padding: 10, }}>
+            {/* <TouchableOpacity onPress={() => { gotoattachmentFile() }} style={{ padding: 10, }}>
               <Image style={{ height: 20, width: 20, resizeMode: "contain" }}
                 source={require("../assets/attachment.png")} />
-            </TouchableOpacity>
-            {/* <View style={{ flexDirection: 'row' }}>
-
+            </TouchableOpacity> */}
+            <View style={{ flexDirection: 'row' }}>
               <Menu
                 ref={setMenuRef}
                 style={{ borderRadius: 15 }}
@@ -594,15 +602,15 @@ const Temporary = ({ navigation, route }) => {
                 <View style={{ borderRadius: 12 }}>
                   <MenuItem onPress={hideMenu} style={{ borderRadius: 12 }}>
                     <View style={styles.ictext}>
-                      <SvgXml xml={camera} />
-                      <SvgXml xml={gallery} />
-                      <SvgXml xml={document} />
-                      <SvgXml xml={contactuser} />
+                      {/* <SvgXml xml={camera} /> */}
+                      <SvgXml xml={gallery} onPress={() => { gotoattachmentImages() }} />
+                      <SvgXml xml={document} onPress={() => { gotoattachmentFile() }} />
+                      {/* <SvgXml xml={contactuser} /> */}
                     </View>
                   </MenuItem>
                 </View>
               </Menu>
-            </View> */}
+            </View>
             <TouchableOpacity style={styles.btnSend} onPress={() => textMessage == null ? null : postMessage()}>
               <Text style={styles.send}>Send</Text>
             </TouchableOpacity>
