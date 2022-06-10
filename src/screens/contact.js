@@ -33,7 +33,7 @@ let fcmUnsubscribe = null;
 const { width, height } = Dimensions.get('window')
 
 const contact = ({ navigation, route }) => {
-  const { user, users, contacts, setModalChatContact, notifications, setNotifications,
+  const { comeFromNotification, user, users, contacts, setModalChatContact, notifications, setNotifications,
     setModalVideoInvitation, setModalAudioInvitation, setTeamChatContacts,
     myUnreadMessages, redirectToContacts, setRedirectToContacts, teamChatContacts, teamChatNotifications
   } = useContext(AppContext)
@@ -295,60 +295,29 @@ const contact = ({ navigation, route }) => {
   useEffect(() => {
     fcmUnsubscribe = messaging().onMessage(async (remoteMessage) => {
       processNotifation("On Message", remoteMessage, true);
-      // var val = remoteMessage.data.senderId;
-      // let data = remoteMessage.data;
-      // let type = data.msgType;
-      // switch (type) {
-      //   case "new invitation":
-      //     if (user.id !== data.senderId) {
-      //       setTarget({ id: data.senderId, name: data.senderName });
-      //       setDesiredChat(data.desiredChat);
-      //       setModalChatContact(true);
-      //     } else {
-      //       console.log("new invitation_second>>>>>>>>>>>>>>>>>>>>>");
-      //     }
-      //     break;
-      //   case "invitation accepted":
-      //     if (user.id !== data.senderId && data.roomRef == "NotConfirmRequest") {
-      //       setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
-      //       setDesiredChat(data.desiredChat);
-      //       setRoomRef(data.roomRef);
-      //       setCode(data.code);
-      //       setModalChatCodeReceived(true);
-
-      //     }
-      //     else if (user.id !== data.senderId && data.roomRef != "NotConfirmRequest") {
-      //       setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
-      //       setDesiredChat(data.desiredChat);
-      //       setRoomRef(data.roomRef);
-      //       navigation.navigate(data.desiredChat, { roomRef: data.roomRef, remotePeerName: data.senderName, remotePeerId: data.senderId, remotePic: data.senderPicture, type: 'caller' })
-
-      //     }
-
-      //     break;
-      // }
     })
-
+    if (comeFromNotification != null) {
+      processNotifation(comeFromNotification.state, comeFromNotification.remoteMessage, comeFromNotification.fromBackground);
+    }
     return fcmUnsubscribe;
   }, [])
 
 
-  // useEffect(() => {
-  //   messaging().onNotificationOpenedApp(remoteMessage => {
-  //     console.log("background state notification on contact screen", remoteMessage.data)
-  //     processNotifation("background state", remoteMessage, true);
-  //   })
+  useEffect(() => {
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log("background state notification on contact screen", remoteMessage.data)
+      processNotifation("background state", remoteMessage, true);
+    })
 
-  //   messaging()
-  //     .getInitialNotification()
-  //     .then(remoteMessage => {
-  //       if (remoteMessage) {
-  //         console.log("Quit state notification on contact screen", remoteMessage.data)
-  //         processNotifation("quit state", remoteMessage, true);
-  //       }
-  //     })
+    messaging().getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log("Quit state notification on contact screen", remoteMessage.data)
+          processNotifation("quit state", remoteMessage, true);
+        }
+      })
 
-  // })
+  })
 
   // if not, so he was in another screen and we redirected him , we'll check that 
   // with the redirectToScreens page :

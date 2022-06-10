@@ -81,6 +81,7 @@ const App = () => {
   const [initialRouteName, setInitialRouteName] = useState(null);
   const [initialParams, setInitialParams] = useState({});
   const [blockedUsers, setBlockedUsers] = useState([]);
+  const [comeFromNotification, setComeFromNotification] = useState(null)
 
   /*
    This variable serves the purpose of redirecting the user to contatcs screen
@@ -227,7 +228,7 @@ const App = () => {
   }
 
   const processNotifation = (state, remoteMessage, fromBackground) => {
-
+    setComeFromNotification({state, remoteMessage, fromBackground});
     if (remoteMessage) {
       if (fromBackground && remoteMessage.data.msgType) {
         switch (remoteMessage.data.msgType) {
@@ -273,7 +274,7 @@ const App = () => {
   return (
     <AppContext.Provider
       value={{
-        user, permissions, users, notifications, modalVideoInvitation, teamChatNotifications,
+        comeFromNotification, user, permissions, users, notifications, modalVideoInvitation, teamChatNotifications,
         teamChatContacts, acceptedRequests, modalChatContact, uri, modalAudioInvitation, rooms,
         colour, redirectToContacts, blockedUsers, history, myUnreadMessages, contacts,
         setRedirectToContacts, setMyUnreadMessages, setColour, setHistory, setBlockedUsers,
