@@ -228,15 +228,22 @@ const App = () => {
   }
 
   const processNotifation = (state, remoteMessage, fromBackground) => {
-    setComeFromNotification({state, remoteMessage, fromBackground});
+    setComeFromNotification({ state, remoteMessage, fromBackground });
     if (remoteMessage) {
       if (fromBackground && remoteMessage.data.msgType) {
         switch (remoteMessage.data.msgType) {
           case "chat":
+          case "temporary":
             forwardToChat(state, remoteMessage.data.msgType, {
               roomRef: remoteMessage.data.roomRef,
               remotePeerName: remoteMessage.data.senderName,
-              remotePeerId: remoteMessage.data.senderId
+              remotePeerId: remoteMessage.data.senderId,
+              msgType: remoteMessage.data.msgType
+            })
+            return;
+          case "Temchat":
+            forwardToChat(state, "bottom", {
+              initialParams: remoteMessage.data.msgType
             })
             return;
         }
@@ -314,7 +321,7 @@ const App = () => {
           <Stack.Screen name="contactus" component={Contactus} />
           <Stack.Screen name="terms" component={Terms} />
           <Stack.Screen name="about" component={About} />
-          <Stack.Screen name="temporary" component={Temporary} />
+          <Stack.Screen name="temporary" component={Temporary} initialParams={initialParams} />
           <Stack.Screen name="chat" component={Chat} initialParams={initialParams} />
           <Stack.Screen name="voicecall" component={Voicecall} />
           <Stack.Screen name="videocall" component={Videocall} />
@@ -329,7 +336,7 @@ const App = () => {
           <Stack.Screen name="acceptgroupcall" component={Acceptgroupcall} />
           <Stack.Screen name="acceptvideocall" component={AcceptVideocall} initialParams={initialParams} />
           <Stack.Screen name="acceptvoicecall" component={AcceptVoicecall} initialParams={initialParams} />
-          <Stack.Screen name="bottom" component={Bottom} />
+          <Stack.Screen name="bottom" component={Bottom} initialParams={initialParams} />
           <Stack.Screen name="updateaccount" component={Updateaccount} />
           <Stack.Screen name="uploadphoto" component={Uploadphoto} />
           <Stack.Screen name="blockedcontacts" component={BlockedContacts} />

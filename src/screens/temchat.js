@@ -24,6 +24,7 @@ import { SectionGrid } from 'react-native-super-grid';
 import AppContext from '../context/AppContext';
 import ModalChatContact from '../components/modalChatContact';
 import firestore from '@react-native-firebase/firestore';
+import { firebase } from '@react-native-firebase/functions';
 import { useIsFocused } from '@react-navigation/native';
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
@@ -84,7 +85,7 @@ const temchat = ({ navigation, route }) => {
     // console.log("selectedHours", selectedMinutes);
     // return
     if (code == null || code == "") {
-      alert("Please enter your code and share.")
+      alert("Please enter your code and share.") 
     } else {
       setLoadingShare(true)
       // console.log('-----shareCode:' + id);
@@ -93,6 +94,14 @@ const temchat = ({ navigation, route }) => {
       usersCollection.doc(id).update({
         teamChatNotification: firestore.FieldValue.arrayUnion({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime })
       })
+      firebase.functions().httpsCallable('onNewQuiteInvitation')({
+        senderId: user.id,
+        senderName: user.name,
+        receiverId: id,
+        desiredChat: "Contacts",
+        code  
+      }) 
+  
       setTimeout(() => {
         setSearchText("");
         setLoadingShare(false)

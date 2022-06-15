@@ -123,9 +123,8 @@ export default class CameraController {
                     const response = await DocumentPicker.pickSingle({
                         presentationStyle: 'fullScreen',
                         type: [types.allFiles],
-                        allowMultiSelection: false
                     });
-                    console.log("response.uri : ", response.uri);
+                    console.log("file upload response : ", response)
                     if (Platform.OS === "android") {
                         RNFetchBlob.fs.stat(response.uri)
                             .then((stats) => {

@@ -23,6 +23,7 @@ import AppContext from '../context/AppContext';
 
 import Header from '../components/headerback';
 import firestore from '@react-native-firebase/firestore';
+import { firebase } from '@react-native-firebase/functions';
 const messagesCollection = firestore().collection('messages');
 const usersCollection = firestore().collection('users');
 const windowWidth = Dimensions.get('screen').width;
@@ -318,7 +319,8 @@ const Temporary = ({ navigation, route }) => {
     }
   }, [timesUp])
 
-  const postMessage = (emoji) => {
+  const postMessage = (emoji, fileName = "") => {
+    let messagetext = emoji ? emoji : textMessage;
     setEmojyData(false)
     const data = {
       [`message ${messages.length + 1} `]:
@@ -326,11 +328,20 @@ const Temporary = ({ navigation, route }) => {
         createdAt: firestore.Timestamp.now(),
         read: true,
         room: roomRef,
-        text: emoji ? emoji : textMessage,
+        text: messagetext,
         userId: user.id
       }
     }
     messagesCollection.doc(roomRef).set(data, { merge: true });
+    firebase.functions().httpsCallable('onNewQuiteMessage')({
+      senderId: user.id,
+      senderName: user.name,
+      receiverId: remotePeerId,
+      message: fileName != "" ? fileName : messagetext,
+      roomRef: roomRef,
+
+    })
+
     setTextMessage(null);
   }
 
@@ -378,7 +389,8 @@ const Temporary = ({ navigation, route }) => {
     }
     // let finalImageUrl = roomRef + "-" + filetype + "-" + firestore.Timestamp.now()
     let photoUri = photo.path;
-    const filename = filetype + "-" + photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    let realFileName = photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    const filename = filetype + "-" + realFileName;
     const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
     console.log('uploadUri', uploadUri)
     const task = storage()
@@ -400,7 +412,7 @@ const Temporary = ({ navigation, route }) => {
         task.snapshot.ref.getDownloadURL().then(url => {
           console.log('URL', url);
           setTextMessage(url);
-          postMessage(url);
+          postMessage(url, realFileName);
         })
       }
     );

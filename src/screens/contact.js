@@ -149,6 +149,14 @@ const contact = ({ navigation, route }) => {
             firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
         })
 
+        firebase.functions().httpsCallable('onNewQuiteResponse')({
+          senderId: user.id,
+          senderName: user.name,
+          receiverId: target.id,
+          desiredChat: "Temchat",
+          roomRef: docRef.id
+        }) 
+  
         batch.commit()
           .then(() => console.log('submitted successfully ...'))
           .then(() => {
@@ -169,6 +177,7 @@ const contact = ({ navigation, route }) => {
     let roomRef;
     let groupsOfRemotePeer = target.groups;
     let sharedGroups = user.groups.filter(group => groupsOfRemotePeer.includes(group));
+    console.log("sharedGroups : ", user.groups, target.groups);
     if (sharedGroups.length == 1) {
       roomRef = sharedGroups[0].split('/')[2];
     }

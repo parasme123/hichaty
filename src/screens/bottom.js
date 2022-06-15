@@ -23,7 +23,7 @@ const messageCollection = firestore().collection('messages');
 
 const Tab = createBottomTabNavigator();
 
-export default function Bottom() {
+export default function Bottom({ route }) {
   const [loading, setLoading] = useState(false);
   const { user, users, teamChatNotifications, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
     setTeamChatContacts, setAcceptedRequests, setRooms, setBlockedUsers } = useContext(AppContext);
@@ -167,6 +167,7 @@ export default function Bottom() {
           // marginBottom: 5
         },
       }}
+      initialRouteName={route?.params?.initialParams == "Temchat" ? route.params.initialParams : "Contacts" }
     >
       <Tab.Screen
         name="Contacts"

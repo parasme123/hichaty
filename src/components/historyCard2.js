@@ -116,7 +116,6 @@ const Cardset = (props) => {
   return (
     <View>
       {props.name ? <View style={styles.card}>
-        <View style={props.online ? styles.isOnline : styles.isOffline} />
         <TouchableOpacity
           activeOpacity={1}
           style={{ flex: 1 }}
@@ -138,6 +137,8 @@ const Cardset = (props) => {
               ) : null}
               <View style={styles.opacity}>
                 {/* <View></View> */}
+                <View style={props.online ? styles.isOnline : styles.isOffline} />
+
                 <Text numberOfLines={1} style={styles.heading} onPress={props.block ? null : props.blockuser}>{props.name}</Text>
                 <Text numberOfLines={1} style={styles.subtext}>{props.status}</Text>
               </View>
@@ -251,25 +252,25 @@ const styles = StyleSheet.create({
     marginVertical: -2,
   },
   isOnline: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     zIndex: 1,
     backgroundColor: 'green',
     position: 'absolute',
-    top: 0,
-    right: -2,
+    top: 7,
+    left: '5%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'white'
   },
   isOffline: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     zIndex: 1,
     backgroundColor: 'gray',
     position: 'absolute',
-    top: 0,
-    right: -2,
+    top: 7,
+    left: '5%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'white'

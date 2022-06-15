@@ -112,10 +112,10 @@ const Chat = ({ navigation, route }) => {
     }, [unreadMessages])
   )
 
-  const postMessage = (emoji) => {
+  const postMessage = (emoji, fileName = "") => {
     let messagetext = emoji ? emoji : textMessage
-    console.log(messagetext);
-    setEmojyData(false)
+    // console.log(messagetext);
+    setEmojyData(false);
     const data = {
       [`message ${messages.length + 1}`]:
       {
@@ -123,7 +123,8 @@ const Chat = ({ navigation, route }) => {
         read: false,
         room: roomRef,
         text: messagetext,
-        userId: user.id
+        userId: user.id,
+        fileName
       }
     }
     messagesCollection.doc(roomRef).set(data, { merge: true });
@@ -138,7 +139,7 @@ const Chat = ({ navigation, route }) => {
       senderId: user.id,
       senderName: user.name,
       receiverId: remotePeerId,
-      message: messagetext,
+      message: fileName != "" ? fileName : messagetext,
       roomRef: roomRef,
 
     })
@@ -250,6 +251,7 @@ const Chat = ({ navigation, route }) => {
   // console.log(JSON.stringify(navigation.canGoBack()), "remotePic");
   const gotoattachmentFile = () => {
     setEmojyData(false)
+    _menu.hide();
     CameraController.attachmentFile((response) => {
       if (response.path) {
         (async () => await uploadImage(response))();
@@ -259,6 +261,7 @@ const Chat = ({ navigation, route }) => {
 
   const gotoattachmentImages = () => {
     setEmojyData(false)
+    _menu.hide();
     CameraController.open((response) => {
       if (response.path) {
         (async () => await uploadImage(response))();
@@ -275,7 +278,8 @@ const Chat = ({ navigation, route }) => {
     }
     // let finalImageUrl = roomRef + "-" + filetype + "-" + firestore.Timestamp.now()
     let photoUri = photo.path;
-    const filename = filetype + "-" + photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    let realFileName = photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    const filename = filetype + "-" + realFileName;
     const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
     // console.log('uploadUri', uploadUri)
     const task = storage()
@@ -293,11 +297,10 @@ const Chat = ({ navigation, route }) => {
         setError({ message: 'Something went wrong, please try again ' })
       },
       () => {
-        console.log('ref', task.snapshot.ref.path);
         task.snapshot.ref.getDownloadURL().then(url => {
           console.log('URL', url);
-          setTextMessage(url);
-          postMessage(url);
+          // setTextMessage(realFileName);
+          postMessage(url, realFileName);
         })
       }
     );
@@ -334,20 +337,14 @@ const Chat = ({ navigation, route }) => {
             <Text style={{ color: 'white', fontSize: 30 }}>X</Text>
           </TouchableOpacity>
           <View style={{
-            // display: 'flex',
-            // position: 'absolute',
             flex: 1,
             padding: 15,
-            // paddingVertical: 10,
-            // backgroundColor: 'white',
             width: '100%',
             alignContent: 'center',
-            // marginVertical: 200,
             borderRadius: 15,
             paddingTop: 10,
-            // alignSelf: 'center',
             alignItems: 'center',
-            justifyContent:'center'
+            justifyContent: 'center'
           }}>
             <Image style={{ height: 400, width: '100%', resizeMode: "cover" }}
               source={{ uri: imageUrl }} />
@@ -424,11 +421,13 @@ const Chat = ({ navigation, route }) => {
                               <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)}>
                                 <Image style={{ height: 200, width: 200, resizeMode: "cover" }}
                                   source={{ uri: item.text }} />
+                                <Text style={{color:'white'}}>{item.fileName}</Text>
                               </TouchableOpacity>
                             ) : item.text?.includes("FileFirebaseUser") ? (
                               <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)}>
                                 <Icon style={{ fontSize: 100, color: 'white' }}
                                   name="download" />
+                                <Text style={{color:'white'}}>{item.fileName}</Text>
                               </TouchableOpacity>
                             ) : (
                               <Text style={styles.textmessage}>{item.text}</Text>
