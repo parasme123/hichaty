@@ -25,6 +25,7 @@ import Header from '../components/headerback';
 import firestore from '@react-native-firebase/firestore';
 import { firebase } from '@react-native-firebase/functions';
 const messagesCollection = firestore().collection('messages');
+const roomsCollection = firestore().collection('rooms');
 const usersCollection = firestore().collection('users');
 const windowWidth = Dimensions.get('screen').width;
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
@@ -142,6 +143,8 @@ const Temporary = ({ navigation, route }) => {
       teamChatContact: firestore.FieldValue.arrayRemove(currentChatData[0]),
       groups: firestore.FieldValue.arrayRemove(roomRef)
     })
+    messagesCollection.doc(roomRef).delete();
+    roomsCollection.doc(roomRef).delete();
   }
 
   useEffect(() => {

@@ -670,13 +670,18 @@ const contact = ({ navigation, route }) => {
       <Modal
         animationType={'fade'}
         transparent={true}
-        visible={showTutorial}
+        visible={true}
         backdrops={true}
       >
         <ImageBackground style={[styles.slide, activeIndex > 5 ? { justifyContent: 'flex-end' } : null]} source={slides[activeIndex].image}>
+          <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+          <TouchableOpacity onPress={() => finishHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-start', marginLeft: 15, marginBottom: 15 } : { alignSelf: 'flex-start', marginLeft: 15, marginTop: 10 }]}>
+            <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? null : "Skip"}</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => activeIndex + 1 == slides.length ? finishHandle() : nextHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 } : { alignSelf: 'flex-end', marginRight: 15, marginTop: 10 }]}>
             <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? "Finish" : "Next"}</Text>
           </TouchableOpacity>
+          </View>
         </ImageBackground>
       </Modal>
       <View style={styles.container1} >

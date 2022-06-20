@@ -28,6 +28,7 @@ import { firebase } from '@react-native-firebase/functions';
 import { useIsFocused } from '@react-navigation/native';
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
+const messagesCollection = firestore().collection('messages');
 
 const temchat = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -266,6 +267,7 @@ const temchat = ({ navigation, route }) => {
     if (setup == 'done') {
       // if (teamChatContacts.length > 1) {
       setSetup("in progress");
+      setsearchList([]);
       alert("Request Accepted, You can chat now");
       // } else {
       // navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
@@ -293,7 +295,7 @@ const temchat = ({ navigation, route }) => {
 
 
   const changemodel1 = () => {
-    let error = true;
+    let error = false;
     if(selectedHours > 0){
       error = false;
     }else if(selectedMinutes >= 30){
@@ -345,6 +347,8 @@ const temchat = ({ navigation, route }) => {
       teamChatContact: firestore.FieldValue.arrayRemove(chatWith[0]),
       groups: firestore.FieldValue.arrayRemove(roomRef)
     })
+    messagesCollection.doc(roomRef).delete();
+    roomsCollection.doc(roomRef).delete();
   }
 
   const calculateTimeLeft = (item) => {

@@ -3,7 +3,9 @@ import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { Card, CardItem, Text } from 'native-base';
 import image from '../assets/bg.jpg';
 import {
+  phoneactive,
   phonecall,
+  videoactive,
   videocall,
   more,
   chat,
@@ -23,6 +25,9 @@ import firestore from '@react-native-firebase/firestore';
 const Cardset = (props) => {
 
   const { colour, } = useContext(AppContext);
+  const [chatclick, setChatclick] = useState(false);
+  const [audioclick, setAudioclick] = useState(false);
+  const [videoclick, setVideoclick] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   var _menu = null;
 
@@ -38,6 +43,25 @@ const Cardset = (props) => {
     _menu.show();
   };
 
+  const chatClick = () => {
+    setChatclick(true)
+    setAudioclick(false)
+    setVideoclick(false)
+    props.chat();
+  }
+  const audioClick = () => {
+    setChatclick(false)
+    setAudioclick(true)
+    setVideoclick(false)
+    props.phone();
+  }
+  const videoClick = () => {
+    setChatclick(false)
+    setAudioclick(false)
+    setVideoclick(true)
+    props.video();
+  }
+
   useEffect(() => {
     firestore().collection('status')
       .where('state', '==', 'online')
@@ -46,8 +70,8 @@ const Cardset = (props) => {
           let online = snapShot.docChanges().findIndex((data) => (data.type === 'added' && data.doc.id == props.id));
           let offline = snapShot.docChanges().findIndex((data) => (data.type === 'removed' && data.doc.id == props.id));
 
-          if(online != -1)setIsOnline(true);
-          if(offline != -1)setIsOnline(false);
+          if (online != -1) setIsOnline(true);
+          if (offline != -1) setIsOnline(false);
           // snapShot.docChanges().forEach(
           //   (change) => {
           //     if (change.type === 'added' && change.doc.id === props.id) {
@@ -96,7 +120,7 @@ const Cardset = (props) => {
                 <View style={isOnline ? styles.isOnline : styles.isOffline} />}
               {!props.UserNameContact ?
                 <Text numberOfLines={1} style={styles.heading} onPress={props.block ? null : props.blockuser}>{props.name}</Text>
-                : <Text numberOfLines={1} style={[styles.heading,{marginBottom:-8,marginTop:12}]}>{props.UserNameContact}</Text>
+                : <Text numberOfLines={1} style={[styles.heading, { marginBottom: -8, marginTop: 12 }]}>{props.UserNameContact}</Text>
               }
               <Text numberOfLines={1} style={styles.subtext}>{props.status}</Text>
             </View>
@@ -106,8 +130,8 @@ const Cardset = (props) => {
           <CardItem cardBody>
             {props.id ?
               <View style={styles.icons}>
-                <TouchableOpacity onPress={props.chat} underlayColor={colour[0]} style={styles.icon} >
-                  {props.unreadmsgs > 0 ?
+                <TouchableOpacity onPress={() => chatClick()} underlayColor={colour[0]} style={styles.icon} >
+                  {chatclick ?
                     // <View style={{ ...styles.unreadchat, backgroundColor: colour[0] }}>
                     <SvgXml xml={chatactive} />
                     /* <Text >{ props.unreadmsgs}</Text>  */
@@ -116,11 +140,19 @@ const Cardset = (props) => {
                     <SvgXml xml={chat} />
                   }
                 </TouchableOpacity>
-                <TouchableOpacity onPress={props.phone} underlayColor={colour[0]} style={styles.icon}>
-                  <SvgXml xml={phonecall} />
+                <TouchableOpacity onPress={() => audioClick()} underlayColor={colour[0]} style={styles.icon}>
+                  {audioclick ?
+                    <SvgXml xml={phoneactive} />
+                    :
+                    <SvgXml xml={phonecall} />
+                  }
                 </TouchableOpacity>
-                <TouchableOpacity onPress={props.video} underlayColor={colour[0]} style={styles.icon}>
-                  <SvgXml xml={videocall} />
+                <TouchableOpacity onPress={() => videoClick()} underlayColor={colour[0]} style={styles.icon}>
+                  {videoclick ?
+                    <SvgXml xml={videoactive} />
+                    :
+                    <SvgXml xml={videocall} />
+                  }
                 </TouchableOpacity>
                 <Menu
                   ref={setMenuRef}
