@@ -462,6 +462,9 @@ const Temporary = ({ navigation, route }) => {
           timeLeft={{ secondes, minutes, hours }}
           back={() => navigation.goBack()}
         />
+        <View style={{ position: 'absolute', top: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
+          <Text style={{ color: '#000', fontWeight:"bold" }}>End-to-End Encryption</Text>
+        </View>
         {user && !!messages && messages.length > 0 &&
           <FlatList
             ref={flatListRef}
@@ -769,12 +772,12 @@ const styles = StyleSheet.create({
   nameanddate: {
     // display: 'flex',
     flexDirection: 'row',
-    alignSelf:'flex-start',
+    alignSelf: 'flex-start',
     maxWidth: windowWidth - 150,
   },
   nameanddateright: {
-    flexDirection:'row',
-    alignSelf:'flex-end',
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
     maxWidth: windowWidth - 150,
   },
 

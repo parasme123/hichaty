@@ -362,6 +362,9 @@ const Chat = ({ navigation, route }) => {
           roomRef={roomRef}
           setMessages={setMessages}
         />
+        <View style={{ position: 'absolute', top: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
+          <Text style={{ color: '#000', fontWeight:"bold" }}>End-to-End Encryption</Text>
+        </View>
         {user && !!messages && messages.length > 0 ?
           <FlatList
             ref={flatListRef}
@@ -421,13 +424,13 @@ const Chat = ({ navigation, route }) => {
                               <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)}>
                                 <Image style={{ height: 200, width: 200, resizeMode: "cover" }}
                                   source={{ uri: item.text }} />
-                                <Text style={{color:'white'}}>{item.fileName}</Text>
+                                <Text style={{ color: 'white' }}>{item.fileName}</Text>
                               </TouchableOpacity>
                             ) : item.text?.includes("FileFirebaseUser") ? (
                               <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)}>
                                 <Icon style={{ fontSize: 100, color: 'white' }}
                                   name="download" />
-                                <Text style={{color:'white'}}>{item.fileName}</Text>
+                                <Text style={{ color: 'white' }}>{item.fileName}</Text>
                               </TouchableOpacity>
                             ) : (
                               <Text style={styles.textmessage}>{item.text}</Text>

@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
+  Modal,
+  ImageBackground,
   StyleSheet, PermissionsAndroid, ActivityIndicator, Image, Text,
   View, Keyboard,
   TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView, Dimensions
@@ -70,8 +72,19 @@ const contact = ({ navigation, route }) => {
   const [notificationcode, setNotificationcode] = useState("6")
   const [ClearNotification, setClearNotification] = useState(false)
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [durationset, setDuration] = useState(0)
+  const [durationset, setDuration] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0)
 
+  useEffect(() => {
+    async function fetchData() {
+      const response = await AsyncStorageHelper.getData("tutorial");
+      if (response == null) {
+        setShowTutorial(true)
+      }
+    }
+    fetchData();
+  }, [])
   useEffect(() => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
@@ -155,8 +168,8 @@ const contact = ({ navigation, route }) => {
           receiverId: target.id,
           desiredChat: "Temchat",
           roomRef: docRef.id
-        }) 
-  
+        })
+
         batch.commit()
           .then(() => console.log('submitted successfully ...'))
           .then(() => {
@@ -584,10 +597,88 @@ const contact = ({ navigation, route }) => {
     setshowArray(tempUsers)
   }
 
+  const slides = [
+    {
+      key: 1,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/1.png'),
+      backgroundColor: '#59b2ab',
+    },
+    {
+      key: 2,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/2.png'),
+      backgroundColor: '#febe29',
+    },
+    {
+      key: 3,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/3.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 4,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/4.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 5,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/5.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 6,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/6.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 7,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/7.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 8,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/8.png'),
+      backgroundColor: '#22bcb5',
+    }
+  ];
+
+  const nextHandle = () => {
+    setActiveIndex(activeIndex + 1)
+  }
+
+  const finishHandle = () => {
+    setShowTutorial(false);
+    AsyncStorageHelper.setData("tutorial", false)
+  }
+
   return (
-
     <SafeAreaView style={styles.container}>
-
+      <Modal
+        animationType={'fade'}
+        transparent={true}
+        visible={showTutorial}
+        backdrops={true}
+      >
+        <ImageBackground style={[styles.slide, activeIndex > 5 ? { justifyContent: 'flex-end' } : null]} source={slides[activeIndex].image}>
+          <TouchableOpacity onPress={() => activeIndex + 1 == slides.length ? finishHandle() : nextHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 } : { alignSelf: 'flex-end', marginRight: 15, marginTop: 10 }]}>
+            <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? "Finish" : "Next"}</Text>
+          </TouchableOpacity>
+        </ImageBackground>
+      </Modal>
       <View style={styles.container1} >
         <Avatar setting={() => { gosetting() }} />
         <View style={styles.searchSection}>
@@ -677,7 +768,16 @@ const contact = ({ navigation, route }) => {
 export default contact;
 
 const styles = StyleSheet.create({
-
+  slide: {
+    flex: 1,
+    resizeMode: 'cover',
+    // width: '100%', height: '90%'
+  },
+  text: {
+    color: '#333',
+    marginTop: 92,
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',

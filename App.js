@@ -51,7 +51,6 @@ import PrivacyPolicy from './src/screens/PrivacyPolicy'
 
 import AsyncStorageHelper from './src/lib/AsyncStorageHelper'
 
-
 const Stack = createStackNavigator();
 const usersCollection = firestore().collection('users');
 const onlineCollection = firestore().collection('online');
@@ -211,9 +210,6 @@ const App = () => {
     }
   }, [user])
 
-
-
-
   const forwardToChat = async (type, route, params) => {
     switch (type) {
       case "background state":
@@ -273,8 +269,6 @@ const App = () => {
       <Loading />
     )
   }
-
-
 
   /* App ready ---> let's go !
   */
