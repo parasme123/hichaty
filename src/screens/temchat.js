@@ -295,7 +295,7 @@ const temchat = ({ navigation, route }) => {
 
 
   const changemodel1 = () => {
-    let error = false;
+    let error = true;
     if(selectedHours > 0){
       error = false;
     }else if(selectedMinutes >= 30){
