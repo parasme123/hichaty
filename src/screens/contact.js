@@ -101,24 +101,9 @@ const contact = ({ navigation, route }) => {
 
   useEffect(() => {
     if (ClearNotification == true) {
-      gotoClearChatNotification();
+      setTeamChatContacts([]);
     }
   }, [ClearNotification])
-
-  const gotoClearChatNotification = () => {
-    if (teamChatNotifications.length > 0) {
-      let lastTempNotif = teamChatNotifications[0];
-      // setNotificationcode(lastTempNotif.codeConfirmation)
-      setTeamChatContacts([]);
-      deleteTeamChatNotification(lastTempNotif);
-    }
-  }
-
-  const deleteTeamChatNotification = (notif) => {
-    usersCollection.doc(user.id).update({
-      teamChatNotification: firestore.FieldValue.arrayRemove(notif)
-    })
-  }
 
   const submitCode = async () => {
     if (submitttCode == null || submitttCode == "") {
@@ -126,7 +111,6 @@ const contact = ({ navigation, route }) => {
     } else if (submitttCode != notificationcode) {
       alert("User password and enter password do not match.")
     } else {
-      setModalVisible2(false);
       setLoadingSubmit(true);
       if (target && target.id) {
         const docRef = await roomsCollection.add({
@@ -153,7 +137,9 @@ const contact = ({ navigation, route }) => {
           groups:
             firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
           teamChatContact:
-            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) }),
+          teamChatNotification:
+            firestore.FieldValue.arrayRemove(teamChatNotifications[0])
         })
 
         const targetRef = usersCollection.doc(target.id);
@@ -670,17 +656,17 @@ const contact = ({ navigation, route }) => {
       <Modal
         animationType={'fade'}
         transparent={true}
-        visible={true}
+        visible={showTutorial}
         backdrops={true}
       >
         <ImageBackground style={[styles.slide, activeIndex > 5 ? { justifyContent: 'flex-end' } : null]} source={slides[activeIndex].image}>
-          <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-          <TouchableOpacity onPress={() => finishHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-start', marginLeft: 15, marginBottom: 15 } : { alignSelf: 'flex-start', marginLeft: 15, marginTop: 10 }]}>
-            <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? null : "Skip"}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => activeIndex + 1 == slides.length ? finishHandle() : nextHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 } : { alignSelf: 'flex-end', marginRight: 15, marginTop: 10 }]}>
-            <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? "Finish" : "Next"}</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <TouchableOpacity onPress={() => finishHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-start', marginLeft: 15, marginBottom: 15 } : { alignSelf: 'flex-start', marginLeft: 15, marginTop: 10 }]}>
+              <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? null : "Skip"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => activeIndex + 1 == slides.length ? finishHandle() : nextHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 } : { alignSelf: 'flex-end', marginRight: 15, marginTop: 10 }]}>
+              <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? "Finish" : "Next"}</Text>
+            </TouchableOpacity>
           </View>
         </ImageBackground>
       </Modal>

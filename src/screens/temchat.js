@@ -341,11 +341,11 @@ const temchat = ({ navigation, route }) => {
     const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === item.id);
     usersCollection.doc(user.id).update({
       teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
-      groups: firestore.FieldValue.arrayRemove(roomRef)
+      groups: firestore.FieldValue.arrayRemove(`/rooms/${roomRef}`)
     })
     usersCollection.doc(item.id).update({
       teamChatContact: firestore.FieldValue.arrayRemove(chatWith[0]),
-      groups: firestore.FieldValue.arrayRemove(roomRef)
+      groups: firestore.FieldValue.arrayRemove(`/rooms/${roomRef}`)
     })
     messagesCollection.doc(roomRef).delete();
     roomsCollection.doc(roomRef).delete();
