@@ -99,11 +99,18 @@ const contact = ({ navigation, route }) => {
     }
   }, [teamChatNotifications])
 
-  useEffect(() => {
-    if (ClearNotification == true) {
-      setTeamChatContacts([]);
-    }
-  }, [ClearNotification])
+  // useEffect(() => {
+  //   if (ClearNotification == true) {
+  //     gotoClearChatNotification();
+  //   }
+  // }, [ClearNotification])
+
+  // const gotoClearChatNotification = () => {
+  //   if (teamChatNotifications.length > 0) {
+  //     // setNotificationcode(lastTempNotif.codeConfirmation)
+  //     setTeamChatContacts([]);
+  //   }
+  // }
 
   const submitCode = async () => {
     if (submitttCode == null || submitttCode == "") {

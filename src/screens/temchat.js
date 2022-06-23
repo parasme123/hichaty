@@ -288,14 +288,14 @@ const temchat = ({ navigation, route }) => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
       // setNotificationcode(lastTempNotif.codeConfirmation)
-      setTeamChatContacts([]);
+      // setTeamChatContacts([]);
       deleteTeamChatNotification(lastTempNotif);
     }
   }
 
 
   const changemodel1 = () => {
-    let error = true;
+    let error = false;
     if(selectedHours > 0){
       error = false;
     }else if(selectedMinutes >= 30){

@@ -462,11 +462,11 @@ const Temporary = ({ navigation, route }) => {
         <Header
           comment="Quite Mode"
           typetime="timer"
-          timeLeft={{ secondes, minutes, hours }}
+          timeLeft={{ secondes: secondes < 10 ? "0" + secondes : secondes, minutes: minutes < 10 ? "0" + minutes : minutes, hours }}
           back={() => navigation.goBack()}
         />
         <View style={{ position: 'absolute', top: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
-          <Text style={{ color: '#000', fontWeight:"bold" }}>End-to-End Encryption</Text>
+          <Text style={{ color: '#000', fontWeight: "bold" }}>End-to-End Encryption</Text>
         </View>
         {user && !!messages && messages.length > 0 &&
           <FlatList

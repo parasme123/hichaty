@@ -184,6 +184,7 @@
   <com.google.android.libraries.maps/>
   <com.google.android.libraries.mapsplatform.secrets-gradle-plugin/>
   <com.google.android.libraries.places/>
+  <com.google.android.libraries.play.games/>
   <com.google.android.material/>
   <com.google.android.mediahome/>
   <com.google.android.odml/>
