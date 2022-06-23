@@ -26,6 +26,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Contacts from 'react-native-contacts';
 import AsyncStorageHelper from '../lib/AsyncStorageHelper'
 import { firebase } from '@react-native-firebase/functions';
+import Swiper from 'react-native-swiper'
 // const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921~3929184022" : "ca-app-pub-8577795871405921~3929184022";
 const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pub-8577795871405921/7203667321";
 
@@ -649,8 +650,14 @@ const contact = ({ navigation, route }) => {
     }
   ];
 
-  const nextHandle = () => {
-    setActiveIndex(activeIndex + 1)
+  const nextHandle = (item) => {
+    if (item == slides.length - 1) {
+      setTimeout(() => {
+        finishHandle();
+      }, 4000);
+    }
+    console.log("item : ", item)
+    // setActiveIndex(activeIndex + 1)
   }
 
   const finishHandle = () => {
@@ -666,16 +673,27 @@ const contact = ({ navigation, route }) => {
         visible={showTutorial}
         backdrops={true}
       >
-        <ImageBackground style={[styles.slide, activeIndex > 5 ? { justifyContent: 'flex-end' } : null]} source={slides[activeIndex].image}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity onPress={() => finishHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-start', marginLeft: 15, marginBottom: 15 } : { alignSelf: 'flex-start', marginLeft: 15, marginTop: 10 }]}>
-              <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? null : "Skip"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => activeIndex + 1 == slides.length ? finishHandle() : nextHandle()} style={[activeIndex > 5 ? { alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 } : { alignSelf: 'flex-end', marginRight: 15, marginTop: 10 }]}>
-              <Text style={{ fontSize: 20, color: 'white' }}>{activeIndex + 1 == slides.length ? "Finish" : "Next"}</Text>
-            </TouchableOpacity>
-          </View>
-        </ImageBackground>
+        <Swiper style={styles.wrapper} autoplay={true} showsPagination={false} autoplayTimeout={5} loop={false} onIndexChanged={(item) => nextHandle(item)}>
+          {
+            slides.map((item, index) => {
+              return (
+                <ImageBackground key={index} style={[styles.slide, index > 5 ? { justifyContent: 'flex-end' } : null]} source={item.image}>
+                  {
+                    index + 1 == slides.length ? (
+                      <TouchableOpacity onPress={() => finishHandle()} style={{ alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 }}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>Finish</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity onPress={() => finishHandle()} style={{ alignSelf: 'flex-end', marginRight: 15, marginTop: 10, marginBottom: 10 }}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>Skip</Text>
+                      </TouchableOpacity>
+                    )
+                  }
+                </ImageBackground>
+              )
+            })
+          }
+        </Swiper>
       </Modal>
       <View style={styles.container1} >
         <Avatar setting={() => { gosetting() }} />

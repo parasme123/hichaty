@@ -53,6 +53,7 @@
     "react-native-super-grid": "^4.0.3",
     "react-native-svg": "^12.1.0",
     "react-native-svg-transformer": "^0.14.3",
+    "react-native-swiper": "^1.6.0",
     "react-native-vector-icons": "^7.1.0",
     "react-native-webrtc": "^1.87.3",
     "rn-fetch-blob": "^0.12.0"
