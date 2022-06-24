@@ -75,8 +75,6 @@ const Temporary = ({ navigation, route }) => {
     getMessages();
   }, [])
 
-
-
   // useEffect(() => {
   //   console.log("yessssss");
   //   const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === remotePeerId);
@@ -157,9 +155,7 @@ const Temporary = ({ navigation, route }) => {
       _keyboardDidHide.bind(this),
     );
 
-
-
-    const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === remotePeerId);
+    const teamChatDetails = user.teamChatContact.filter(contact => contact.contactId === remotePeerId);
     // console.log("teamChatDetailsteamChatDetails", teamChatContacts);
     if (teamChatDetails.length > 0) {
       // console.log("yessssss");

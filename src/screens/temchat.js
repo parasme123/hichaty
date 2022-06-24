@@ -86,7 +86,7 @@ const temchat = ({ navigation, route }) => {
     // console.log("selectedHours", selectedMinutes);
     // return
     if (code == null || code == "") {
-      alert("Please enter your code and share.") 
+      alert("Please enter your code and share.")
     } else {
       setLoadingShare(true)
       // console.log('-----shareCode:' + id);
@@ -100,9 +100,9 @@ const temchat = ({ navigation, route }) => {
         senderName: user.name,
         receiverId: id,
         desiredChat: "Contacts",
-        code  
-      }) 
-  
+        code
+      })
+
       setTimeout(() => {
         setSearchText("");
         setLoadingShare(false)
@@ -220,14 +220,16 @@ const temchat = ({ navigation, route }) => {
       let lastTempNotif = teamChatContacts[teamChatContactsLatestIndex];
       // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif)
-      switch (lastTempNotif.type) {
-        case "temporary room":
-          // console.log("data from temporary room", lastTempNotif)
-          setTarget(targetOnNotification);
-          setRoomRef(lastTempNotif.roomRef);
-          setDuration(lastTempNotif.duration);
-          setSetup('done');
-          break;
+      if (targetOnNotification.teamChatContact.filter((data) => data.contactId == user.id).length > 0) {
+        switch (lastTempNotif.type) {
+          case "temporary room":
+            // console.log("data from temporary room", lastTempNotif)
+            setTarget(targetOnNotification);
+            setRoomRef(lastTempNotif.roomRef);
+            setDuration(lastTempNotif.duration);
+            setSetup('done');
+            break;
+        }
       }
       // setTeamChatContacts([]);
       // setTimeout(() => {
@@ -295,10 +297,10 @@ const temchat = ({ navigation, route }) => {
 
 
   const changemodel1 = () => {
-    let error = false;
-    if(selectedHours > 0){
+    let error = true;
+    if (selectedHours > 0) {
       error = false;
-    }else if(selectedMinutes >= 30){
+    } else if (selectedMinutes >= 30) {
       error = false
     }
     // console.log(selectedHours, "selectedHours");
