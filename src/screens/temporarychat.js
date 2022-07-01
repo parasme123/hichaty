@@ -461,8 +461,8 @@ const Temporary = ({ navigation, route }) => {
           timeLeft={{ secondes: secondes < 10 ? "0" + secondes : secondes, minutes: minutes < 10 ? "0" + minutes : minutes, hours }}
           back={() => navigation.goBack()}
         />
-        <View style={{ position: 'absolute', top: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
-          <Text style={{ color: '#000', fontWeight: "bold" }}>End-to-End Encryption</Text>
+        <View style={{ position: 'absolute', bottom: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
+          <Text style={{ color: '#47525D', fontWeight: "bold", opacity: 0.5 }}>END-TO-END ENCRYPTED</Text>
         </View>
         {user && !!messages && messages.length > 0 &&
           <FlatList

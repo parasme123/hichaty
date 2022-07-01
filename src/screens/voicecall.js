@@ -68,7 +68,7 @@ const Voicecall = ({ navigation, route }) => {
   const [isSpeaker, setIsspeaker] = useState(false);
   const [isMuted, setIsMute] = useState(false);
 
-  
+
   const [localPC, setLocalPC] = useState(new RTCPeerConnection(configuration));
   const { user, notifications, setNotifications } = useContext(AppContext);
   const [targetId, setTargetId] = useState(remotePeerId);
@@ -108,7 +108,7 @@ const Voicecall = ({ navigation, route }) => {
     if (remoteStream) {
       historyCollection.doc(roomRef)
         // .set({ [`${user.id}`]: firestore.FieldValue.arrayUnion(data) }, { merge: true })
-        .set({ [`${user.id}`]: firestore.FieldValue.arrayUnion(data) ,chat:0,room:roomRef}, { merge: true })
+        .set({ [`${user.id}`]: firestore.FieldValue.arrayUnion(data), chat: 0, room: roomRef }, { merge: true })
 
         .catch(e => console.log(e, 'from history'));
     }
@@ -129,8 +129,7 @@ const Voicecall = ({ navigation, route }) => {
   // register peer connection listeners
   const registerPeerConnectionListeners = (peerConnection) => {
     peerConnection.addEventListener('icegatheringstatechange', () => {
-      console.log(
-        `ICE gathering state changed: ${peerConnection.iceGatheringState} for ${user.id}`);
+      console.log(`ICE gathering state changed: ${peerConnection.iceGatheringState} for ${user.id}`);
     });
 
     peerConnection.addEventListener('connectionstatechange', () => {
@@ -142,29 +141,28 @@ const Voicecall = ({ navigation, route }) => {
     });
 
     peerConnection.addEventListener('iceconnectionstatechange ', () => {
-      console.log(
-        `ICE connection state change: ${peerConnection.iceConnectionState} for ${user.id}`);
+      console.log(`ICE connection state change: ${peerConnection.iceConnectionState} for ${user.id}`);
     });
   }
 
 
   const startLocalStream = async () => {
     const devices = await mediaDevices.enumerateDevices();
-    console.log(devices, "devices");
+    // console.log(devices, "devices");
     const audioSourceId = devices.find(device => device.kind === 'audioinput');
-    console.log(audioSourceId, "audioSourceId");
+    // console.log(audioSourceId, "audioSourceId");
     const constraints = {
       audio: true,
       video: false
     }
     const newStream = await mediaDevices.getUserMedia(constraints);
-    console.log(newStream, "newStream");
+    // console.log(newStream, "newStream");
     setLocalStream(newStream);
     return newStream;
   };
 
   const sendInvitationVoice = (id, roomRef) => {
-    console.log('sending voice request ...')
+    // console.log('sending voice request ...')
     firebase.functions().httpsCallable('onNewVoiceCall')({
       senderId: user.id,
       senderName: user.name,
@@ -178,7 +176,7 @@ const Voicecall = ({ navigation, route }) => {
   const startCall = async (id) => {
     registerPeerConnectionListeners(localPC);
     let localStream = await startLocalStream();
-    console.log(localStream, "localStream");
+    // console.log(localStream, "localStream");
     localPC.addStream(localStream);
 
     localPC.onaddstream = (e) => {
@@ -193,7 +191,7 @@ const Voicecall = ({ navigation, route }) => {
     const voiceOffer = { offer, from: user.id }
     await roomRef.update({ audio: voiceOffer })
 
-    console.log('im here offering ...')
+    // console.log('im here offering ...')
     sendInvitationVoice(remotePeerId, roomRef.id);
 
     roomRef.onSnapshot(async snapshot => {
@@ -215,7 +213,6 @@ const Voicecall = ({ navigation, route }) => {
   }, [])
 
   const joinVoiceCall = async (id) => {
-
     registerPeerConnectionListeners(localPC);
     let localStream = await startLocalStream();
     localPC.addStream(localStream);
@@ -241,27 +238,27 @@ const Voicecall = ({ navigation, route }) => {
   // toggle mute
   const toggleMute = () => {
     if (!remoteStream) {
-      console.log(remoteStream, "remoteStream");
+      // console.log(remoteStream, "remoteStream");
       return;
     }
     localStream.getAudioTracks().forEach(track => {
-      console.log(track, "trackmuted>>>>>>>>>>>>");
+      // console.log(track, "trackmuted>>>>>>>>>>>>");
       track.muted = !track.muted;
       setIsMute(!track.muted);
-      console.log(!track.muted, "!track.muted");
+      // console.log(!track.muted, "!track.muted");
     });
   };
 
 
   const togglespeaker = () => {
     if (!remoteStream) {
-      console.log(remoteStream, "remoteStream");
+      // console.log(remoteStream, "remoteStream");
       return;
     }
     localStream.getAudioTracks().forEach(track => {
-      console.log(track, "track_enabled>>>>>>>>>>>>");
+      // console.log(track, "track_enabled>>>>>>>>>>>>");
       track._enabled = !track._enabled;
-      console.log(!track._enabled, "!track._enabled");
+      // console.log(!track._enabled, "!track._enabled");
       setIsspeaker(!track._enabled);
     });
   };
@@ -284,7 +281,7 @@ const Voicecall = ({ navigation, route }) => {
               if (change.type === "added") {
                 const candidate = new RTCIceCandidate(change.doc.data());
                 if (user.id === "BoFZRrLLR9hYYKZYUpVu") {
-                  console.log('candidate', candidate)
+                  // console.log('candidate', candidate)
                 }
                 localPC.addIceCandidate(candidate)
                   .then(e => console.log('candidate added succefully ', user.id))
@@ -313,9 +310,8 @@ const Voicecall = ({ navigation, route }) => {
 
   //listen to user response :
   useEffect(() => {
-    console.log("new notif ...", isMuted);
-    console.log("remoteStreamremoteStream notif ...", remoteStream);
-
+    // console.log("new notif ...", isMuted);
+    // console.log("remoteStreamremoteStream notif ...", remoteStream);
 
     usersCollection
       .doc(user.id)
@@ -345,20 +341,20 @@ const Voicecall = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Image source={{ uri: remotePic }} style={{ flex: 1, width: null }} />
-      { localStream ?
+      {localStream ?
         <View style={styles.inputremote}>
           <RTCView style={{ height: '0%', width: 0 }} streamURL={localStream && localStream.toURL()} />
         </View>
         :
         null
       }
-      { remoteStream ?
+      {remoteStream ?
         <View style={styles.inputremote} >
           <RTCView style={{ height: '0%', width: 0 }} streamURL={remoteStream && remoteStream.toURL()} />
         </View> :
         null
       }
-      { !!remoteStream ?
+      {!!remoteStream ?
         <View style={styles.topset}>
           <View style={styles.topshadow}>
             <Text style={styles.time}>00:12</Text>

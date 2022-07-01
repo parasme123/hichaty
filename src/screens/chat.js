@@ -254,7 +254,7 @@ const Chat = ({ navigation, route }) => {
     _menu.hide();
     CameraController.attachmentFile((response) => {
       if (response.path) {
-        (async () => await uploadImage(response))();
+        (async () => await uploadImage(response, "file"))();
       }
     });
   }
@@ -264,12 +264,12 @@ const Chat = ({ navigation, route }) => {
     _menu.hide();
     CameraController.open((response) => {
       if (response.path) {
-        (async () => await uploadImage(response))();
+        (async () => await uploadImage(response, "img"))();
       }
     });
   }
 
-  const uploadImage = async (photo) => {
+  const uploadImage = async (photo, type) => {
     let filetype = "";
     if (photo.mime.includes("image")) {
       filetype = "imageFirebaseUser"
@@ -278,10 +278,11 @@ const Chat = ({ navigation, route }) => {
     }
     // let finalImageUrl = roomRef + "-" + filetype + "-" + firestore.Timestamp.now()
     let photoUri = photo.path;
-    let realFileName = photoUri.substring(photoUri.lastIndexOf('/') + 1);
-    const filename = filetype + "-" + realFileName;
+    let realFileName = type == "img" ? photoUri.substring(photoUri.lastIndexOf('/') + 1) : photo.name;
+    const filename = type == "img" ? filetype + "-" + realFileName : filetype + "-" + photo.name;
+    console.log('filename', type);
     const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
-    // console.log('uploadUri', uploadUri)
+    console.log('uploadUri', uploadUri)
     const task = storage()
       .ref(`Chat-Images/${filename}`)
       .putFile(uploadUri);
@@ -294,11 +295,12 @@ const Chat = ({ navigation, route }) => {
       },
       error => {
         console.log('error', error);
-        setError({ message: 'Something went wrong, please try again ' })
+        // setError({ message: 'Something went wrong, please try again ' })
       },
       () => {
         task.snapshot.ref.getDownloadURL().then(url => {
           console.log('URL', url);
+          console.log('realFileName', realFileName);
           // setTextMessage(realFileName);
           postMessage(url, realFileName);
         })
@@ -358,12 +360,14 @@ const Chat = ({ navigation, route }) => {
           back={() => navigation.canGoBack() ? gotoHomePage() : navigation.navigate('bottom')}
           voicecall={() => navigateTo('voicecall')}
           videocall={() => navigateTo('videocall')}
+          // voicecall={() => navigateTo('voicecall')}
+          // videocall={() => navigateTo('videocall')}
           remotePic={remotePic}
           roomRef={roomRef}
           setMessages={setMessages}
         />
-        <View style={{ position: 'absolute', top: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
-          <Text style={{ color: '#000', fontWeight:"bold" }}>End-to-End Encryption</Text>
+        <View style={{ position: 'absolute', bottom: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
+          <Text style={{ color: '#47525D', fontWeight: "bold", opacity: 0.5 }}>END-TO-END ENCRYPTED</Text>
         </View>
         {user && !!messages && messages.length > 0 ?
           <FlatList
@@ -418,19 +422,21 @@ const Chat = ({ navigation, route }) => {
                             {item.createdAt.toDate().toString().split(' ')[4].substring(0, 5)}
                           </Text>
                         </View>
-                        <View style={[styles.balloon]}>
+                        <View style={styles.balloon}>
                           {
                             item.text?.includes("imageFirebaseUser") ? (
-                              <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)}>
-                                <Image style={{ height: 200, width: 200, resizeMode: "cover" }}
+                              <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)} style={{ padding: 6 }}>
+                                <Image style={{ height: 200, width: 240, resizeMode: "cover" }}
                                   source={{ uri: item.text }} />
                                 <Text style={{ color: 'white' }}>{item.fileName}</Text>
                               </TouchableOpacity>
                             ) : item.text?.includes("FileFirebaseUser") ? (
-                              <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)}>
-                                <Icon style={{ fontSize: 100, color: 'white' }}
-                                  name="download" />
-                                <Text style={{ color: 'white' }}>{item.fileName}</Text>
+                              <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)} style={{width:'100%'}}>
+                                <Text style={{ color: 'white', paddingVertical: 24, paddingHorizontal: 6, textAlign:'center' }}>{item.fileName}</Text>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', borderTopWidth: 2, borderColor: "#fff", paddingTop: 5 }}>
+                                  <Icon style={{ fontSize: 26, color: 'white' }}
+                                    name="download" />
+                                </View>
                               </TouchableOpacity>
                             ) : (
                               <Text style={styles.textmessage}>{item.text}</Text>
@@ -579,7 +585,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     maxWidth: 250,
     paddingBottom: 7,
-    paddingHorizontal: 6,
+    // paddingHorizontal: 6,
   },
   itemIn: {
     alignSelf: 'flex-start',
@@ -622,13 +628,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
-    paddingBottom: 5,
+    // paddingBottom: 5,
     paddingTop: 9,
-    paddingHorizontal: 8
+    // paddingHorizontal: 8
   },
   textmessage: {
     color: 'white',
     fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 6
   },
   itemright: {
     marginVertical: 10,
@@ -637,9 +645,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
-    paddingBottom: 5,
+    // paddingBottom: 5,
     paddingTop: 7,
-    paddingHorizontal: 8
+    // paddingHorizontal: 8
   },
   send: {
     fontSize: 16,
@@ -649,10 +657,12 @@ const styles = StyleSheet.create({
   nameanddate: {
     display: 'flex',
     flexDirection: 'row',
+    paddingHorizontal: 6
   },
   nameanddateright: {
     display: 'flex',
     flexDirection: 'row-reverse',
+    paddingHorizontal: 6
   },
   avatar1: {
     marginTop: 15,

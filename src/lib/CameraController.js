@@ -121,27 +121,33 @@ export default class CameraController {
             if (fileOpen == "allFiles") {
                 try {
                     const response = await DocumentPicker.pickSingle({
-                        presentationStyle: 'fullScreen',
+                        // presentationStyle: 'fullScreen',
                         type: [types.allFiles],
                     });
-                    console.log("file upload response : ", response)
-                    if (Platform.OS === "android") {
-                        RNFetchBlob.fs.stat(response.uri)
-                            .then((stats) => {
-                                cb({
-                                    ...response,
-                                    path: `file://${stats.path}`,
-                                    mime: response.type
-                                });
-                            })
-                            .catch((err) => { console.log("stats error", err) })
-                    } else {
+                    console.log(
+                        JSON.stringify(response),
+                        response.uri,
+                        response.type, // mime type
+                        response.name,
+                        response.size
+                      );
+                    // if (Platform.OS === "android") {
+                    //     RNFetchBlob.fs.stat(response.uri)
+                    //         .then((stats) => {
+                    //             cb({
+                    //                 ...response,
+                    //                 path: `file://${stats.path}`,
+                    //                 mime: response.type
+                    //             });
+                    //         })
+                    //         .catch((err) => { console.log("stats error", err) })
+                    // } else {
                         cb({
                             ...response,
-                            path: response.uri,
+                            path: response.uri.replace("%", "%25"),
                             mime: response.type
                         });
-                    }
+                    // }
 
                 } catch (err) {
                     console.log(err);

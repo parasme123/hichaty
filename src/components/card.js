@@ -44,21 +44,21 @@ const Cardset = (props) => {
   };
 
   const chatClick = () => {
-    setChatclick(true)
-    setAudioclick(false)
-    setVideoclick(false)
+    // setChatclick(true)
+    // setAudioclick(false)
+    // setVideoclick(false)
     props.chat();
   }
   const audioClick = () => {
-    setChatclick(false)
-    setAudioclick(true)
-    setVideoclick(false)
+    // setChatclick(false)
+    // setAudioclick(true)
+    // setVideoclick(false)
     props.phone();
   }
   const videoClick = () => {
-    setChatclick(false)
-    setAudioclick(false)
-    setVideoclick(true)
+    // setChatclick(false)
+    // setAudioclick(false)
+    // setVideoclick(true)
     props.video();
   }
 

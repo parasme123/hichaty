@@ -75,7 +75,7 @@ const contact = ({ navigation, route }) => {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [durationset, setDuration] = useState(0);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [updateSoonModal, setUpdateSoonModal] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -184,7 +184,9 @@ const contact = ({ navigation, route }) => {
     let roomRef;
     let groupsOfRemotePeer = target.groups;
     let sharedGroups = user.groups.filter(group => groupsOfRemotePeer.includes(group));
-    console.log("sharedGroups : ", user.groups, target.groups);
+    console.log("user.groups : ", user.groups);
+    console.log("target.groups : ", target.groups);
+    console.log("sharedGroups : ", sharedGroups);
     if (sharedGroups.length == 1) {
       roomRef = sharedGroups[0].split('/')[2];
     }
@@ -437,8 +439,10 @@ const contact = ({ navigation, route }) => {
           name={item?.id ? item?.name : item?.displayName}
           picture={item?.picture}
           unreadmsgs={myUnreadMessages[item?.id] && myUnreadMessages[item?.id] > 0 ? myUnreadMessages[item?.id] : 0}
-          video={() => item.block == true ? sendInvitation('videocall', item?.key, item?.name) : navigateTo('videocall', item)}
-          phone={() => item.block == true ? sendInvitation('voicecall', item?.key, item?.name) : navigateTo('voicecall', item)}
+          video={() => alert("Update you soon")}
+          phone={() => alert("Update you soon")}
+          // video={() => item.block == true ? sendInvitation('videocall', item?.key, item?.name) : navigateTo('videocall', item)}
+          // phone={() => item.block == true ? sendInvitation('voicecall', item?.key, item?.name) : navigateTo('voicecall', item)}
           chat={() => item.block == true ? sendInvitation('chat', item?.key, item?.name) : navigateTo('chat', item)}
           blockuser={() => navigation.navigate('settheme', { targetId: item?.id, mobile: item?.mobile, name: item?.name, status: item?.status, picture: item?.picture })}
           Invited={() => gotoShareApp()}
@@ -764,6 +768,16 @@ const contact = ({ navigation, route }) => {
         }
 
       </View>
+      {/* <Modal
+        animationType={'slide'}
+        transparent={true}
+        visible={updateSoonModal}>
+        <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent:'center' }}>
+          <View style={styles.modal}>
+            <Text style={styles.modalheading}>Update you soon</Text>
+          </View>
+        </View>
+      </Modal> */}
 
       {target && <ModalChatInvitation target={target} setVisible={setModalChatInvitation} visible={modalChatInvitation} desiredChat={desiredChat} positonItem={(selectUserid) => { userFirstPositionInvitation(selectUserid) }} />}
       {target && <ModalChatCodeGen target={target} setVisible={setModalChatCodeGen} visible={modalChatCodeGen} desiredChat={desiredChat} positonItem1={(selectUserid) => { userFirstPositionCodeGen(selectUserid) }} />}
