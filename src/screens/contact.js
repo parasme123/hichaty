@@ -439,10 +439,10 @@ const contact = ({ navigation, route }) => {
           name={item?.id ? item?.name : item?.displayName}
           picture={item?.picture}
           unreadmsgs={myUnreadMessages[item?.id] && myUnreadMessages[item?.id] > 0 ? myUnreadMessages[item?.id] : 0}
-          video={() => alert("Update you soon")}
-          phone={() => alert("Update you soon")}
-          // video={() => item.block == true ? sendInvitation('videocall', item?.key, item?.name) : navigateTo('videocall', item)}
-          // phone={() => item.block == true ? sendInvitation('voicecall', item?.key, item?.name) : navigateTo('voicecall', item)}
+          // video={() => alert("Update you soon")}
+          // phone={() => alert("Update you soon")}
+          video={() => item.block == true ? sendInvitation('videocall', item?.key, item?.name) : navigateTo('videocall', item)}
+          phone={() => item.block == true ? sendInvitation('voicecall', item?.key, item?.name) : navigateTo('voicecall', item)}
           chat={() => item.block == true ? sendInvitation('chat', item?.key, item?.name) : navigateTo('chat', item)}
           blockuser={() => navigation.navigate('settheme', { targetId: item?.id, mobile: item?.mobile, name: item?.name, status: item?.status, picture: item?.picture })}
           Invited={() => gotoShareApp()}

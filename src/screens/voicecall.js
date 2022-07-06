@@ -29,30 +29,36 @@ import { RTCPeerConnection, RTCView, mediaDevices, RTCIceCandidate, RTCSessionDe
 import AppContext from '../context/AppContext';
 
 const configuration = {
-  iceServers: [
+  username: "dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269",
+  ice_servers: [
     {
       "url": "stun:global.stun.twilio.com:3478?transport=udp",
       "urls": "stun:global.stun.twilio.com:3478?transport=udp"
     },
     {
-      "credential": "gK5LsV0Prr5LDRHRowyCFGj4D0MV8M/PoOrAF1k6KC0=",
+      "username": "dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269",
+      "credential": "tE2DajzSJwnsSbc123",
       "url": "turn:global.turn.twilio.com:3478?transport=udp",
-      "urls": "turn:global.turn.twilio.com:3478?transport=udp",
-      "username": "2ad9532c6ff573d1d58848c53a420f6238543d3586ffd67058c1c6c5539904b6"
+      "urls": "turn:global.turn.twilio.com:3478?transport=udp"
     },
     {
-      "credential": "gK5LsV0Prr5LDRHRowyCFGj4D0MV8M/PoOrAF1k6KC0=",
+      "username": "dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269",
+      "credential": "tE2DajzSJwnsSbc123",
       "url": "turn:global.turn.twilio.com:3478?transport=tcp",
-      "urls": "turn:global.turn.twilio.com:3478?transport=tcp",
-      "username": "2ad9532c6ff573d1d58848c53a420f6238543d3586ffd67058c1c6c5539904b6"
+      "urls": "turn:global.turn.twilio.com:3478?transport=tcp"
     },
     {
-      "credential": "gK5LsV0Prr5LDRHRowyCFGj4D0MV8M/PoOrAF1k6KC0=",
+      "username": "dc2d2894d5a9023620c467b0e71cfa6a35457e6679785ed6ae9856fe5bdfa269",
+      "credential": "tE2DajzSJwnsSbc123",
       "url": "turn:global.turn.twilio.com:443?transport=tcp",
-      "urls": "turn:global.turn.twilio.com:443?transport=tcp",
-      "username": "2ad9532c6ff573d1d58848c53a420f6238543d3586ffd67058c1c6c5539904b6"
+      "urls": "turn:global.turn.twilio.com:443?transport=tcp"
     }
-  ]
+  ],
+  date_updated: "Fri, 01 May 2020 01:42:57 +0000",
+  account_sid: "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  ttl: "86400",
+  date_created: "Fri, 01 May 2020 01:42:57 +0000",
+  password: "tE2DajzSJwnsSbc123"
 }
 
 const Voicecall = ({ navigation, route }) => {
