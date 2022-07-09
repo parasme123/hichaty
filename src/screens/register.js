@@ -24,6 +24,8 @@ import {
   newlogo,
 } from '../assets/loginsignupIcons';
 import messaging from '@react-native-firebase/messaging';
+import CountryPicker from 'rn-country-picker';
+
 const { width, height } = Dimensions.get('window');
 const usersCollection = firestore().collection('users');
 const register = (props) => {
@@ -59,7 +61,7 @@ const register = (props) => {
     mobile: null,
     password: null
   })
-
+  const [countryCode, setCountryCode] = useState('91');
 
   useEffect(() => {
     checkToken();
@@ -81,6 +83,11 @@ const register = (props) => {
       setTimeout(Countdown, 1000)
     }
   }, [secondes, minutes, user, confirmResult])
+
+  const setMobileNumber = (code, number) => {
+    setCountryCode(code);
+    setUserData({ ...userData, mobile: `+${code}${number}` })
+  }
 
   const checkToken = async () => {
     const fcmToken = await messaging().getToken();
@@ -270,11 +277,29 @@ const register = (props) => {
                 />
               </View>
               <View style={styles.sectionStyle}>
-                <SvgXml xml={mobile_} />
+                <CountryPicker
+                  disable={false}
+                  animationType={'slide'}
+                  containerStyle={styles.pickerStyle}
+                  // pickerTitleStyle={styles.pickerTitleStyle}
+                  // dropDownImage={require('./res/ic_drop_down.png')}
+                  // selectedCountryTextStyle={styles.selectedCountryTextStyle}
+                  // countryNameTextStyle={styles.countryNameTextStyle}
+                  pickerTitle={'Country Picker'}
+                  searchBarPlaceHolder={'Search......'}
+                  hideCountryFlag={false}
+                  hideCountryCode={true}
+                  // searchBarStyle={styles.searchBarStyle}
+                  // backButtonImage={require('./res/ic_back_black.png')}
+                  // searchButtonImage={require('./res/ic_search.png')}
+                  countryCode={countryCode}
+                  selectedValue={(val) => setMobileNumber(val, userData.mobile)}
+                />
+                {/* <SvgXml xml={mobile_} /> */}
                 <TextInput
                   style={styles.inputfield}
-                  onChange={(event) => setUserData({ ...userData, mobile: event.nativeEvent.text })}
-                  placeholder="+1650551234"
+                  onChange={(event) => setMobileNumber(countryCode, event.nativeEvent.text)}
+                  placeholder="Mobile Number"
                   keyboardType={'default'}
                   returnKeyType={'next'}
                   underlineColorAndroid="transparent"
@@ -521,6 +546,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  pickerStyle: {
+    height: 40,
+    width: 70,
+    marginBottom: 10,
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 0,
+    borderColor: '#303030',
+    // backgroundColor: 'white',
   },
   content: {
     alignContent: 'center',

@@ -211,6 +211,7 @@
   <com.google.jacquard/>
   <com.google.mediapipe/>
   <com.google.mlkit/>
+  <com.google.net.cronet/>
   <com.google.oboe/>
   <com.google.prefab/>
   <com.google.test.platform/>

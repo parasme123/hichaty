@@ -56,6 +56,7 @@
     "react-native-swiper": "^1.6.0",
     "react-native-vector-icons": "^7.1.0",
     "react-native-webrtc": "^1.87.3",
+    "rn-country-picker": "^0.0.13",
     "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
