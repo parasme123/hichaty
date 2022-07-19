@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text,Share, View, StyleSheet, FlatList, Image, TouchableOpacity, PermissionsAndroid, ActivityIndicator } from "react-native";
+import { Text, Share, View, StyleSheet, FlatList, Image, TouchableOpacity, PermissionsAndroid, ActivityIndicator } from "react-native";
 import Contacts from 'react-native-contacts';
 import { backblue } from '../assets/changethemeicons';
 import { SvgXml } from 'react-native-svg';

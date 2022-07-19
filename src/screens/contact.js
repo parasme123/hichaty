@@ -477,7 +477,7 @@ const contact = ({ navigation, route }) => {
         title: 'Hichaty',
         message: "Let's connect on HiChaty, It's a Easy, Safe & secure App, We can use to Message and Call with Friends and Family free. \n https://play.google.com/store/apps/details?id=com.hichaty",
         url: 'https://play.google.com/store/apps/details?id=com.hichaty'
-});
+      });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // shared with activity type of result.activityType
