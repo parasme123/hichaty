@@ -199,6 +199,7 @@
   <com.google.ar.sceneform.ux/>
   <com.google.assistant.appactions/>
   <com.google.assistant.suggestion/>
+  <com.google.camerax.effects/>
   <com.google.chromeos/>
   <com.google.devtools.ksp/>
   <com.google.fhir/>

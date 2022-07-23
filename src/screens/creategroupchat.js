@@ -7,6 +7,8 @@ import {
   FlatList,
   TextInput,
   SafeAreaView,
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import Header from '../components/headergroupchat';
 import Card from '../components/creategroupchatcard';
@@ -15,12 +17,15 @@ import { addimage, addimagecicel } from '../assets/chaticons';
 import { SectionGrid } from 'react-native-super-grid';
 import AppContext from '../context/AppContext';
 import firestore from '@react-native-firebase/firestore';
-import { user } from '../assets/loginsignupIcons';
+import { firebase } from '@react-native-firebase/functions';
+import CameraController from '../lib/CameraController';
+import storage from '@react-native-firebase/storage';
+
 const roomsCollection = firestore().collection('rooms');
 const usersCollection = firestore().collection('users');
 
 const Images = [
-  { image: require('../assets/user2.jpg') },
+  { image: require('../assets/appicon.png') },
   { image: require('../assets/bg.jpg') },
 ];
 
@@ -32,7 +37,8 @@ const Creategroupchat = (props) => {
   const [select, setSelect] = useState({});
   const [selectedItems, setSelectedItems] = useState([])
   const [groupName, setGroupName] = useState('');
-
+  const [doneProcess, setDoneProcess] = useState(false);
+  const [avatar, setAvatar] = useState();
   useEffect(() => {
     let array = [];
     if (select !== {}) {
@@ -44,72 +50,138 @@ const Creategroupchat = (props) => {
   }, [select])
 
   const onPressDone = async () => {
+    setDoneProcess(true)
     if (selectedItems.length == 0) {
       alert("Please select users.")
+      setDoneProcess(false)
       return false
     } if (groupName == '' || groupName.length == 0) {
       alert("Enter your group name.")
+      setDoneProcess(false)
       return false
 
     } if (selectedItems.length > 0) {
-      console.log(selectedItems, groupName, user.id)
-      const data = { admin: user.id, name: groupName, participants: selectedItems,audio: { answer: "", type: "", from: "", offer: "" },video: { answer: "", type: "", from: "", offer: "" }, }
+      const data = { admin: user.id, avatar, name: groupName, participants: [user.id], audio: { answer: "", type: "", from: "", offer: "" }, video: { answer: "", type: "", from: "", offer: "" }, }
       const roomRef = await roomsCollection.add(data);
-      console.log('roomRef', roomRef)
       const userRef = await usersCollection.doc(user.id).update({ groups: firestore.FieldValue.arrayUnion(`/rooms/${roomRef.id}`) })
+      selectedItems.forEach(async element => {
+        await usersCollection.doc(element).update({
+          teamChatNotification: firestore.FieldValue.arrayUnion({ type: "groupChat", id: user.id, name: user.name, roomRef: `/rooms/${roomRef.id}` })
+        })
+
+        firebase.functions().httpsCallable('onNewGroupInvitation')({
+          senderId: user.id,
+          senderName: user.name,
+          receiverId: element,
+          desiredChat: "GroupChat",
+        })
+
+      });
+      setDoneProcess(false)
       navigation.navigate('groupchat', { roomRef: roomRef.id, BackHandel: true })
     }
   }
 
+  const addGroupIcon = () => {
+    CameraController.open((response) => {
+      if (response.path) {
+        uploadImage(response);
+      }
+    });
+  }
+
+  const uploadImage = async (photo) => {
+    let photoUri = photo.path;
+    const filename = photoUri.substring(photoUri.lastIndexOf('/') + 1);
+    const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+    const task = storage()
+      .ref(`Profile-Images/${filename}`)
+      .putFile(uploadUri);
+    // set progress state
+    task.on('state_changed',
+      snapshot => {
+        // setTransferred(
+        //   Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+        // );
+      },
+      error => {
+        setError({ message: 'Something went wrong, please try again ' })
+      },
+      () => {
+        // console.log('ref', task.snapshot.ref.path);
+        task.snapshot.ref.getDownloadURL().then(url => {
+          setAvatar(url);
+        })
+      }
+    );
+    try {
+      await task;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
-    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-    <View style={styles.container}>
-      <Header
-        comment="Create Group"
-        back={() => navigation.goBack()}
-        done={() => onPressDone()}
-      />
-      <View style={styles.sethead}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TextInput
-            style={styles.input}
-            placeholder="Add group name"
-            onChange={(event) => setGroupName(event.nativeEvent.text)}
-            underlineColorAndroid="transparent"
-            value={groupName}
-          />
-          <SvgXml xml={addimagecicel} style={styles.icon} />
-        </View>
-        <Text style={styles.input1}>{selectedItems.length}</Text>
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
-          <SectionGrid
-            itemDimension={150}
-            sections={[
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={styles.container}>
+        <Header
+          comment="Create Group"
+          back={() => navigation.goBack()}
+          done={() => onPressDone()}
+          doneProcess={doneProcess}
+        />
+        <View style={styles.sethead}>
+          <View style={{ flexDirection: 'row', alignItems: "center", justifyContent:"space-between" }}>
+            <TextInput
+              style={styles.input}
+              placeholder="Add group name"
+              onChange={(event) => setGroupName(event.nativeEvent.text)}
+              underlineColorAndroid="transparent"
+              value={groupName}
+            />
+            {
+              console.log("avatar", avatar)
+            }
+            <TouchableOpacity style={{alignSelf:'flex-end', marginLeft:10}} onPress={addGroupIcon}>
               {
-                data: users,
-              },
-            ]}
-            style={styles.gridView}
-            renderItem={({ item, section, index }) => (
-              <Card
-                number={item.key}
-                name={item.name}
-                select={select}
-                setSelect={setSelect}
-                image={Images[0].image}
-                block={item.key}
-                video={() => navigation.navigate('videocall')}
-                phone={() => navigation.navigate('voicecall')}
-                chat={() => navigation.navigate('chat')}
-                blockuser={() => navigation.navigate('settheme')}
-              />
-            )}
-          />
+                avatar ? (
+                  <Image source={{ uri: avatar }} style={{ height: 50, borderRadius:25, width: 50, flex: 1 }} />
+                ) : <SvgXml xml={addimagecicel} style={styles.icon} />
+              }
+
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.input1}>{selectedItems.length}</Text>
         </View>
-      </ScrollView>
-    </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.content}>
+            <SectionGrid
+              itemDimension={150}
+              sections={[
+                {
+                  data: users,
+                },
+              ]}
+              style={styles.gridView}
+              renderItem={({ item, section, index }) => (
+                <Card
+                  number={item.key}
+                  name={item.name}
+                  select={select}
+                  setSelect={setSelect}
+                  image={Images[0].image}
+                  avatar={item.avatar}
+                  block={item.key}
+                  video={() => navigation.navigate('videocall')}
+                  phone={() => navigation.navigate('voicecall')}
+                  chat={() => navigation.navigate('chat')}
+                  blockuser={() => navigation.navigate('settheme')}
+                />
+              )}
+            />
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

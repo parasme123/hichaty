@@ -17,6 +17,7 @@ import ModalChatInvitation from '../components/modalChatInvitation';
 import ModalChatCodeGen from '../components/modalChatCodeGen';
 import ModalChatCodeReceived from '../components/modalChatCodeReceveid';
 import ModalChatRequestAccept from '../components/modalChatRequestAccept';
+import ModalGroupChatRequestAccept from '../components/modalGroupChatAccept';
 import { SectionGrid } from 'react-native-super-grid';
 import Avatar from '../components/avatar';
 import { sync } from '../assets/loginsignupIcons';
@@ -75,7 +76,7 @@ const contact = ({ navigation, route }) => {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [durationset, setDuration] = useState(0);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [updateSoonModal, setUpdateSoonModal] = useState(false)
+  const [modalGroupChatVisible, setModalGroupChatVisible] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -89,12 +90,17 @@ const contact = ({ navigation, route }) => {
   useEffect(() => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
+      console.log("lastTempNotif", lastTempNotif);
       setNotificationcode(lastTempNotif.codeConfirmation)
       switch (lastTempNotif.type) {
         case "code":
           setTarget(lastTempNotif);
           setModalVisible2(true);
           setDuration(lastTempNotif.duration)
+          break;
+        case "groupChat":
+          setTarget(lastTempNotif);
+          setModalGroupChatVisible(true);
           break;
       }
     }
@@ -790,6 +796,7 @@ const contact = ({ navigation, route }) => {
 
       {target && <ModalChatRequestAccept target={target} setVisible={setModalVisible2} visible={modalVisible2} submitttCode={submitttCode} setSubmitCode={setSubmitCode} submitCode={submitCode} notificationcode={notificationcode} loadingSubmit={loadingSubmit} />}
 
+      {target && <ModalGroupChatRequestAccept target={target} navigate={navigation.navigate} setVisible={setModalGroupChatVisible} visible={modalGroupChatVisible} loadingSubmit={loadingSubmit} />}
       {/* Add By Tarachand */}
     </SafeAreaView>
   );

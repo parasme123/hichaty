@@ -59,8 +59,6 @@ const Groupchat = ({ navigation, route }) => {
   const changeMapToObject = (key, value) => {
     return { id: key, ...value };
   }
-  console.log(navigation, "navigation>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-  console.log(route, "route>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
   const getMessages = () => {
     messagesCollection
@@ -68,7 +66,7 @@ const Groupchat = ({ navigation, route }) => {
       .onSnapshot(documentSnapshot => {
         if (documentSnapshot.exists) {
           let msgs = documentSnapshot.data();
-          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.id > b.id))
+          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.createdAt < b.createdAt))
         }
       })
   }
@@ -219,7 +217,7 @@ const Groupchat = ({ navigation, route }) => {
             scrollEnabled={true}
             extraData={messages}
             ref={flatListRef}
-            onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end 
+            // onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end 
             keyExtractor={(item) => {
               return item.id;
             }}

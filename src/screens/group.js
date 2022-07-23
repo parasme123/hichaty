@@ -11,12 +11,15 @@ import ModalChatContact from '../components/modalChatContact';
 import ModalVideoCall from '../components/modalVideoinvitation';
 import ModalAudioCall from '../components/modalAudioinvitation';
 import messaging from '@react-native-firebase/messaging';
+import { useIsFocused } from '@react-navigation/native';
+
 const roomsCollection = firestore().collection('rooms');
 const usersCollection = firestore().collection('users');
 let fcmUnsubscribe = null;
 
 const group = (props) => {
   const { navigation } = props;
+  const focused = useIsFocused();
   const [groups, setGroups] = useState([]);
   const { user, rooms, notifications, setModalChatContact, setNotifications,
     modalVideoInvitation, setModalVideoInvitation,
@@ -78,39 +81,26 @@ const group = (props) => {
     })
   }
 
-  
   // check groups: 
-  useEffect( () => {
+  useEffect(() => {
     let groups = [];
-    if( rooms.length > 0 ){
-      console.log('rooms', rooms)
+    if (rooms.length > 0) {
       const getId_Of_Rooms = () => {
-        return rooms.map( room => room && room.split('/')[2] )
+        return rooms.map(room => room && room.split('/')[2])
       }
       let roomsDetails = getId_Of_Rooms();
-      /*
-      FIX THIS : WHERE : LIMITATION < 10 
-      */
-      roomsCollection.where( firestore.FieldPath.documentId(), "in", roomsDetails)
-        .onSnapshot( quertySnapshot => {
-          quertySnapshot.forEach( documentSnapshot => {
-            console.log(documentSnapshot,"documentSnapshot>>>>>");
-            if(documentSnapshot.exists && documentSnapshot.data().participants.length>2 ){
-              groups&& groups.push({ key: documentSnapshot.id, data: documentSnapshot.data() })
-              // console.log(groups,"groups>>>>>>>>>>>>>>>>");
+      roomsCollection.where(firestore.FieldPath.documentId(), "in", roomsDetails)
+        .onSnapshot(quertySnapshot => {
+          quertySnapshot.forEach(documentSnapshot => {
+            if (documentSnapshot.exists && documentSnapshot.data().name && documentSnapshot.data().admin) {
+              groups && groups.push({ key: documentSnapshot.id, data: documentSnapshot.data() })
             }
           })
           setGroups(groups)
           groups = null;
         })
     }
-  },[rooms,groups])
-
-  useEffect(() => {
-    console.log('userRef', groups)
-  }, [groups])
-
-  
+  }, [focused])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,29 +109,29 @@ const group = (props) => {
         creategroup={() => navigation.navigate('creategroupchat')}
         group="1"
       />
-      { groups && groups.length > 0 ?
+      {groups && groups.length > 0 ?
         // <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.content}>
-            <SectionGrid
-              itemDimension={150}
-              sections={[
-                {
-                  data: groups,
-                },
-              ]}
-              style={styles.gridView}
-              // renderItem={renderGridItem}
-              renderItem={({item, section, index}) => (
-                <Card
+        <View style={styles.content}>
+          <SectionGrid
+            itemDimension={150}
+            sections={[
+              {
+                data: groups,
+              },
+            ]}
+            style={styles.gridView}
+            // renderItem={renderGridItem}
+            renderItem={({ item, section, index }) => (
+              <Card
                 number={item.key}
                 data={item.data}
-                chat={() => navigation.navigate('groupchat', { roomRef: item.key ,BackHandel: false })}
-                // blockuser={() => navigation.navigate('settheme')}
-                />
-              )}
+                chat={() => navigation.navigate('groupchat', { roomRef: item.key, BackHandel: false })}
+              // blockuser={() => navigation.navigate('settheme')}
+              />
+            )}
 
-            />
-          </View>
+          />
+        </View>
         // </ScrollView>
         :
         <View style={styles.container2}>
@@ -151,9 +141,9 @@ const group = (props) => {
           />
         </View>
       }
-      { target && <ModalChatContact target={target} navigate={navigation.navigate} desiredChat={desiredChat} actualRouteName={"Group"} />}
-      { targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
-      { targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
+      {target && <ModalChatContact target={target} navigate={navigation.navigate} desiredChat={desiredChat} actualRouteName={"Group"} />}
+      {targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
+      {targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
 
     </SafeAreaView>
   );
@@ -172,16 +162,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F8F8F8',
   },
-  container2:{
-    flex:1,
+  container2: {
+    flex: 1,
     width: '100%',
-    height:'100%',
-    alignItems:'center',justifyContent:'center'
+    height: '100%',
+    alignItems: 'center', justifyContent: 'center'
   },
   content: {
-    flex:1,
+    flex: 1,
     width: '100%',
-    height:'100%'
+    height: '100%'
   },
   setcard: {
     display: 'flex',
