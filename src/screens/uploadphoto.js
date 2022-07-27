@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Container } from 'native-base';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, ScrollView, DeviceEventEmitter, SafeAreaView, Platform } from 'react-native';
-import { Icon } from 'native-base';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Modal, ScrollView, SafeAreaView, Platform } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   hands as hands_,
@@ -12,24 +10,18 @@ import {
   contact as contact_,
   user as user_
 } from '../assets/loginsignupIcons';
-import androidPermissions from '../lib/androidPermissions';
 import { add, camera, gallery } from '../assets/chaticons';
 import { Avatar } from 'react-native-elements';
-import Svg, { SvgXml } from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 import { whiteuser, whitemobile, successwhite } from '../assets/loginsignupIcons';
-import { settings, backwhite } from '../assets/changethemeicons';
 import AppContext from '../context/AppContext';
 import { ProgressBar } from '@react-native-community/progress-bar-android';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import Share from 'react-native-share';
-import { check, request, PERMISSIONS, openSettings } from 'react-native-permissions';
 import CameraController from '../lib/CameraController';
 
 const usersCollection = firestore().collection('users');
-
-
 
 const Uploadphoto = (props) => {
 
@@ -184,8 +176,8 @@ const Uploadphoto = (props) => {
   const onShare = async (type) => {
     const shareOptions = {
       title: "Hichaty",
-      message: "We request you to all Hichaty users,share with your friends and family",
-      url: "https://hichaty.com/",
+      message: "Let's connect on HiChaty, It's a Easy, Safe & secure App, We can use to Message and Call with Friends and Family free. \n https://play.google.com/store/apps/details?id=com.hichaty",
+      url: 'https://play.google.com/store/apps/details?id=com.hichaty',
       subject: "Hichaty App",
       social: type == 'FACEBOOK' ? Share.Social.FACEBOOK : type == 'WHATSAPP' ? Share.Social.WHATSAPP : type == 'LINKEDIN' ? Share.Social.LINKEDIN : type == 'INSTAGRAM' ? Share.Social.INSTAGRAM : Share.Social.SMS,
     };

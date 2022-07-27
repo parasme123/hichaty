@@ -17,9 +17,11 @@ function Headermain(props) {
       </TouchableOpacity>
       <View>
         {props.add === '1' ? (
-          <Text style={styles.textupdate} onPress={props.addmember}>
-            Update
-          </Text>
+          <TouchableOpacity onPress={props.addmember}>
+            <Text style={styles.textupdate}>
+              Update
+            </Text>
+          </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.button} onPress={doneProcess ? null : props.done}>
             {doneProcess ? <ActivityIndicator size="small" color="white" /> : <Text style={styles.buttontext}>Done</Text>}

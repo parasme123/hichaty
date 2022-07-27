@@ -521,6 +521,7 @@ const contact = ({ navigation, route }) => {
 
   const gosetting = () => {
     navigation.navigate('changetheme', { id: user && user.id })
+    // navigation.navigate('uploadphoto', { id: user && user.id })
   }
   const gotoSearch = (text) => {
     let lowercasedFilter = text.toLowerCase();

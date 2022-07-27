@@ -126,7 +126,7 @@ const group = (props) => {
                 number={item.key}
                 data={item.data}
                 chat={() => navigation.navigate('groupchat', { roomRef: item.key, BackHandel: false })}
-              // blockuser={() => navigation.navigate('settheme')}
+                blockuser={(groupData) => navigation.navigate('updatedgroup', { roomRef: item.key, groupData })}
               />
             )}
 

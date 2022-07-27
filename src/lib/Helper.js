@@ -34,7 +34,7 @@ export default class Helper extends React.Component {
             "Hichaty",
             alertMessage,
             [
-                { text: 'NOT NOW', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
+                { text: 'Continue', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
                 { text: 'SETTINGS', onPress: () => { if (cb) cb(true); } },
             ],
             { cancelable: false }

@@ -100,7 +100,7 @@ const Permissions = ({ navigation }) => {
             "Hichaty",
             alertMessage,
             [
-                { text: 'NOT NOW', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
+                { text: 'Continue', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
                 { text: 'SETTINGS', onPress: () => { if (cb) cb(true); console.log('OK Pressed') } },
             ],
             { cancelable: false }
@@ -153,7 +153,7 @@ const Permissions = ({ navigation }) => {
             "Hichaty",
             alertMessage,
             [
-                { text: 'NOT NOW', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
+                { text: 'Continue', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
                 { text: 'SETTINGS', onPress: () => { if (cb) cb(true); console.log('OK Pressed') } },
             ],
             { cancelable: false }
