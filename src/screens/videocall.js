@@ -15,6 +15,7 @@ import {
   video,
   videocallwhite,
   mutevideo,
+  unmutevideo
 } from '../assets/chaticons';
 import { SvgXml } from 'react-native-svg';
 import firestore from '@react-native-firebase/firestore';
@@ -146,7 +147,7 @@ const Videocall = ({ navigation, route }) => {
     const devices = await mediaDevices.enumerateDevices();
     const facing = isFront ? 'front' : 'environment';
     const videoSourceId = devices.find(device => device.kind === 'videoinput' && device.facing === facing);
-    console.log("videoSourceId", videoSourceId);
+
     const facingMode = isFront ? 'user' : 'enviroment';
     const constraints = {
       audio: true,
@@ -167,7 +168,6 @@ const Videocall = ({ navigation, route }) => {
 
   // send invitation
   const sendInvitationVideo = (id, roomRef) => {
-    console.log('sending request ...')
     firebase.functions().httpsCallable('onNewVideoCall')({
       senderId: user.id,
       senderName: user.name,
@@ -179,7 +179,7 @@ const Videocall = ({ navigation, route }) => {
 
   // set offer and send invitation
   const startCall = async (id) => {
-
+    console.log("localPC", localPC)
     registerPeerConnectionListeners(localPC);
     let localStream = await startLocalStream();
     localPC.addStream(localStream);
@@ -196,7 +196,6 @@ const Videocall = ({ navigation, route }) => {
     const videoOffer = { offer, from: user.id }
     await roomRef.update({ video: videoOffer })
 
-    console.log('im here offering ...')
     sendInvitationVideo(remotePeerId, roomRef.id);
 
     roomRef.onSnapshot(async snapshot => {
@@ -278,11 +277,11 @@ const Videocall = ({ navigation, route }) => {
             snapshot.docChanges().forEach(change => {
               if (change.type === "added") {
                 const candidate = new RTCIceCandidate(change.doc.data());
-                if (user.id === "BoFZRrLLR9hYYKZYUpVu") {
-                  console.log('candidate', candidate)
-                }
+                // if (user.id === "BoFZRrLLR9hYYKZYUpVu") {
+                //   console.log('candidate', candidate)
+                // }
                 localPC.addIceCandidate(candidate)
-                  .then(e => console.log('candidate added succefully ', user.id))
+                  .then(e => console.log('candidate added succefully ', e))
                   .catch(e => console.log(e))
               }
             });
@@ -308,7 +307,6 @@ const Videocall = ({ navigation, route }) => {
 
   //listen to user response :
   useEffect(() => {
-    console.log("new notif ...");
     usersCollection
       .doc(user.id)
       .onSnapshot(documentSnapshot => {
@@ -362,15 +360,15 @@ const Videocall = ({ navigation, route }) => {
           <View style={styles.icon}>
             {!isMuted ?
               <TouchableOpacity title={`Mute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                <SvgXml xml={silent} />
+                <SvgXml xml={volume} />
               </TouchableOpacity>
               :
               <TouchableOpacity title={`Unmute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                <SvgXml xml={volume} />
+                <SvgXml xml={silent} />
               </TouchableOpacity>
             }
             <TouchableOpacity>
-              <SvgXml xml={mutevideo} />
+              <SvgXml xml={unmutevideo} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity

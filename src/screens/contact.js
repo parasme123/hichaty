@@ -90,7 +90,6 @@ const contact = ({ navigation, route }) => {
   useEffect(() => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
-      console.log("lastTempNotif", lastTempNotif);
       setNotificationcode(lastTempNotif.codeConfirmation)
       switch (lastTempNotif.type) {
         case "code":
@@ -190,18 +189,22 @@ const contact = ({ navigation, route }) => {
     let roomRef;
     let groupsOfRemotePeer = target.groups;
     let sharedGroups = user.groups.filter(group => groupsOfRemotePeer.includes(group));
-    console.log("user.groups : ", user.groups);
-    console.log("target.groups : ", target.groups);
-    console.log("sharedGroups : ", sharedGroups);
+    console.log("target.groups : ", sharedGroups);
     if (sharedGroups.length == 1) {
       roomRef = sharedGroups[0].split('/')[2];
     }
     else {
       // navigation.navigate(routeName, { roomRef, remotePeerName: target.name, remotePeerId: target.id, remotePic: target.picture, type: 'caller' })
-      sharedGroups.forEach(group => group.split('/')[2]);
-      const querySnapshot = await roomsCollection.where(firebase.firestore.FieldPath.documentId(), "in", sharedGroups).get();
-      let doc = querySnapshot.filter(documentSnapshot => documentSnapshot.participants.length === 2)[0];
-      roomRef = doc.id;
+      let groupArr = [];
+      sharedGroups.forEach((group) => { groupArr.push(group.split('/')[2]); });
+      const querySnapshot = await roomsCollection.where(firebase.firestore.FieldPath.documentId(), "in", groupArr).get();
+      console.log("querySnapshot", querySnapshot)
+      querySnapshot.forEach(documentSnapshot => {
+        if (documentSnapshot.data().participants.length == 2 && !documentSnapshot.data().admin) {
+          roomRef = documentSnapshot.id;
+        }
+      });
+      // roomRef = doc.id;
 
     }
     navigation.navigate(routeName, { roomRef, remotePeerName: target.name, remotePeerId: target.id, remotePic: target.picture, type: 'caller' })
