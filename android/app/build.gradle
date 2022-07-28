@@ -194,12 +194,12 @@ android {
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
-
+    implementation 'com.google.android.gms:play-services-ads:21.1.0'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(':react-native-svg')
     implementation project(':react-native-linear-gradient')
-    
+    implementation project(':react-native-incall-manager')
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

@@ -29,8 +29,8 @@ import AsyncStorageHelper from '../lib/AsyncStorageHelper'
 import { firebase } from '@react-native-firebase/functions';
 import Swiper from 'react-native-swiper'
 // const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921~3929184022" : "ca-app-pub-8577795871405921~3929184022";
-const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pub-8577795871405921/7203667321";
-
+// const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pub-8577795871405921/7203667321";
+const adUnitId = "ca-app-pub-8577795871405921/6715450883";
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
 let fcmUnsubscribe = null;

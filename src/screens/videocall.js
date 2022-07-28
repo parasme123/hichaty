@@ -15,11 +15,14 @@ import {
   video,
   videocallwhite,
   mutevideo,
-  unmutevideo
+  unmutevideo,
+  microphone,
+  muteMicrophone
 } from '../assets/chaticons';
 import { SvgXml } from 'react-native-svg';
 import firestore from '@react-native-firebase/firestore';
 import { firebase } from '@react-native-firebase/functions';
+import InCallManager from 'react-native-incall-manager';
 
 const roomsCollection = firestore().collection('rooms');
 const usersCollection = firestore().collection('users');
@@ -62,6 +65,7 @@ const Videocall = ({ navigation, route }) => {
   const [remoteStream, setRemoteStream] = useState();
   const [cachedLocalPC, setCachedLocalPC] = useState();
   const [isMuted, setIsMuted] = useState();
+  const [isVideoMuted, setIsVideoMuted] = useState();
   const [localPC, setLocalPC] = useState(new RTCPeerConnection(configuration));
   const { user, notifications, setNotifications } = useContext(AppContext);
   const [targetId, setTargetId] = useState(remotePeerId);
@@ -180,6 +184,9 @@ const Videocall = ({ navigation, route }) => {
   // set offer and send invitation
   const startCall = async (id) => {
     console.log("localPC", localPC)
+    InCallManager.start({ media: 'video' });
+    InCallManager.start({ media: 'audio' });
+    InCallManager.setForceSpeakerphoneOn(true)
     registerPeerConnectionListeners(localPC);
     let localStream = await startLocalStream();
     localPC.addStream(localStream);
@@ -220,7 +227,9 @@ const Videocall = ({ navigation, route }) => {
 
   // join video call and send answer
   const joinVideoCall = async (id) => {
-
+    InCallManager.start({ media: 'video' });
+    InCallManager.start({ media: 'audio' });
+    InCallManager.setForceSpeakerphoneOn(true)
     registerPeerConnectionListeners(localPC);
     let localStream = await startLocalStream();
     localPC.addStream(localStream);
@@ -249,13 +258,24 @@ const Videocall = ({ navigation, route }) => {
   };
 
   // toggle mute
-  const toggleMute = () => {
+  const toggleMute = async() => {
     // if (!remoteStream) {
     //   return;
     // }
+
     localStream.getAudioTracks().forEach(track => {
       track.enabled = !track.enabled;
       setIsMuted(!track.enabled);
+    });
+  };
+
+  const toggleVideoMute = () => {
+    // if (!remoteStream) {
+    //   return;
+    // }
+    localStream.getVideoTracks().forEach(track => {
+      track.enabled = !track.enabled;
+      setIsVideoMuted(!track.enabled);
     });
   };
 
@@ -335,14 +355,14 @@ const Videocall = ({ navigation, route }) => {
     <View style={styles.container}>
       {!!localStream ?
         <View style={styles.input}>
-          <RTCView style={{ flex: 1, width: '100%', height: '100%' }} zOrder={1} streamURL={localStream && localStream.toURL()} />
+          <RTCView mirror={true} style={{ flex: 1, width: '100%', height: '100%' }} zOrder={1} streamURL={localStream && localStream.toURL()} />
         </View>
         :
-        null
+        <Image source={{ uri: user.avatar }} style={{ width: null, flex: 1 }} />
       }
       {!!remoteStream ?
         <View style={styles.inputremote} >
-          <RTCView style={{ flex: 1, height: '100%', width: '100%' }} zOrder={0} streamURL={remoteStream && remoteStream.toURL()} objectFit={'cover'} />
+          <RTCView mirror={true} style={{ flex: 1, height: '100%', width: '100%' }} zOrder={0} streamURL={remoteStream && remoteStream.toURL()} objectFit={'cover'} />
         </View>
         :
         <Image source={{ uri: remotePic }} style={{ width: null, flex: 1 }} />
@@ -360,16 +380,23 @@ const Videocall = ({ navigation, route }) => {
           <View style={styles.icon}>
             {!isMuted ?
               <TouchableOpacity title={`Mute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                <SvgXml xml={volume} />
+                <SvgXml xml={microphone} />
               </TouchableOpacity>
               :
               <TouchableOpacity title={`Unmute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                <SvgXml xml={silent} />
+                <SvgXml xml={muteMicrophone} />
               </TouchableOpacity>
             }
-            <TouchableOpacity>
-              <SvgXml xml={unmutevideo} />
-            </TouchableOpacity>
+            {
+              !isVideoMuted ?
+                <TouchableOpacity onPress={toggleVideoMute}>
+                  <SvgXml xml={videocallwhite} />
+                </TouchableOpacity>
+                :
+                <TouchableOpacity onPress={toggleVideoMute}>
+                  <SvgXml xml={mutevideo} />
+                </TouchableOpacity>
+            }
           </View>
           <TouchableOpacity
             style={styles.buttonaccept}

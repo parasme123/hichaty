@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -56,9 +57,10 @@
             android:value="500"
             tools:replace="android:value"/>
 
-<!--        ca-app-pub-3940256099942544~3347511713-->
+<!-- ca-app-pub-3940256099942544~3347511713 -->
+<!-- ca-app-pub-8577795871405921~9753507726 -->
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8577795871405921~9753507726"
+            android:value="ca-app-pub-8577795871405921/6715450883"
             tools:replace="android:value"/>
 
     </application>
