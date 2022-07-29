@@ -59,9 +59,11 @@
 
 <!-- ca-app-pub-3940256099942544~3347511713 -->
 <!-- ca-app-pub-8577795871405921~9753507726 -->
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8577795871405921/6715450883"
-            tools:replace="android:value"/>
+        <meta-data 
+          android:name="com.google.android.gms.ads.APPLICATION_ID"
+          android:value="ca-app-pub-8577795871405921~7174799665"
+          tools:replace="android:value"
+        />
 
     </application>
 

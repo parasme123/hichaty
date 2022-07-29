@@ -106,7 +106,9 @@ const App = () => {
           log_message("Error while updating state auth", error)
         })
     }
-    if (initializing) setInitializing(false);  // setInitialing to false, to switc off splach screen
+    setTimeout(() => {
+      if (initializing) setInitializing(false);  // setInitialing to false, to switc off splach screen
+    }, 2000);
   }
   useEffect(() => {
     getContacts();

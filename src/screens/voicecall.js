@@ -15,11 +15,14 @@ import {
   video,
   videocallwhite,
   mutevideo,
-  unmute
+  unmute,
+  microphone,
+  muteMicrophone
 } from '../assets/chaticons';
 import { SvgXml } from 'react-native-svg';
 import firestore from '@react-native-firebase/firestore';
 import { firebase } from '@react-native-firebase/functions';
+import InCallManager from 'react-native-incall-manager';
 
 const roomsCollection = firestore().collection('rooms');
 const usersCollection = firestore().collection('users');
@@ -238,29 +241,23 @@ const Voicecall = ({ navigation, route }) => {
   // toggle mute
   const toggleMute = () => {
     if (!remoteStream) {
-      // console.log(remoteStream, "remoteStream");
       return;
     }
     localStream.getAudioTracks().forEach(track => {
-      // console.log(track, "trackmuted>>>>>>>>>>>>");
-      track.muted = !track.muted;
-      setIsMute(!track.muted);
-      // console.log(!track.muted, "!track.muted");
+      track.enabled = !track.enabled;
+      setIsMute(!track.enabled);
     });
   };
 
 
   const togglespeaker = () => {
     if (!remoteStream) {
-      // console.log(remoteStream, "remoteStream");
       return;
     }
-    localStream.getAudioTracks().forEach(track => {
-      // console.log(track, "track_enabled>>>>>>>>>>>>");
-      track._enabled = !track._enabled;
-      // console.log(!track._enabled, "!track._enabled");
-      setIsspeaker(!track._enabled);
-    });
+    setIsspeaker(!isSpeaker);
+    InCallManager.start({ media: 'video' });
+    InCallManager.start({ media: 'audio' });
+    InCallManager.setForceSpeakerphoneOn(!isSpeaker)
   };
   // gather ice candidates
   useEffect(() => {
@@ -366,17 +363,17 @@ const Voicecall = ({ navigation, route }) => {
         <View style={styles.shadow}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 
-            {/* <View style={styles.icon}>
+            <View style={styles.icon}>
               {isMuted == false ?
                 <TouchableOpacity title={`Mute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                  <SvgXml xml={unmute} />
+                  <SvgXml xml={microphone} />
                 </TouchableOpacity>
                 :
                 <TouchableOpacity title={`Unmute stream`} onPress={toggleMute} disabled={!remoteStream}>
-                  <SvgXml xml={mute} />
+                  <SvgXml xml={muteMicrophone} />
                 </TouchableOpacity>
               }
-            </View> */}
+            </View>
 
             <View style={styles.icon}>
               {isSpeaker == false ?
