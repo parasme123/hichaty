@@ -358,10 +358,8 @@ const Chat = ({ navigation, route }) => {
         <Header
           // back={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('bottom')}
           back={() => navigation.canGoBack() ? gotoHomePage() : navigation.navigate('bottom')}
-          voicecall={() => navigateTo('voicecall')}
-          videocall={() => navigateTo('videocall')}
-          // voicecall={() => navigateTo('voicecall')}
-          // videocall={() => navigateTo('videocall')}
+          voicecall={navigateTo}
+          videocall={navigateTo}
           remotePic={remotePic}
           roomRef={roomRef}
           setMessages={setMessages}

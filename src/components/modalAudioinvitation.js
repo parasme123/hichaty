@@ -89,7 +89,7 @@ const ModalAudiocall = (props) => {
             <Avatar
                 rounded
                 containerStyle={styles.avatar1}
-                source={{uri: 'https://i.stack.imgur.com/uoVWQ.png'}}
+                source={{uri: remotePic ? remotePic : 'https://i.stack.imgur.com/uoVWQ.png'}}
                 size={200}
             />
             <View style={styles.input}>
