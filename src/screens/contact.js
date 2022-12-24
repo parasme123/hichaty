@@ -4,7 +4,7 @@ import {
   ImageBackground,
   StyleSheet, PermissionsAndroid, ActivityIndicator, Image, Text,
   View, Keyboard,
-  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView, Dimensions
+  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView, Dimensions, Platform
 } from 'react-native';
 import Card from '../components/card';
 import AppContext from '../context/AppContext';
@@ -670,7 +670,7 @@ const contact = ({ navigation, route }) => {
         finishHandle();
       }, 4000);
     }
-    console.log("item : ", item)
+    // console.log("item : ", item)
     // setActiveIndex(activeIndex + 1)
   }
 
@@ -684,10 +684,10 @@ const contact = ({ navigation, route }) => {
       <Modal
         animationType={'fade'}
         transparent={true}
-        visible={showTutorial}
+        visible={true}
         backdrops={true}
       >
-        <Swiper style={styles.wrapper} autoplay={true} showsPagination={false} autoplayTimeout={5} loop={false} onIndexChanged={(item) => nextHandle(item)}>
+        <Swiper style={{paddingVertical:12}} autoplay={true} showsPagination={false} autoplayTimeout={5} loop={false} onIndexChanged={(item) => nextHandle(item)}>
           {
             slides.map((item, index) => {
               return (

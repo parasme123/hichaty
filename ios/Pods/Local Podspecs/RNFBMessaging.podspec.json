@@ -23,7 +23,7 @@
 
     ],
     "Firebase/Messaging": [
-      "~> 7.3.0"
+      "~> 7.6.0"
     ]
   },
   "static_framework": false

@@ -110,25 +110,25 @@ const App = () => {
       if (initializing) setInitializing(false);  // setInitialing to false, to switc off splach screen
     }, 2000);
   }
-  useEffect(() => {
-    getContacts();
-  }, [])
-  const getContacts = async () => {
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-      {
-        'title': 'Contacts',
-        'message': 'This app would like to view your contacts.',
-        'buttonPositive': 'Please accept bare mortal'
-      }
-    )
-      .then(() => Contacts.getAll())
-      .then(contacts => {
-        setContacts(contacts)
-        AsyncStorageHelper.setData("Contact_Data", contacts)
+  // useEffect(() => {
+  //   getContacts();
+  // }, [])
+  // const getContacts = async () => {
+  //   PermissionsAndroid.request(
+  //     PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+  //     {
+  //       'title': 'Contacts',
+  //       'message': 'This app would like to view your contacts.',
+  //       'buttonPositive': 'Please accept bare mortal'
+  //     }
+  //   )
+  //     .then(() => Contacts.getAll())
+  //     .then(contacts => {
+  //       setContacts(contacts)
+  //       AsyncStorageHelper.setData("Contact_Data", contacts)
 
-      })
-  }
+  //     })
+  // }
 
   /* set listener for changes in auth :
   */
