@@ -189,7 +189,6 @@ const contact = ({ navigation, route }) => {
     let roomRef;
     let groupsOfRemotePeer = target.groups;
     let sharedGroups = user.groups.filter(group => groupsOfRemotePeer.includes(group));
-    console.log("target.groups : ", sharedGroups);
     if (sharedGroups.length == 1) {
       roomRef = sharedGroups[0].split('/')[2];
     }
@@ -198,7 +197,6 @@ const contact = ({ navigation, route }) => {
       let groupArr = [];
       sharedGroups.forEach((group) => { groupArr.push(group.split('/')[2]); });
       const querySnapshot = await roomsCollection.where(firebase.firestore.FieldPath.documentId(), "in", groupArr).get();
-      console.log("querySnapshot", querySnapshot)
       querySnapshot.forEach(documentSnapshot => {
         if (documentSnapshot.data().participants.length == 2 && !documentSnapshot.data().admin) {
           roomRef = documentSnapshot.id;

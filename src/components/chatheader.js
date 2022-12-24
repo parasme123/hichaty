@@ -80,13 +80,13 @@ function Headerset(props) {
           <Text style={styles.texticonblue}>Chat</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={()=> alert('Update you soon')} //props.voicecall
+        <TouchableOpacity onPress={()=> props.voicecall("voicecall")} //props.voicecall
          style={styles.subtext}>
           <SvgXml xml={phonecall} />
           <Text style={styles.texticon}>Audio Call</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={()=> alert('Update you soon')} // props.videocall
+        <TouchableOpacity onPress={()=> props.videocall("videocall")} // props.videocall
           style={styles.subtext}>
           <SvgXml xml={videocall} />
           <Text style={styles.texticon}>Video Call</Text>

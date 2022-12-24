@@ -9,7 +9,8 @@ import {
     TextInput,
     Button,
     TouchableOpacity,
-    Modal
+    Modal,
+    Image
   } from 'react-native';
   import LinearGradient from 'react-native-linear-gradient';
   import {Avatar} from 'react-native-elements';
@@ -25,6 +26,7 @@ import {
   const AcceptVoicecall = ({ navigation, route}) => {
   
     const { roomRef, remotePeerName, remotePeerId, remotePic } = route.params;
+    console.log("remotePic", remotePic)
     const [ colour, setColour ] = useState(['#F2853E', '#F77E52', '#FD7668']);
     const { user, notifications, setNotifications } = useContext(AppContext);
   
@@ -95,10 +97,10 @@ import {
           <View
           >
               <LinearGradient colors={colour} style={styles.avatar}>
-              <Avatar
+              <Image
                   rounded
                   containerStyle={styles.avatar1}
-                  source={{uri: 'https://i.stack.imgur.com/uoVWQ.png'}}
+                  source={{uri: remotePic}}
                   size={200}
               />
               <View style={styles.input}>
