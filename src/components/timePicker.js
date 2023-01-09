@@ -2,19 +2,16 @@ import React from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { Time } from 'react-native-gifted-chat';
 
-
-
-
 const TimePicker = ({ selectedUnit, selectedValue, onValueChange, startValue, endValue }) => {
     let data = [];
     while (endValue >= startValue) {
-        if (endValue < 10) {
-            let val = "0" + String(endValue);
+        if (startValue < 10) {
+            let val = "0" + String(startValue);
             data.push(val)
         } else {
-            data.push(String(endValue))
+            data.push(String(startValue))
         }
-        endValue -= 1;
+        startValue += 1;
     }
 
     if (data === []) {
@@ -22,7 +19,7 @@ const TimePicker = ({ selectedUnit, selectedValue, onValueChange, startValue, en
     }
     return (
         <Picker
-            itemStyle={{flex:1}}
+            itemStyle={{ flex: 1 }}
             placeholder={selectedUnit}
             selectedValue={selectedValue}
             style={{ height: 50, width: '50%', border: 'none' }}

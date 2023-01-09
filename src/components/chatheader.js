@@ -13,6 +13,10 @@ import {
   phonecall,
 } from '../assets/cardicons';
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import firestore from '@react-native-firebase/firestore';
+const messagesRef = firestore().collection('messages');
+const ClearedMessagesRef = firestore().collection('clearedMessages');
+
 function Headerset(props) {
   var _menu = null;
   const setMenuRef = (ref) => {
@@ -23,32 +27,66 @@ function Headerset(props) {
     _menu.hide();
   };
 
+  const clearAllMessage = async () => {
+    let roomData = props.roomRef;
+    // console.log("roomData : ", roomData)
+    // return;
+    await messagesRef
+    .doc(roomData)
+    .get()
+    .then((querySnapshot) => {
+      const entries = Object.entries(querySnapshot.data());
+      entries.forEach(async (message) => {
+        await ClearedMessagesRef.doc(roomData).set(
+          {
+            [message[0]]: {
+              text: message[1].text,
+              room: message[1].room,
+              createdAt: message[1].createdAt,
+              userId: message[1].userId,
+              read: message[1].read,
+            },
+          },
+          { 
+            merge: true 
+          }
+        );
+      });
+    })
+    .then(async () => {
+      await messagesRef.doc(roomData).delete();
+      _menu.hide();
+      props.setMessages([]);
+    });
+  }
+
   const showMenu = () => {
     _menu.show();
   };
-  console.log(props.remotePic, "props.remotePic");
+  // console.log(props.remotePic, "props.remotePic");
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={props.back}>
         <SvgXml xml={back} style={{ marginRight: -5 }} />
 
       </TouchableOpacity>
-     
-        <Avatar remotePic={props.remotePic} />
 
-      
+      <Avatar remotePic={props.remotePic} />
+
+
       <View style={styles.icons}>
         <TouchableOpacity style={styles.subtext}>
           <SvgXml xml={bluechat1} />
           <Text style={styles.texticonblue}>Chat</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={props.voicecall} style={styles.subtext}>
+        <TouchableOpacity onPress={()=> props.voicecall("voicecall")} //props.voicecall
+         style={styles.subtext}>
           <SvgXml xml={phonecall} />
           <Text style={styles.texticon}>Audio Call</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={props.videocall}
+        <TouchableOpacity onPress={()=> props.videocall("videocall")} // props.videocall
           style={styles.subtext}>
           <SvgXml xml={videocall} />
           <Text style={styles.texticon}>Video Call</Text>
@@ -70,7 +108,7 @@ function Headerset(props) {
               </View>
             </MenuItem>
             <View style={{ borderBottomWidth: 1 }} />
-            <MenuItem onPress={hideMenu}>
+            <MenuItem onPress={clearAllMessage}>
               <View style={styles.ictext}>
                 <SvgXml xml={clear} />
                 <Text style={styles.textred}>Clear</Text>

@@ -44,7 +44,7 @@ function Cardset(props) {
           <CardItem cardBody onPress={() => console.log('show')}>
             <TouchableOpacity style={select[number] === true ? styles.carddisable : styles.imagse} onPress={() => props.setSelect({ ...select, [number]: !select[number] })}>
               <Image
-                source={props.image}
+                source={props.avatar ? {uri : props.avatar} : props.image}
                 // source={props.image ? props.image : require("../assets/appicon.png")}
                 style={select[number] === true ? styles.carddisablee : styles.imagsee}
               />

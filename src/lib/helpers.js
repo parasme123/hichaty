@@ -8,8 +8,8 @@ const roomsCollection = firestore().collection("rooms");
 export const createNewRoom = async (userId, targetId) => {
     // create new room
     const docRef = await roomsCollection.add({
-        participants: [userId, targetId], 
-        temporary: false, 
+        participants: [userId, targetId],
+        temporary: false,
         audio: {
             answer: "",
             from: "",
@@ -68,5 +68,10 @@ export const saveTokeToDatabase = async (id, token) => {
 //     }
 // }
 
+export const dateDiff = (startDate, endDate) => {
+    let diffBetweenDate = endDate - startDate;
+    let remainingTime = Math.floor(diffBetweenDate / (1000));
+    return remainingTime;
+}
 
 

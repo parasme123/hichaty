@@ -20,7 +20,7 @@ import firestore from '@react-native-firebase/firestore';
 
 const history = ({ navigation, route }) => {
 
-  const { user, users, notifications, setModalChatContact, history, setNotifications,
+  const { user, users, notifications, setModalChatContact, history, myUnreadMessages, setNotifications,
     modalVideoInvitation, setModalVideoInvitation,
     modalAudioInvitation, setModalAudioInvitation,
   } = useContext(AppContext);
@@ -186,6 +186,7 @@ const history = ({ navigation, route }) => {
     // console.log(JSON.stringify(item), "item>>>>");
     return (
       <Card
+        id={item?.id}
         number={item?.key}
         name={item?.name}
         picture={item?.picture}
@@ -195,7 +196,7 @@ const history = ({ navigation, route }) => {
         chat={() => navigateTo('chat', item)}
         blockuser={() => navigation.navigate('settheme', { targetId: item.id, mobile: item.mobile, name: item.name, status: item.status, picture: item.picture })}
         status={item.status}
-
+        unreadmsgs={myUnreadMessages[item?.id] && myUnreadMessages[item?.id] > 0 ? myUnreadMessages[item?.id] : 0}
       />
 
     )
@@ -228,9 +229,9 @@ const history = ({ navigation, route }) => {
 
         </View>
       </ScrollView>
-      { target && <ModalChatContact target={target} navigate={navigation.navigate} desiredChat={desiredChat} actualRouteName={"Group"} />}
-      { targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
-      { targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
+      {target && <ModalChatContact target={target} navigate={navigation.navigate} desiredChat={desiredChat} actualRouteName={"Group"} />}
+      {targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
+      {targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
 
     </SafeAreaView>
   );

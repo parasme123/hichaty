@@ -105,5 +105,5 @@ install_xcframework() {
   echo "Copied $source to $destination"
 }
 
-install_xcframework "${PODS_ROOT}/../../node_modules/react-native-webrtc/apple/WebRTC.xcframework" "react-native-webrtc" "framework" "ios-arm64" "ios-x86_64-simulator"
+install_xcframework "${PODS_ROOT}/../../node_modules/react-native-webrtc/apple/WebRTC.xcframework" "react-native-webrtc" "framework" "ios-arm64" "ios-arm64_x86_64-simulator"
 

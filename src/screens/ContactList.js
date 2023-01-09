@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text,Share, View, StyleSheet, FlatList, Image, TouchableOpacity, PermissionsAndroid, ActivityIndicator } from "react-native";
+import { Text, Share, View, StyleSheet, FlatList, Image, TouchableOpacity, PermissionsAndroid, ActivityIndicator } from "react-native";
 import Contacts from 'react-native-contacts';
 import { backblue } from '../assets/changethemeicons';
 import { SvgXml } from 'react-native-svg';
@@ -49,8 +49,8 @@ export default class ContactList extends Component {
         try {
             const result = await Share.share({
                 title: 'Hichaty',
-                message: 'We request you to all Hichaty users,share with your friends and family.https://hichaty.com/',
-                url: 'https://hichaty.com/'
+                message: "Let's connect on HiChaty, It's a Easy, Safe & secure App, We can use to Message and Call with Friends and Family free. \n https://play.google.com/store/apps/details?id=com.hichaty",
+                url: 'https://play.google.com/store/apps/details?id=com.hichaty'
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {

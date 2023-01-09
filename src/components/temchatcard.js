@@ -37,6 +37,13 @@ function Cardset(props) {
         <CardItem>
           <View style={styles.iconset}>
             <View style={styles.icons}>
+              {
+                props.remainingTime ? (
+                  <View>
+                    <Text>{props.remainingTime()}</Text>
+                  </View>
+                ) : null
+              }
               <TouchableOpacity onPress={props.modal}>
                 <SvgXml xml={chat} />
               </TouchableOpacity>
@@ -92,7 +99,8 @@ const styles = StyleSheet.create({
   icons: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '50%',
   },
   iconset: {

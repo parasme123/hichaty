@@ -20,7 +20,7 @@ let fcmUnsubscribe = null;
 const settings = (props) => {
   const { navigation } = props;
   const { user, notifications, setModalChatContact, setNotifications,
-    setModalVideoInvitation, setModalAudioInvitation,
+    setModalVideoInvitation, setModalAudioInvitation, setUser
   } = useContext(AppContext);
   const [target, setTarget] = useState(null);
   const [targetvideo, setTargetvideo] = useState(null);
@@ -106,6 +106,7 @@ const settings = (props) => {
   const LogoutMain = async () => {
     try {
       await auth().signOut();
+      setUser(null)
       AsyncStorageHelper.removeItemValue("Contact_Data")
       AsyncStorageHelper.removeItemValue("Contact_Status")
       navigation.reset({

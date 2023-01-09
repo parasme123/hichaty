@@ -78,13 +78,11 @@ const ContactFile = ({ navigation, route }) => {
   }
 
   const sendInvitation = (routeName, id, name) => {
-    console.log('-----sendInvitation:' + routeName, id, name)
     setTarget({ id, name });
     setDesiredChat(routeName);
     setModalChatInvitation(true);
   }
   useEffect(() => {
-    console.log(users, 'users>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     setTimeout(() => {
       getContractHistory()
     }, 1500);
@@ -104,10 +102,7 @@ const ContactFile = ({ navigation, route }) => {
 
   useEffect(() => {
     fcmUnsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log("A new Message arrived to Contacts screen -- > : " + JSON.stringify(remoteMessage));
-      // setReceiverId()
       var val = remoteMessage.data.senderId;
-      console.log(val, 'val>>>>>>>>>>>>>>>>>>>>>>');
       // var index = users.findIndex(function (item, i) {
       //   return item.id === val
       // });
@@ -119,12 +114,8 @@ const ContactFile = ({ navigation, route }) => {
       // // console.log("-------------------> : " + index);
       // // console.log("--------------NEW Data-----> : " + JSON.stringify(tempUsers));
       // setShowUsers(tempUsers)
-
-
       let data = remoteMessage.data;
       let type = data.msgType;
-      console.log('data>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + data)
-      console.log('type>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + type)
       switch (type) {
         case "new invitation":
           setTarget({ id: data.senderId, name: data.senderName });
@@ -142,9 +133,6 @@ const ContactFile = ({ navigation, route }) => {
     })
     return fcmUnsubscribe;
   }, [users])
-
-
-
 
   // if not, so he was in another screen and we redirected him , we'll check that 
   // with the redirectToScreens page :

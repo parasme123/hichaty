@@ -13,7 +13,7 @@ function avatar(props) {
       {/* <View style={styles.avatar}> */}
         <Avatar
           rounded
-          source={{uri: 'https://i.stack.imgur.com/uoVWQ.png'}}
+          source={{uri: props.groupAvatar ? props.groupAvatar : 'https://i.stack.imgur.com/uoVWQ.png'}}
           size={40}
         />
       {/* </View> */}

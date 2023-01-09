@@ -67,7 +67,7 @@ const ModalVideocall = (props) => {
   useEffect( () => {
     if(focused && modalVideoInvitation ){
       _onFinishedPlayingSubscription = SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
-        console.log('finished playing', success);
+        // console.log('finished playing', success);
         onClickReject();
       })
       try {
@@ -92,7 +92,7 @@ const ModalVideocall = (props) => {
             <Avatar
                 rounded
                 containerStyle={styles.avatar1}
-                source={{uri: 'https://i.stack.imgur.com/uoVWQ.png'}}
+                source={{uri: remotePic ? remotePic : 'https://i.stack.imgur.com/uoVWQ.png'}}
                 size={200}
             />
             <View style={styles.input}>

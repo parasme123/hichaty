@@ -14,7 +14,7 @@ import AppContext from '../context/AppContext';
 import firestore from '@react-native-firebase/firestore';
 const usersCollection = firestore().collection('users')
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-
+import CountryPicker from 'rn-country-picker';
 const login = (props) => {
 
   const { navigation } = props;
@@ -22,22 +22,17 @@ const login = (props) => {
   const [loading, setLoading] = useState(false);
   const [confirmResult, setConfirmResult] = useState(null);
   const [code, setCode] = useState(null);
-  const [password_2, setPassword_2] = useState(null)
   const [secondes, setSecondes] = useState(30)
   const [minutes, setMinutes] = useState(1)
-  const [error, setError] = useState(null)
   const { user, setUser, permissions } = useContext(AppContext)
-  // const [ mobile, setMobile ] = useState('+919429000062');
-  // const [ password, setPassword] = useState('Mokshasd@2528');
-  // const [ mobile, setMobile ] = useState('+919782186615');
-  // const [ password, setPassword] = useState('Vicky@123456');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [savedUser, setSavedUser] = useState(null);
+  const [countryCode, setCountryCode] = useState('91');
 
   useEffect(() => {
     const Countdown = () => {
-      console.log(secondes, minutes)
+      // console.log(secondes, minutes)
       if (secondes > 0) {
         setSecondes(secondes - 1)
       }
@@ -53,6 +48,11 @@ const login = (props) => {
       setTimeout(Countdown, 1000)
     }
   }, [secondes, minutes, user, confirmResult])
+
+  const setMobileNumber = (code, number) => {
+    setCountryCode(code);
+    setMobile(`+${code}${number}`)
+  }
 
   const onAuthStateChanged = async (user) => {
     if (user) {
@@ -75,15 +75,27 @@ const login = (props) => {
         console.log("doc:" + JSON.stringify({ id: documentSnapshot.id, ...documentSnapshot.data() }))
       })
     }
-
-    console.log('querySnapshot', !!querySnapshot.empty)
-    return { isNew: !!querySnapshot.empty, data }
+    return { isNew: querySnapshot.empty, data }
   }
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber;
   }, [])
+
+  const resendOTP = () => {
+    setSecondes(30)
+    setMinutes(1)
+    auth().signInWithPhoneNumber(mobile)
+      .then(confirmation => {
+        console.log('-----res>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ' + JSON.stringify(confirmation))
+      })
+      .catch(error => {
+        alert(`Sign In With Phone Number Error: ${error.message}`)
+        console.log(error.message, "error.message>>>>>>>>>>>");
+        // setError({ message: `Sign In With Phone Number Error: ${error.message}`})
+      });
+  }
 
   const signInWithPhoneNumber = async () => {
     if (mobile == '' || mobile == null) {
@@ -135,7 +147,7 @@ const login = (props) => {
       setLoading(false);
       setModalVisible(true);
     }
-  }, [user, confirmResult])
+  }, [confirmResult])
 
   // const confirmCode = async () => {
   //   try {
@@ -206,11 +218,29 @@ const login = (props) => {
             </View>
             <View style={styles.input}>
               <View style={styles.sectionStyle}>
-                <SvgXml xml={mobile_} />
+                <CountryPicker
+                  disable={false}
+                  animationType={'slide'}
+                  containerStyle={styles.pickerStyle}
+                  // pickerTitleStyle={styles.pickerTitleStyle}
+                  // dropDownImage={require('./res/ic_drop_down.png')}
+                  // selectedCountryTextStyle={styles.selectedCountryTextStyle}
+                  // countryNameTextStyle={styles.countryNameTextStyle}
+                  pickerTitle={'Country Picker'}
+                  searchBarPlaceHolder={'Search......'}
+                  hideCountryFlag={false}
+                  hideCountryCode={true}
+                  // searchBarStyle={styles.searchBarStyle}
+                  // backButtonImage={require('./res/ic_back_black.png')}
+                  // searchButtonImage={require('./res/ic_search.png')}
+                  countryCode={countryCode}
+                  selectedValue={(val) => setMobileNumber(val, mobile)}
+                />
+                {/* <SvgXml xml={mobile_} /> */}
                 <TextInput
-                  onChange={(event) => setMobile(event.nativeEvent.text)}
+                  onChange={(event) => setMobileNumber(countryCode, event.nativeEvent.text)}
                   style={styles.inputfield}
-                  placeholder="+1650551234"
+                  placeholder="Mobile Number"
                   returnKeyType={'next'}
                   underlineColorAndroid="transparent"
                 />
@@ -245,7 +275,7 @@ const login = (props) => {
               <Text style={styles.forgot}>Forgot Password?</Text>
               <Text style={styles.forgot}>|</Text>
               <TouchableOpacity onPress={() => navigation.navigate('register')}>
-                <Text style={[styles.forgot], { color: '#53A8CB' }}>Signup Here!</Text>
+                <Text style={[styles.forgot, { color: '#53A8CB' }]}>Signup Here!</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -261,6 +291,62 @@ const login = (props) => {
           </View>
         </Modal> */}
         </KeyboardAwareScrollView>
+        <Modal
+          animationType={'slide'}
+          transparent={true}
+          visible={modalVisible}>
+          <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+            <View style={styles.modal1}>
+              {/* <SvgXml xml={success} /> */}
+              <Text style={styles.modaltext1}> Phone verification </Text>
+              <Text style={styles.modaltext1}>
+                Please enter the code you received in your phone!
+              </Text>
+              <Text style={styles.modaltext1}>
+                {minutes}:{secondes}
+              </Text>
+              <OTPInputView
+                style={{ width: "100%", height: 50 }}
+                pinCount={6}
+                autoFocusOnLoad={false}
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled={(code) => {
+                  setCode(code);
+                  console.log(`Code is ${code}`);
+                }}
+              />
+              {
+                minutes === 0 && secondes === 0 ? (
+                  <View style={{ marginTop: 10, flexDirection: 'row' }}>
+                    <Text>Not Received ? </Text>
+                    <TouchableOpacity onPress={() => resendOTP()}>
+                      <Text style={{ color: '#53A8CB' }}> Resend</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : null
+              }
+
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
+
+                  }]}
+                  onPress={() => cancelCode()}>
+                  <Text style={styles.buttontext}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
+                  }]}
+                  onPress={() => confirmCode()}>
+                  <Text style={styles.buttontext}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
       {loading ?
         <View style={{ flex: 1, backgroundColor: '#000000aa', alignItems: 'center', justifyContent: 'center', width: "100%", height: "100%", position: 'absolute', zIndex: 1 }}>
@@ -269,51 +355,6 @@ const login = (props) => {
         </View>
         : null}
 
-      <Modal
-        animationType={'slide'}
-        transparent={true}
-        visible={modalVisible}>
-        <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
-          <View style={styles.modal1}>
-            {/* <SvgXml xml={success} /> */}
-            <Text style={styles.modaltext1}> Phone verification </Text>
-            <Text style={styles.modaltext1}>
-              Please enter the code you received in you phone!
-            </Text>
-            <Text style={styles.modaltext1}>
-              {minutes}:{secondes}
-            </Text>
-            <OTPInputView
-              style={{ width: "100%", height: 100 }}
-              pinCount={6}
-              autoFocusOnLoad
-              codeInputFieldStyle={styles.underlineStyleBase}
-              codeInputHighlightStyle={styles.underlineStyleHighLighted}
-              onCodeFilled={(code) => {
-                setCode(code);
-                console.log(`Code is ${code}`);
-              }}
-            />
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
-
-                }]}
-                onPress={() => cancelCode()}>
-                <Text style={styles.buttontext}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
-                }]}
-                onPress={() => confirmCode()}>
-                <Text style={styles.buttontext}>Submit</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
 
   );
@@ -325,6 +366,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  pickerStyle: {
+    height: 40,
+    width: 70,
+    marginBottom: 10,
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 0,
+    borderColor: '#303030',
+    // backgroundColor: 'white',
   },
   content: {
     alignContent: 'center',

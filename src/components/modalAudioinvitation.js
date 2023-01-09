@@ -66,14 +66,14 @@ const ModalAudiocall = (props) => {
   useEffect( () => {
     if(focused && modalAudioInvitation ){
       _onFinishedPlayingSubscription = SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
-        console.log('finished playing', success);
+        // console.log('finished playing', success);
         onClickReject();
       })
       try {
         // play the file tone.mp3
         SoundPlayer.playSoundFile('call', 'mp3')
       } catch (e) {
-          console.log(`cannot play the sound file`, e)
+          // console.log(`cannot play the sound file`, e)
       }
       return _onFinishedPlayingSubscription.remove();
     }
@@ -89,7 +89,7 @@ const ModalAudiocall = (props) => {
             <Avatar
                 rounded
                 containerStyle={styles.avatar1}
-                source={{uri: 'https://i.stack.imgur.com/uoVWQ.png'}}
+                source={{uri: remotePic ? remotePic : 'https://i.stack.imgur.com/uoVWQ.png'}}
                 size={200}
             />
             <View style={styles.input}>
