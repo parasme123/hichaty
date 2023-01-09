@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, Platform, TextInput, FlatList, Button, Dimensions, Keyboard, DeviceEventEmitter, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, Platform, TextInput, FlatList, Button, Dimensions, Keyboard, DeviceEventEmitter, SafeAreaView, Linking, Modal } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { more, block, clear, del1 } from '../assets/cardicons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,6 +21,7 @@ const usersCollection = firestore().collection('users');
 const messagesCollection = firestore().collection('messages');
 const historyCollection = firestore().collection('history');
 import storage from '@react-native-firebase/storage';
+import { Icon } from 'native-base';
 
 let fcmUnsubscribe = null;
 let getMessages = null;
@@ -48,6 +49,8 @@ const Chat = ({ navigation, route }) => {
   const [startTime, setStartTime] = useState(new Date());
   const [Keyboardword, setKeyboardword] = useState(false);
   const [shortHeight, setshortHeight] = useState(0);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const flatListRef = useRef();
 
   const changeMapToObject = (key, value) => {
@@ -109,10 +112,10 @@ const Chat = ({ navigation, route }) => {
     }, [unreadMessages])
   )
 
-  const postMessage = (emoji) => {
-    console.log("ye");
+  const postMessage = (emoji, fileName = "") => {
     let messagetext = emoji ? emoji : textMessage
-    setEmojyData(false)
+    // console.log(messagetext);
+    setEmojyData(false);
     const data = {
       [`message ${messages.length + 1}`]:
       {
@@ -120,22 +123,23 @@ const Chat = ({ navigation, route }) => {
         read: false,
         room: roomRef,
         text: messagetext,
-        userId: user.id
+        userId: user.id,
+        fileName
       }
     }
     messagesCollection.doc(roomRef).set(data, { merge: true });
-    console.log({
-      tokens: tokens,
-      senderId: user.id,
-      receiverId: remotePeerId,
-      message: messagetext,
-      roomRef: roomRef,
-    })
+    // console.log({
+    //   tokens: tokens,
+    //   senderId: user.id,
+    //   receiverId: remotePeerId,
+    //   message: messagetext,
+    //   roomRef: roomRef,
+    // })
     firebase.functions().httpsCallable('onNewMessage')({
       senderId: user.id,
       senderName: user.name,
       receiverId: remotePeerId,
-      message: messagetext,
+      message: fileName != "" ? fileName : messagetext,
       roomRef: roomRef,
 
     })
@@ -152,16 +156,12 @@ const Chat = ({ navigation, route }) => {
         .set({ [`${user.id}`]: firestore.FieldValue.arrayUnion(historydata), chat: 0, room: roomRef }, { merge: true })
         .catch(e => console.log(e, 'from history'));
     }
-
-
-
-
   }
 
-  useEffect(() => {
-    console.log('unreadMessages', unreadMessages);
-    console.log('myUnreadMessages', myUnreadMessages);
-  }, [unreadMessages])
+  // useEffect(() => {
+  // console.log('unreadMessages', unreadMessages);
+  // console.log('myUnreadMessages', myUnreadMessages);
+  // }, [unreadMessages])
 
   var _menu = null;
   const setMenuRef = (ref) => {
@@ -251,70 +251,126 @@ const Chat = ({ navigation, route }) => {
   // console.log(JSON.stringify(navigation.canGoBack()), "remotePic");
   const gotoattachmentFile = () => {
     setEmojyData(false)
+    _menu.hide();
     CameraController.attachmentFile((response) => {
-      console.log(response.path, "response");
       if (response.path) {
-        // (async () => await uploadImage(response.path))();
-
-        // setPhoto(response)
-        // setPicture(response.path), setavatar(response.path)
+        (async () => await uploadImage(response, "file"))();
       }
     });
   }
 
-  // const uploadImage = async (photo) => {
-  //   console.log(photo, "photo>>>>>>>>>");
-  //   let photoUri = photo;
-  //   const filename = photoUri.substring(photoUri.lastIndexOf('/') + 1);
-  //   console.log('filename>>>>>>>>>>>>>>>', filename)
-  //   const uploadUri = photoUri;
-  //   console.log('uploadUri>>>>>>>>>', uploadUri)
-  //   const task = storage().ref(`Profile-Images/${filename}`).putFile(uploadUri);
+  const gotoattachmentImages = () => {
+    setEmojyData(false)
+    _menu.hide();
+    CameraController.open((response) => {
+      if (response.path) {
+        (async () => await uploadImage(response, "img"))();
+      }
+    });
+  }
 
-  //   console.log(task, "task>>>>>>>>>>>>");
-  //   console.log(task.on(), "task>>>>>>>>>>>>on>>>>>");
+  const uploadImage = async (photo, type) => {
+    let filetype = "";
+    if (photo.mime.includes("image")) {
+      filetype = "imageFirebaseUser"
+    } else {
+      filetype = "FileFirebaseUser"
+    }
+    // let finalImageUrl = roomRef + "-" + filetype + "-" + firestore.Timestamp.now()
+    let photoUri = photo.path;
+    let realFileName = type == "img" ? photoUri.substring(photoUri.lastIndexOf('/') + 1) : photo.name;
+    const filename = type == "img" ? filetype + "-" + realFileName : filetype + "-" + photo.name;
+    console.log('filename', type);
+    const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+    console.log('uploadUri', uploadUri)
+    const task = storage()
+      .ref(`Chat-Images/${filename}`)
+      .putFile(uploadUri);
+    // set progress state
+    task.on('state_changed',
+      snapshot => {
+        // setTransferred(
+        //   Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+        // );
+      },
+      error => {
+        console.log('error', error);
+        // setError({ message: 'Something went wrong, please try again ' })
+      },
+      () => {
+        task.snapshot.ref.getDownloadURL().then(url => {
+          console.log('URL', url);
+          console.log('realFileName', realFileName);
+          // setTextMessage(realFileName);
+          postMessage(url, realFileName);
+        })
+      }
+    );
+    try {
+      await task;
+    } catch (e) {
+      console.error(e);
+    }
+    // setPicture(`Profile-Images/${filename}`);
+    // setAvatar(`Profile-Images/${filename}`);
+    // setPhoto(null);
+    // setModalVisible0(false)
+  }
 
-  //   // set progress state
-  //   task.on('state_changed', snapshot => {
-  //     // setTransferred(
-  //     //   Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
-  //     // );
-  //   },
-  //     error => {
-  //       setError({ message: 'Something went wrong, please try again ' })
-  //     },
-  //     () => {
-  //       console.log('ref>>>>>>>', task);
-  //       task.snapshot.ref.getDownloadURL().then(url =>
-  //         console.log(url,"url>>>>>>>>")
-  //         //  setPicture(url), setavatar(url)
-  //       )
-  //     }
-  //   );
-  //   try {
-  //     await task;
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  //   setPicture(`Profile-Images/${filename}`);
-  //   setavatar(`Profile-Images/${filename}`);
-  //   setPhoto(null);
-  //   setModalVisible0(false)
-  // };
+  const handleOpenLinkInBrowser = (url) => {
+    Linking.openURL(url);
+  }
+
+  const handleOpenLinkInModal = (url) => {
+    setImageUrl(url)
+    setImageModalVisible(true);
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <Modal
+        animationType={'slide'}
+        transparent={true}
+        visible={imageModalVisible}
+        onRequestClose={() => setImageModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={() => setImageModalVisible(false)} style={{ alignSelf: 'flex-end', marginBottom: 20, padding: 5, paddingHorizontal: 20 }}>
+            <Text style={{ color: 'white', fontSize: 30 }}>X</Text>
+          </TouchableOpacity>
+          <View style={{
+            flex: 1,
+            padding: 15,
+            width: '100%',
+            alignContent: 'center',
+            borderRadius: 15,
+            paddingTop: 10,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Image style={{ height: 400, width: '100%', resizeMode: "cover" }}
+              source={{ uri: imageUrl }} />
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.container}>
         <Header
           // back={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('bottom')}
           back={() => navigation.canGoBack() ? gotoHomePage() : navigation.navigate('bottom')}
-          voicecall={() => navigateTo('voicecall')}
-          videocall={() => navigateTo('videocall')}
+          voicecall={navigateTo}
+          videocall={navigateTo}
           remotePic={remotePic}
+          roomRef={roomRef}
+          setMessages={setMessages}
         />
+        <View style={{ position: 'absolute', bottom: 55, paddingVertical: 10, paddingHorizontal: 40, zIndex: 1111, alignSelf: 'center', borderRadius: 10 }}>
+          <Text style={{ color: '#47525D', fontWeight: "bold", opacity: 0.5 }}>END-TO-END ENCRYPTED</Text>
+        </View>
         {user && !!messages && messages.length > 0 ?
           <FlatList
             ref={flatListRef}
-            onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end  
+            // onContentSizeChange={() => setTimeout(() => flatListRef?.current?.scrollToEnd(), 200)} // scroll end  
             // contentContainerStyle={{flex:1}}
             showsVerticalScrollIndicator={false}
             inverted={true}
@@ -364,8 +420,27 @@ const Chat = ({ navigation, route }) => {
                             {item.createdAt.toDate().toString().split(' ')[4].substring(0, 5)}
                           </Text>
                         </View>
-                        <View style={[styles.balloon]}>
-                          <Text style={styles.textmessage}>{item.text}</Text>
+                        <View style={styles.balloon}>
+                          {
+                            item.text?.includes("imageFirebaseUser") ? (
+                              <TouchableOpacity onPress={() => handleOpenLinkInModal(item.text)} style={{ padding: 6 }}>
+                                <Image style={{ height: 200, width: 240, resizeMode: "cover" }}
+                                  source={{ uri: item.text }} />
+                                <Text style={{ color: 'white' }}>{item.fileName}</Text>
+                              </TouchableOpacity>
+                            ) : item.text?.includes("FileFirebaseUser") ? (
+                              <TouchableOpacity onPress={() => handleOpenLinkInBrowser(item.text)} style={{width:'100%'}}>
+                                <Text style={{ color: 'white', paddingVertical: 24, paddingHorizontal: 6, textAlign:'center' }}>{item.fileName}</Text>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', borderTopWidth: 2, borderColor: "#fff", paddingTop: 5 }}>
+                                  <Icon style={{ fontSize: 26, color: 'white' }}
+                                    name="download" />
+                                </View>
+                              </TouchableOpacity>
+                            ) : (
+                              <Text style={styles.textmessage}>{item.text}</Text>
+                            )
+                          }
+
                         </View>
                       </LinearGradient>
                     </View>
@@ -377,7 +452,8 @@ const Chat = ({ navigation, route }) => {
           />
           : <View style={{ flex: 1 }} />
         }
-        {EmojyData &&
+        {
+          EmojyData &&
           <View style={{ height: "40%", marginBottom: 60, width: windowWidth }}>
             < EmojiSelector
               category={Categories.emotion}
@@ -404,11 +480,11 @@ const Chat = ({ navigation, route }) => {
                 source={require("../assets/emojy.png")} />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => { gotoattachmentFile() }} style={{ padding: 10, }}>
+            {/* <TouchableOpacity onPress={() => { gotoattachmentFile() }} style={{ padding: 10, }}>
               <Image style={{ height: 20, width: 20, resizeMode: "contain" }}
                 source={require("../assets/attachment.png")} />
-            </TouchableOpacity>
-            {/* <View style={{ flexDirection: 'row' }}>
+            </TouchableOpacity> */}
+            <View style={{ flexDirection: 'row' }}>
               <Menu
                 ref={setMenuRef}
                 style={{ borderRadius: 15 }}
@@ -420,16 +496,16 @@ const Chat = ({ navigation, route }) => {
                 <View style={{ borderRadius: 12 }}>
                   <MenuItem onPress={hideMenu} style={{ borderRadius: 12 }}>
                     <View style={styles.ictext}>
-                      <SvgXml xml={camera} />
-                      <SvgXml xml={gallery} />
-                      <SvgXml xml={document} />
-                      <SvgXml xml={contactuser} />
+                      {/* <SvgXml xml={camera} /> */}
+                      <SvgXml xml={gallery} onPress={() => { gotoattachmentImages() }} />
+                      <SvgXml xml={document} onPress={() => { gotoattachmentFile() }} />
+                      {/* <SvgXml xml={contactuser} /> */}
                     </View>
                   </MenuItem>
                 </View>
               </Menu>
 
-            </View> */}
+            </View>
             <TouchableOpacity style={styles.btnSend} onPress={() => textMessage == null ? null : postMessage()}>
               <Text style={styles.send}>Send</Text>
             </TouchableOpacity>
@@ -439,8 +515,8 @@ const Chat = ({ navigation, route }) => {
         {target && <ModalChatContact target={target} navigate={navigation.navigate} desiredChat={desiredChat} actualRouteName={"Group"} />}
         {targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
         {targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
-      </View>
-    </SafeAreaView>
+      </View >
+    </SafeAreaView >
 
   );
 };
@@ -507,7 +583,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     maxWidth: 250,
     paddingBottom: 7,
-    paddingHorizontal: 6,
+    // paddingHorizontal: 6,
   },
   itemIn: {
     alignSelf: 'flex-start',
@@ -550,13 +626,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
-    paddingBottom: 5,
+    // paddingBottom: 5,
     paddingTop: 9,
-    paddingHorizontal: 8
+    // paddingHorizontal: 8
   },
   textmessage: {
     color: 'white',
     fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 6
   },
   itemright: {
     marginVertical: 10,
@@ -565,9 +643,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
-    paddingBottom: 5,
+    // paddingBottom: 5,
     paddingTop: 7,
-    paddingHorizontal: 8
+    // paddingHorizontal: 8
   },
   send: {
     fontSize: 16,
@@ -577,10 +655,12 @@ const styles = StyleSheet.create({
   nameanddate: {
     display: 'flex',
     flexDirection: 'row',
+    paddingHorizontal: 6
   },
   nameanddateright: {
     display: 'flex',
     flexDirection: 'row-reverse',
+    paddingHorizontal: 6
   },
   avatar1: {
     marginTop: 15,

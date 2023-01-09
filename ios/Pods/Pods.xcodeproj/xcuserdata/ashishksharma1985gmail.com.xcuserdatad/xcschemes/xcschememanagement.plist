@@ -434,6 +434,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>ReactNativeIncallManager.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>TOCropViewController-TOCropViewControllerBundle.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -504,6 +509,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>react-native-document-picker.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>react-native-image-picker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -520,6 +530,11 @@
 			<false/>
 		</dict>
 		<key>react-native-webrtc.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>rn-fetch-blob.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

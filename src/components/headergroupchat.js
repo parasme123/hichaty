@@ -1,13 +1,13 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet,TouchableOpacity, SafeAreaView} from 'react-native';
-import {SvgXml} from 'react-native-svg';
-import {back} from '../assets/changethemeicons';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+import { back } from '../assets/changethemeicons';
 
 function Headermain(props) {
-  const {navigation} = props;
+  const { navigation, doneProcess } = props;
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={props.back}style={styles.innercontainer}>
+      <TouchableOpacity onPress={props.back} style={styles.innercontainer}>
         <SvgXml
           xml={back}
           style={styles.icon}
@@ -17,12 +17,14 @@ function Headermain(props) {
       </TouchableOpacity>
       <View>
         {props.add === '1' ? (
-          <Text style={styles.textupdate} onPress={props.addmember}>
-            Update
-          </Text>
+          <TouchableOpacity onPress={props.addmember}>
+            <Text style={styles.textupdate}>
+              Update
+            </Text>
+          </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.button} onPress={props.done}>
-            <Text style={styles.buttontext}>Done</Text>
+          <TouchableOpacity style={styles.button} onPress={doneProcess ? null : props.done}>
+            {doneProcess ? <ActivityIndicator size="small" color="white" /> : <Text style={styles.buttontext}>Done</Text>}
           </TouchableOpacity>
         )}
       </View>

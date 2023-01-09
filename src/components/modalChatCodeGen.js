@@ -94,7 +94,7 @@ const ModalChatCodeGen = (props) => {
             codeInputHighlightStyle={styles.underlineStyleHighLighted}
             onCodeFilled={(code) => {
               setCode(code);
-              console.log(`Code is ${code}, you are good to go!`);
+              // console.log(`Code is ${code}, you are good to go!`);
             }}
           />
           <TouchableOpacity

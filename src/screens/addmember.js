@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,28 +9,76 @@ import {
 } from 'react-native';
 import Header from '../components/headergroupchat';
 import Card from '../components/creategroupchatcard';
-import {SvgXml} from 'react-native-svg';
-import {addimage} from '../assets/chaticons';
-import {SectionGrid} from 'react-native-super-grid';
+import { SvgXml } from 'react-native-svg';
+import { addimage } from '../assets/chaticons';
+import { SectionGrid } from 'react-native-super-grid';
+import AppContext from '../context/AppContext';
+import firestore from '@react-native-firebase/firestore';
+import { firebase } from '@react-native-firebase/functions';
+const usersCollection = firestore().collection('users');
 
 const Images = [
-  {image: require('../assets/user2.jpg')},
-  {image: require('../assets/bg.jpg')},
-];
-const data = [
-  {key: 'A', selected: false, img: Images[0].image},
-  {key: 'B', selected: true, img: Images[1].image},
-  {key: 'C', selected: false, img: Images[0].image},
-  {key: 'D', selected: false, img: Images[1].image},
-  {key: 'E', selected: false, img: Images[0].image},
+  { image: require('../assets/user2.jpg') },
+  { image: require('../assets/bg.jpg') },
 ];
 
 const Addmember = (props) => {
-  const {navigation} = props;
-  
+  const { navigation } = props;
+  const { roomRef, groupParticipants } = props.route.params;
+  const { user, users } = useContext(AppContext);
+  const [groupMember, setGroupMember] = useState([])
+  const [select, setSelect] = useState({});
+  const [selectedItems, setSelectedItems] = useState([])
+  const [doneProcess, setDoneProcess] = useState(false);
+
+  useEffect(() => {
+    let array = [];
+    if (select !== {}) {
+      Object.entries(select).forEach(([key, value]) => {
+        value ? array.push(key) : null
+      })
+    }
+    setSelectedItems(array)
+  }, [select])
+
+  useEffect(() => {
+    const groupMemberfilter = users.filter(data => !groupParticipants.includes(data.id))
+    setGroupMember(groupMemberfilter);
+  }, [])
+
+  const onPressDone = async () => {
+    setDoneProcess(true)
+    if (selectedItems.length == 0) {
+      alert("Please select users.")
+      setDoneProcess(false)
+      return false
+    } if (selectedItems.length > 0) {
+      selectedItems.forEach(async element => {
+        await usersCollection.doc(element).update({
+          teamChatNotification: firestore.FieldValue.arrayUnion({ type: "groupChat", id: user.id, name: user.name, roomRef: `/rooms/${roomRef}` })
+        })
+
+        firebase.functions().httpsCallable('onNewGroupInvitation')({
+          senderId: user.id,
+          senderName: user.name,
+          receiverId: element,
+          desiredChat: "GroupChat",
+        })
+
+      });
+      setDoneProcess(false)
+      navigation.navigate('Group')
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <Header comment="Add Member" back={() => navigation.goBack()} />
+      <Header
+        comment="Add Member"
+        back={() => navigation.goBack()}
+        done={() => onPressDone()}
+        doneProcess={doneProcess}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
@@ -38,14 +86,19 @@ const Addmember = (props) => {
             itemDimension={150}
             sections={[
               {
-                data: data,
+                data: groupMember,
               },
             ]}
             style={styles.gridView}
-            renderItem={({item, section, index}) => (
+            renderItem={({ item, section, index }) => (
               <Card
                 number={item.key}
-                image={item.img}
+                name={item.name}
+                select={select}
+                setSelect={setSelect}
+                image={Images[0].image}
+                avatar={item.avatar}
+                block={item.key}
                 video={() => navigation.navigate('videocall')}
                 phone={() => navigation.navigate('voicecall')}
                 chat={() => navigation.navigate('chat')}

@@ -51,7 +51,6 @@ import PrivacyPolicy from './src/screens/PrivacyPolicy'
 
 import AsyncStorageHelper from './src/lib/AsyncStorageHelper'
 
-
 const Stack = createStackNavigator();
 const usersCollection = firestore().collection('users');
 const onlineCollection = firestore().collection('online');
@@ -81,6 +80,7 @@ const App = () => {
   const [initialRouteName, setInitialRouteName] = useState(null);
   const [initialParams, setInitialParams] = useState({});
   const [blockedUsers, setBlockedUsers] = useState([]);
+  const [comeFromNotification, setComeFromNotification] = useState(null)
 
   /*
    This variable serves the purpose of redirecting the user to contatcs screen
@@ -106,27 +106,29 @@ const App = () => {
           log_message("Error while updating state auth", error)
         })
     }
-    if (initializing) setInitializing(false);  // setInitialing to false, to switc off splach screen
+    setTimeout(() => {
+      if (initializing) setInitializing(false);  // setInitialing to false, to switc off splach screen
+    }, 2000);
   }
-  useEffect(() => {
-    getContacts();
-  }, [])
-  const getContacts = async () => {
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-      {
-        'title': 'Contacts',
-        'message': 'This app would like to view your contacts.',
-        'buttonPositive': 'Please accept bare mortal'
-      }
-    )
-      .then(() => Contacts.getAll())
-      .then(contacts => {
-        setContacts(contacts)
-        AsyncStorageHelper.setData("Contact_Data", contacts)
+  // useEffect(() => {
+  //   getContacts();
+  // }, [])
+  // const getContacts = async () => {
+  //   PermissionsAndroid.request(
+  //     PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+  //     {
+  //       'title': 'Contacts',
+  //       'message': 'This app would like to view your contacts.',
+  //       'buttonPositive': 'Please accept bare mortal'
+  //     }
+  //   )
+  //     .then(() => Contacts.getAll())
+  //     .then(contacts => {
+  //       setContacts(contacts)
+  //       AsyncStorageHelper.setData("Contact_Data", contacts)
 
-      })
-  }
+  //     })
+  // }
 
   /* set listener for changes in auth :
   */
@@ -210,9 +212,6 @@ const App = () => {
     }
   }, [user])
 
-
-
-
   const forwardToChat = async (type, route, params) => {
     switch (type) {
       case "background state":
@@ -227,15 +226,22 @@ const App = () => {
   }
 
   const processNotifation = (state, remoteMessage, fromBackground) => {
-
+    setComeFromNotification({ state, remoteMessage, fromBackground });
     if (remoteMessage) {
       if (fromBackground && remoteMessage.data.msgType) {
         switch (remoteMessage.data.msgType) {
           case "chat":
+          case "temporary":
             forwardToChat(state, remoteMessage.data.msgType, {
               roomRef: remoteMessage.data.roomRef,
               remotePeerName: remoteMessage.data.senderName,
-              remotePeerId: remoteMessage.data.senderId
+              remotePeerId: remoteMessage.data.senderId,
+              msgType: remoteMessage.data.msgType
+            })
+            return;
+          case "Temchat":
+            forwardToChat(state, "bottom", {
+              initialParams: remoteMessage.data.msgType
             })
             return;
         }
@@ -266,39 +272,33 @@ const App = () => {
     )
   }
 
-
-
   /* App ready ---> let's go !
   */
   return (
-
     <AppContext.Provider
-
       value={{
-        user, permissions, users, notifications, modalVideoInvitation, teamChatNotifications,
+        comeFromNotification, user, permissions, users, notifications, modalVideoInvitation, teamChatNotifications,
         teamChatContacts, acceptedRequests, modalChatContact, uri, modalAudioInvitation, rooms,
         colour, redirectToContacts, blockedUsers, history, myUnreadMessages, contacts,
         setRedirectToContacts, setMyUnreadMessages, setColour, setHistory, setBlockedUsers,
         setModalAudioInvitation, setModalVideoInvitation, setModalChatContact, setUser, setUsers,
         setNotifications, setTeamChatNotifications, setTeamChatContacts, setAcceptedRequests, setRooms, setContacts
       }}>
-
       <NavigationContainer
         linking={
           {
             prefixes: ['hichaty://'],
             async getInitialURL() {
-              log_message("App opened via a deep link", "Video or audio Call");
               // Check if app was opened from a deep link
               const url = await Linking.getInitialURL();
               if (url != null) {
+                log_message("App opened via a deep link", "Video or audio Call");
                 return url;
               }
             }
           }
         }
         ref={navigationRef} >
-
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -317,7 +317,7 @@ const App = () => {
           <Stack.Screen name="contactus" component={Contactus} />
           <Stack.Screen name="terms" component={Terms} />
           <Stack.Screen name="about" component={About} />
-          <Stack.Screen name="temporary" component={Temporary} />
+          <Stack.Screen name="temporary" component={Temporary} initialParams={initialParams} />
           <Stack.Screen name="chat" component={Chat} initialParams={initialParams} />
           <Stack.Screen name="voicecall" component={Voicecall} />
           <Stack.Screen name="videocall" component={Videocall} />
@@ -332,7 +332,7 @@ const App = () => {
           <Stack.Screen name="acceptgroupcall" component={Acceptgroupcall} />
           <Stack.Screen name="acceptvideocall" component={AcceptVideocall} initialParams={initialParams} />
           <Stack.Screen name="acceptvoicecall" component={AcceptVoicecall} initialParams={initialParams} />
-          <Stack.Screen name="bottom" component={Bottom} />
+          <Stack.Screen name="bottom" component={Bottom} initialParams={initialParams} />
           <Stack.Screen name="updateaccount" component={Updateaccount} />
           <Stack.Screen name="uploadphoto" component={Uploadphoto} />
           <Stack.Screen name="blockedcontacts" component={BlockedContacts} />
@@ -342,8 +342,6 @@ const App = () => {
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
-
-
   );
 }
 export default App;

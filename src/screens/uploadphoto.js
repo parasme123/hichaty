@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Container } from 'native-base';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Modal, PermissionsAndroid, ScrollView, DeviceEventEmitter, SafeAreaView, Platform } from 'react-native';
-import { Icon } from 'native-base';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Modal, ScrollView, SafeAreaView, Platform } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   hands as hands_,
@@ -12,24 +10,18 @@ import {
   contact as contact_,
   user as user_
 } from '../assets/loginsignupIcons';
-import androidPermissions from '../lib/androidPermissions';
 import { add, camera, gallery } from '../assets/chaticons';
 import { Avatar } from 'react-native-elements';
-import Svg, { SvgXml } from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 import { whiteuser, whitemobile, successwhite } from '../assets/loginsignupIcons';
-import { settings, backwhite } from '../assets/changethemeicons';
 import AppContext from '../context/AppContext';
 import { ProgressBar } from '@react-native-community/progress-bar-android';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import Share from 'react-native-share';
-import { check, request, PERMISSIONS, openSettings } from 'react-native-permissions';
 import CameraController from '../lib/CameraController';
 
 const usersCollection = firestore().collection('users');
-
-
 
 const Uploadphoto = (props) => {
 
@@ -73,7 +65,7 @@ const Uploadphoto = (props) => {
     CameraController.open((response) => {
       console.log(response.path, "response");
       if (response.path) {
-        // setPhoto(response)
+        setPhoto(response)
         setPicture(response.path), setavatar(response.path)
       }
     });
@@ -126,24 +118,27 @@ const Uploadphoto = (props) => {
     changemodel0();
     let photoUri = photo.path;
     const filename = photoUri.substring(photoUri.lastIndexOf('/') + 1);
-    const uploadUri = photoUri;
-    console.log('uploadUri', uploadUri)
-    const task = storage().ref(`Profile-Images/${filename}`).putFile(uploadUri);
-    console.log(task, "task>>>>>>>>>>>>");
-    console.log(task.on(), "task>>>>>>>>>>>>on>>>>>");
-
+    const uploadUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+    // console.log('uploadUri', uploadUri)
+    const task = storage()
+      .ref(`Profile-Images/${filename}`)
+      .putFile(uploadUri);
     // set progress state
-    task.on('state_changed', snapshot => {
-      setTransferred(
-        Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
-      );
-    },
+    task.on('state_changed',
+      snapshot => {
+        setTransferred(
+          Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+        );
+      },
       error => {
         setError({ message: 'Something went wrong, please try again ' })
       },
       () => {
-        console.log('ref>>>>>>>', task);
-        task.snapshot.ref.getDownloadURL().then(url => setPicture(url), setavatar(url))
+        console.log('ref', task.snapshot.ref.path);
+        task.snapshot.ref.getDownloadURL().then(url => {
+          setPicture(url);
+          setavatar(url);
+        })
       }
     );
     try {
@@ -151,15 +146,15 @@ const Uploadphoto = (props) => {
     } catch (e) {
       console.error(e);
     }
-    setPicture(`Profile-Images/${filename}`);
-    setavatar(`Profile-Images/${filename}`);
+    // setPicture(`Profile-Images/${filename}`);
+    // setavatar(`Profile-Images/${filename}`);
     setPhoto(null);
     setModalVisible0(false)
   };
 
   useEffect(() => {
 
-    if (photo) {
+    if (photo && photo != null) {
       (async () => await uploadImage(photo))();
     }
     if (error) {
@@ -169,7 +164,7 @@ const Uploadphoto = (props) => {
 
   const onClickDone = () => {
     if (picture) {
-      usersCollection.doc(user.id).update({ name, picture, status })
+      usersCollection.doc(user.id).update({ name, avatar, picture, status })
       setModalVisible1(true);
     } else {
       setError({ message: 'Please add an image' })
@@ -181,8 +176,8 @@ const Uploadphoto = (props) => {
   const onShare = async (type) => {
     const shareOptions = {
       title: "Hichaty",
-      message: "We request you to all Hichaty users,share with your friends and family",
-      url: "https://hichaty.com/",
+      message: "Let's connect on HiChaty, It's a Easy, Safe & secure App, We can use to Message and Call with Friends and Family free. \n https://play.google.com/store/apps/details?id=com.hichaty",
+      url: 'https://play.google.com/store/apps/details?id=com.hichaty',
       subject: "Hichaty App",
       social: type == 'FACEBOOK' ? Share.Social.FACEBOOK : type == 'WHATSAPP' ? Share.Social.WHATSAPP : type == 'LINKEDIN' ? Share.Social.LINKEDIN : type == 'INSTAGRAM' ? Share.Social.INSTAGRAM : Share.Social.SMS,
     };
@@ -249,7 +244,7 @@ const Uploadphoto = (props) => {
             <View style={styles.sectionStyle}>
               <TextInput
                 style={styles.inputfield}
-                placeholder="Life is Hell"
+                placeholder="Update your Status"
                 placeholderTextColor="white"
                 value={status}
                 onChange={e => setStatus(e.nativeEvent.text)}

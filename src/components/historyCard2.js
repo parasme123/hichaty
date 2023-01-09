@@ -36,6 +36,7 @@ const Cardset = (props) => {
   const [chatclick, setChatclick] = useState(false);
   const [audioclick, setAudioclick] = useState(false);
   const [videoclick, setVideoclick] = useState(false);
+  const [isOnline, setIsOnline] = useState(false);
 
 
   var _menu = null;
@@ -54,6 +55,34 @@ const Cardset = (props) => {
 
   useEffect(() => {
     //console.log(props.unreadmsgs);
+  }, [])
+
+  useEffect(() => {
+    firestore().collection('status')
+      .where('state', '==', 'online')
+      .onSnapshot(
+        (snapShot) => {
+          let online = snapShot.docChanges().findIndex((data) => (data.type === 'added' && data.doc.id == props.id));
+          let offline = snapShot.docChanges().findIndex((data) => (data.type === 'removed' && data.doc.id == props.id));
+
+          if(online != -1)setIsOnline(true);
+          if(offline != -1)setIsOnline(false);
+          // snapShot.docChanges().forEach(
+          //   (change) => {
+          //     if (change.type === 'added' && change.doc.id === props.id) {
+          //       var msg = "User " + change.doc.id + " isOnline";
+          //       // console.log(msg);
+          //       setIsOnline(true);
+          //     }
+          //     if (change.type === 'removed' && change.doc.id === props.id) {
+          //       var msg = "User " + change.doc.id + " isOffline";
+          //       // console.log(msg);
+          //       setIsOnline(false);
+          //     }
+          //   }
+          // )
+        }
+      )
   }, [])
 
   useEffect(() => {
@@ -116,7 +145,6 @@ const Cardset = (props) => {
   return (
     <View>
       {props.name ? <View style={styles.card}>
-        <View style={props.online ? styles.isOnline : styles.isOffline} />
         <TouchableOpacity
           activeOpacity={1}
           style={{ flex: 1 }}
@@ -138,6 +166,8 @@ const Cardset = (props) => {
               ) : null}
               <View style={styles.opacity}>
                 {/* <View></View> */}
+                <View style={isOnline ? styles.isOnline : styles.isOffline} />
+
                 <Text numberOfLines={1} style={styles.heading} onPress={props.block ? null : props.blockuser}>{props.name}</Text>
                 <Text numberOfLines={1} style={styles.subtext}>{props.status}</Text>
               </View>
@@ -251,25 +281,25 @@ const styles = StyleSheet.create({
     marginVertical: -2,
   },
   isOnline: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     zIndex: 1,
     backgroundColor: 'green',
     position: 'absolute',
-    top: 0,
-    right: -2,
+    top: 7,
+    left: '5%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'white'
   },
   isOffline: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     zIndex: 1,
     backgroundColor: 'gray',
     position: 'absolute',
-    top: 0,
-    right: -2,
+    top: 7,
+    left: '5%',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'white'

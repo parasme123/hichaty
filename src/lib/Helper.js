@@ -8,8 +8,8 @@ export default class Helper extends React.Component {
             "Hichaty",
             alertMessage,
             [
-                { text: Camera, onPress: () => { if (cbCamera) cbCamera(true); console.log('OK Pressed') } },
-                { text: Gallery, onPress: () => { if (cbGallery) cbGallery(true); console.log('OK Pressed') } },
+                { text: Camera, onPress: () => { if (cbCamera) cbCamera(true); } },
+                { text: Gallery, onPress: () => { if (cbGallery) cbGallery(true); } },
                 { text: Cancel, onPress: () => { if (cbCamera) cbCamera(false); }, style: 'cancel' },
             ],
             { cancelable: false }
@@ -21,8 +21,8 @@ export default class Helper extends React.Component {
             "Hichaty",
             alertMessage,
             [
-                { text: Camera, onPress: () => { if (cbCamera) cbCamera(true); console.log('OK Pressed') } },
-                { text: Gallery, onPress: () => { if (cbGallery) cbGallery(true); console.log('OK Pressed') } },
+                { text: Camera, onPress: () => { if (cbCamera) cbCamera(true); } },
+                { text: Gallery, onPress: () => { if (cbGallery) cbGallery(true); } },
                 { text: Cancel, onPress: () => { if (cbCamera) cbCamera(false); }, style: 'cancel' },
             ],
             { cancelable: false }
@@ -34,8 +34,8 @@ export default class Helper extends React.Component {
             "Hichaty",
             alertMessage,
             [
-                { text: 'NOT NOW', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
-                { text: 'SETTINGS', onPress: () => { if (cb) cb(true); console.log('OK Pressed') } },
+                { text: 'Continue', onPress: () => { if (cb) cb(false); }, style: 'cancel' },
+                { text: 'SETTINGS', onPress: () => { if (cb) cb(true); } },
             ],
             { cancelable: false }
         )

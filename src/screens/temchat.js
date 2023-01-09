@@ -16,29 +16,32 @@ import { SvgXml } from 'react-native-svg';
 import { loading } from '../assets/tabicons';
 import { sync } from '../assets/loginsignupIcons';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Avatar from '../components/avatar'
+import Avatar from '../components/avatar';
+import { dateDiff } from '../lib/helpers';
 
 // import { Image } from 'native-base';
 import { SectionGrid } from 'react-native-super-grid';
 import AppContext from '../context/AppContext';
 import ModalChatContact from '../components/modalChatContact';
 import firestore from '@react-native-firebase/firestore';
-
+import { firebase } from '@react-native-firebase/functions';
+import { useIsFocused } from '@react-navigation/native';
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
+const messagesCollection = firestore().collection('messages');
 
 const temchat = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
-  const [modalVisible2, setModalVisible2] = useState(false);
+  // const [modalVisible2, setModalVisible2] = useState(false);
   const [selectedHours, setSelectedHours] = useState(0);
   const [selectedMinutes, setSelectedMinutes] = useState(0);
   const [codeReceveid, setCodeReceveid] = useState(false);
   const [setup, setSetup] = useState('in progress');
-  const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact } = useContext(AppContext);
+  const { user, users, notifications, teamChatNotifications, setTeamChatContacts, teamChatContacts, teamChatContact, modalChatContact, setModalChatContact, setTeamChatNotifications } = useContext(AppContext);
   const [roomRef, setRoomRef] = useState(null)
   const [code, setCode] = useState(null)
-  const [notificationcode, setNotificationcode] = useState("6")
+  // const [notificationcode, setNotificationcode] = useState("6")
   const [target, setTarget] = useState(null);
   const [targetContact, setTargetContact] = useState(null);
   const [desiredChat, setDesiredChat] = useState();
@@ -51,10 +54,9 @@ const temchat = ({ navigation, route }) => {
   const [submitttCode, setSubmitCode] = useState(null)
   const [durationset, setDuration] = useState(0)
   const [ClearNotification, setClearNotification] = useState(false)
-
-
-
-
+  const [chatList, setChatList] = useState([]);
+  const [searchText, setSearchText] = useState("")
+  const isFocused = useIsFocused();
   const checkTeamChatContacts = (target) => {
     // console.log(target, "targettargettarget");
     // console.log('team', teamChatContacts);
@@ -66,7 +68,7 @@ const temchat = ({ navigation, route }) => {
         .where("participants", "in", [[user.id, target.key], [target.key, user.id]])
         .get()
         .then(querySnapshot => {
-          console.log(querySnapshot.size)
+          // console.log(querySnapshot.size)
           querySnapshot.forEach(documentSnapshot => {
             roomRef = documentSnapshot.id
           })
@@ -81,7 +83,8 @@ const temchat = ({ navigation, route }) => {
   }
 
   const shareCode = (id, code) => {
-    // console.log("code", code);
+    // console.log("selectedHours", selectedMinutes);
+    // return
     if (code == null || code == "") {
       alert("Please enter your code and share.")
     } else {
@@ -92,87 +95,89 @@ const temchat = ({ navigation, route }) => {
       usersCollection.doc(id).update({
         teamChatNotification: firestore.FieldValue.arrayUnion({ type: "code", id: user.id, name: user.name, codeConfirmation: code, duration: StartEndTime })
       })
+      firebase.functions().httpsCallable('onNewQuiteInvitation')({
+        senderId: user.id,
+        senderName: user.name,
+        receiverId: id,
+        desiredChat: "Contacts",
+        code
+      })
+
       setTimeout(() => {
+        setSearchText("");
         setLoadingShare(false)
         setModalVisible1(false);
       }, 200);
     }
   }
 
-  const submitCode = async () => {
-    // console.log(submitttCode, "submitttCode>>>>>>>>>>>>>>");
-    // console.log(notificationcode, "notificationcode>>>>>>>>>>>>>>");
+  // Comment by tarachand
 
-    if (submitttCode == null || submitttCode == "") {
-      alert("Enter your code.")
-    } else if (submitttCode != notificationcode) {
-      alert("User password and enter password do not match.")
-    } else {
-      setLoadingSubmit(true)
-      if (target && target.id) {
-        const docRef = await roomsCollection.add({
-          participants: [user.id, target.id],
-          temporary: true,
-          audio: {
-            answer: "",
-            from: "",
-            offer: "",
-            step: "",
-            type: "leave"
-          },
-          video: {
-            answer: "",
-            from: "",
-            offer: "",
-            step: "",
-            type: "leave"
-          }
-        });
-        let batch = firestore().batch();
-        const userRef = usersCollection.doc(user.id);
-        batch.update(userRef, {
-          groups:
-            firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
-          teamChatContact:
-            // firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
-            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  // const submitCode = async () => {
+  //   // console.log(submitttCode, "submitttCode>>>>>>>>>>>>>>");
+  //   // console.log(notificationcode, "notificationcode>>>>>>>>>>>>>>");
 
+  //   if (submitttCode == null || submitttCode == "") {
+  //     alert("Enter your code.")
+  //   } else if (submitttCode != notificationcode) {
+  //     alert("User password and enter password do not match.")
+  //   } else {
+  //     setLoadingSubmit(true)
+  //     if (target && target.id) {
+  //       const docRef = await roomsCollection.add({
+  //         participants: [user.id, target.id],
+  //         temporary: true,
+  //         audio: {
+  //           answer: "",
+  //           from: "",
+  //           offer: "",
+  //           step: "",
+  //           type: "leave"
+  //         },
+  //         video: {
+  //           answer: "",
+  //           from: "",
+  //           offer: "",
+  //           step: "",
+  //           type: "leave"
+  //         }
+  //       });
+  //       let batch = firestore().batch();
+  //       const userRef = usersCollection.doc(user.id);
+  //       batch.update(userRef, {
+  //         groups:
+  //           firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
+  //         teamChatContact:
+  //           // firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
+  //           firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       })
 
-        })
+  //       const targetRef = usersCollection.doc(target.id);
+  //       targetRef.update({
+  //         teamChatContact:
+  //           // firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
+  //           firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       })
 
-        const targetRef = usersCollection.doc(target.id);
-        targetRef.update({
-          teamChatContact:
-            // firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: String(firestore.Timestamp.now().toDate()).split(' ')[4] })
-            firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+  //       batch.commit()
+  //         .then(() => console.log('submitted successfully ...'))
+  //         .then(() => {
+  //           setLoadingSubmit(false);
+  //           setModalVisible2(false);
+  //           navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
+  //           setClearNotification(true)
+  //         })
+  //     }
 
-        })
-          .then(() => {
+  //   }
 
-          })
-
-        batch.commit()
-          .then(() => console.log('submitted successfully ...'))
-          .then(() => {
-            setLoadingSubmit(false);
-            setModalVisible2(false);
-            navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
-            setClearNotification(true)
-          })
-      }
-
-    }
-
-
-  }
-
-
+  // }
 
   useEffect(() => {
     if (teamChatNotifications.length > 0) {
       // console.log('notifications', teamChatNotifications)
       let lastTempNotif = teamChatNotifications[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
+      // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif,"lastTempNotif>>>>>>>>>>>>>>>>>>>>>>>>>>")
       switch (lastTempNotif.type) {
         case "code":
@@ -204,19 +209,27 @@ const temchat = ({ navigation, route }) => {
   }
 
   useEffect(() => {
-    // console.log('teamChatContacts --------->', teamChatContacts)
     if (teamChatContacts.length > 0) {
-      // console.log('notifications', teamChatContacts)
-      let lastTempNotif = teamChatContacts[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
+      let chatListAll = users.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1);
+      setChatList(chatListAll);
+      // console.log("userlist", users)
+      let teamChatContactsLatestIndex = teamChatContacts.length - 1;
+      // console.log("Got the last index")
+      let targetOnNotification = users.find((data) => teamChatContacts[teamChatContactsLatestIndex].contactId == data.id)
+      // console.log("filter data targetOnNotification", targetOnNotification)
+      let lastTempNotif = teamChatContacts[teamChatContactsLatestIndex];
+      // setNotificationcode(lastTempNotif.codeConfirmation)
       // console.log(lastTempNotif)
-      switch (lastTempNotif.type) {
-        case "temporary room":
-          setTarget(lastTempNotif);
-          setRoomRef(lastTempNotif.roomRef);
-          setDuration(lastTempNotif.duration)
-          setSetup('done');
-          break;
+      if (targetOnNotification.teamChatContact.filter((data) => data.contactId == user.id).length > 0) {
+        switch (lastTempNotif.type) {
+          case "temporary room":
+            // console.log("data from temporary room", lastTempNotif)
+            setTarget(targetOnNotification);
+            setRoomRef(lastTempNotif.roomRef);
+            setDuration(lastTempNotif.duration);
+            setSetup('done');
+            break;
+        }
       }
       // setTeamChatContacts([]);
       // setTimeout(() => {
@@ -224,12 +237,6 @@ const temchat = ({ navigation, route }) => {
       // }, 50000);
     }
   }, [teamChatContacts])
-
-  const deleteTeamChatNotification1 = (notif) => {
-    usersCollection.doc(user.id).update({
-      teamChatContact: firestore.FieldValue.arrayRemove(notif)
-    })
-  }
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -252,15 +259,21 @@ const temchat = ({ navigation, route }) => {
     })
   }
 
-  useEffect(() => {
-    if (codeReceveid) {
-      setModalVisible2(true);
-    }
-  }, [codeReceveid])
+  // useEffect(() => {
+  //   if (codeReceveid) {
+  //     setModalVisible2(true);
+  //   }
+  // }, [codeReceveid])
 
   useEffect(() => {
     if (setup == 'done') {
-      navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
+      // if (teamChatContacts.length > 1) {
+      setSetup("in progress");
+      setsearchList([]);
+      alert("Request Accepted, You can chat now");
+      // } else {
+      // navigation.navigate('temporary', { roomRef, remotePeerName: target.name, remotePeerId: target.id })
+      // }
       //   const userRef = usersCollection.doc(user.id);
       //   userRef.update({
       //     teamChatContact:
@@ -271,25 +284,29 @@ const temchat = ({ navigation, route }) => {
       //     })
       gotoClearChatNotification();
     }
-    if (ClearNotification == true) {
-      gotoClearChatNotification();
-    }
-  }, [setup, ClearNotification])
+  }, [setup])
+
   const gotoClearChatNotification = () => {
     if (teamChatNotifications.length > 0) {
       let lastTempNotif = teamChatNotifications[0];
-      setNotificationcode(lastTempNotif.codeConfirmation)
-      setTeamChatContacts([]);
+      // setNotificationcode(lastTempNotif.codeConfirmation)
+      // setTeamChatContacts([]);
       deleteTeamChatNotification(lastTempNotif);
     }
   }
 
 
   const changemodel1 = () => {
+    let error = true;
+    if (selectedHours > 0) {
+      error = false;
+    } else if (selectedMinutes >= 30) {
+      error = false
+    }
     // console.log(selectedHours, "selectedHours");
     // console.log(selectedMinutes, "selectedMinutes");
-    if (selectedHours == "undefined" || selectedHours == 0 || selectedMinutes == "undefined" || selectedMinutes.length == 0) {
-      alert("Please select time...")
+    if (error) {
+      alert("Please select minimum 30 minutes...")
     } else {
       setLoadingGenerate(true);
       setModalVisible(false);
@@ -311,20 +328,66 @@ const temchat = ({ navigation, route }) => {
 
   }
   const searchString = (text) => {
-    let lowercasedFilter = text.toLowerCase();
-    let trucks = userlist
-    let filteredData = trucks.length > 0 && trucks.filter(function (item) {
-      return item?.name !== undefined
-    });
-    let filteredDataall = filteredData.length > 0 && filteredData.filter(function (item) {
-      return item?.name.includes(text)
-    })
+    setSearchText(text);
+    let trucks = users
+    let filteredDataall = trucks.length > 0 && trucks.filter((item) => item?.name?.toLowerCase()?.includes(text?.toLowerCase()) && item?.name !== undefined)
     if (!text || text == '') {
       setsearchList([])
     } else {
       setsearchList(filteredDataall)
     }
   }
+
+  const removeTempChatOnTimeUp = (item) => {
+    const chatWith = item.teamChatContact.filter((data) => data.contactId == user.id)
+    const teamChatDetails = teamChatContacts.filter(contact => contact.contactId === item.id);
+    usersCollection.doc(user.id).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(teamChatDetails[0]),
+      groups: firestore.FieldValue.arrayRemove(`/rooms/${roomRef}`)
+    })
+    usersCollection.doc(item.id).update({
+      teamChatContact: firestore.FieldValue.arrayRemove(chatWith[0]),
+      groups: firestore.FieldValue.arrayRemove(`/rooms/${roomRef}`)
+    })
+    messagesCollection.doc(roomRef).delete();
+    roomsCollection.doc(roomRef).delete();
+  }
+
+  const calculateTimeLeft = (item) => {
+    // console.log("item.teamChatContact : ", item);
+    let chatWith = item.teamChatContact.filter((data) => data.contactId == user.id);
+    if (chatWith.length > 0) {
+      let startTime = chatWith[0].startTime;
+      let duration = chatWith[0].duration;
+      const actualTime = Number(firestore.Timestamp.now().toMillis());
+      let totalTime = dateDiff(startTime, actualTime);
+      let totalDurationHours = duration?.split("h:")[0];
+      let totalDurationMinutes = duration?.split("h:")[1].slice(0, -3);
+      let totalDuration = (totalDurationHours * 60 * 60) + (totalDurationMinutes * 60);
+      let remainingTime = totalDuration - totalTime;
+      let remainingseconds = remainingTime % 60;
+      let remainingMinutes = (remainingTime - remainingseconds) / 60;
+      let remainingHours = (remainingMinutes / 60) < 1 ? 0 : (remainingMinutes - (remainingMinutes % 60)) / 60;
+      // console.log("remainingTime : ", remainingTime)
+      if (remainingTime <= 0) {
+        removeTempChatOnTimeUp(item);
+        return "0h : 0m";
+      } else if (remainingTime < 60 && remainingTime > 0) {
+        return "0h : 0m : " + remainingTime + "s";
+      } else {
+        return remainingHours + "h : " + remainingMinutes % 60 + "m";
+      }
+    } else {
+      return "0h : 0m";
+    }
+  }
+
+  useEffect(() => {
+    let chatListAll = users.filter((data) => teamChatContacts.findIndex(item => item.contactId == data.id) != -1)
+    // console.warn("chatListAll : ", chatListAll);
+    setChatList(chatListAll)
+  }, [isFocused])
+
   return (
     <SafeAreaView style={styles.container}>
       {/* <Header gosetting={() => navigation.navigate('changetheme')} 
@@ -338,6 +401,7 @@ const temchat = ({ navigation, route }) => {
           <TextInput
             style={styles.input}
             placeholder="Search"
+            value={searchText}
             onChangeText={searchString}
             underlineColorAndroid="transparent"
           />
@@ -366,17 +430,36 @@ const temchat = ({ navigation, route }) => {
                   picture={item.picture}
                   modal={() => checkTeamChatContacts(item)}
                   status={item.status}
-
                 />
               )}
             />
           ) : (
-            <View style={{ flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', }}>
-              <SvgXml
-                xml={loading}
-              // style={{  alignItems: 'center', justifyContent: 'center', }}
-              />
-            </View>
+            <SectionGrid
+              itemDimension={150}
+              sections={[
+                {
+                  data: chatList,
+                },
+              ]}
+              style={styles.gridView}
+              renderItem={({ item, section, index }) => (
+                <Card
+                  number={item.key}
+                  name={item.name}
+                  picture={item.picture}
+                  modal={() => checkTeamChatContacts(item)}
+                  status={item.status}
+                  remainingTime={() => calculateTimeLeft(item)}
+
+                />
+              )}
+            />
+            // <View style={{ flex: 1, width: "100%", height: "100%", alignItems: 'center', justifyContent: 'center', }}>
+            //   <SvgXml
+            //     xml={loading}
+            //   // style={{  alignItems: 'center', justifyContent: 'center', }}
+            //   />
+            // </View>
 
           )}
         </View>
@@ -387,9 +470,9 @@ const temchat = ({ navigation, route }) => {
         >
           <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
             <View style={styles.modal}>
-              <Text style={styles.modalheading}>Welcome to Tem. Chat</Text>
+              <Text style={styles.modalheading}>Welcome to Quiet mode</Text>
               <Text style={styles.modaltext}>
-                Select your duration for Tem. chat
+                Select your duration for Quiet mode
               </Text>
               <Text>{selectedHours}h: {selectedMinutes}min</Text>
               <View style={styles.sectionStyle}>
@@ -443,7 +526,8 @@ const temchat = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
-        <Modal
+        {/* Comment by tarachand */}
+        {/* <Modal
           animationType={'slide'}
           transparent={true}
           visible={modalVisible2}>
@@ -452,7 +536,7 @@ const temchat = ({ navigation, route }) => {
               <Text style={styles.modaltext2}>Hello</Text>
               <Text style={styles.modaltext2}>{user && user.name}</Text>
               <Text style={styles.modaltext2}>
-                Please enter pin as shared by {target && target.name} for Tem. Chat. Enjoy
+                Please enter pin as shared by {target && target.name} for Quiet mode. Enjoy
                 Messenger services on HiChaty
               </Text>
               <Text style={styles.codeText}>{notificationcode}</Text>
@@ -476,7 +560,7 @@ const temchat = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -612,7 +696,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'white',
     justifyContent: 'center',
-    alignItems:'center',
+    alignItems: 'center',
   },
   icon: {
     marginRight: 11,

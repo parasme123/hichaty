@@ -59,8 +59,6 @@ const Groupchat = ({ navigation, route }) => {
   const changeMapToObject = (key, value) => {
     return { id: key, ...value };
   }
-  console.log(navigation, "navigation>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-  console.log(route, "route>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
   const getMessages = () => {
     messagesCollection
@@ -68,7 +66,7 @@ const Groupchat = ({ navigation, route }) => {
       .onSnapshot(documentSnapshot => {
         if (documentSnapshot.exists) {
           let msgs = documentSnapshot.data();
-          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.id > b.id))
+          setMessages([...Object.entries(msgs).map(([key, value]) => changeMapToObject(key, value))].sort((a, b) => a.createdAt < b.createdAt))
         }
       })
   }
@@ -132,6 +130,7 @@ const Groupchat = ({ navigation, route }) => {
         room: roomRef,
         text: messagetext,
         name: user.name,
+        userAvatar: user.avatar,
         userId: user.id
       }
     }
@@ -158,7 +157,7 @@ const Groupchat = ({ navigation, route }) => {
             />
           </TouchableOpacity>
 
-          <Avatar1 />
+          <Avatar1 groupAvatar={roomDetails.avatar} />
           <Text numberOfLines={1} style={{ width: 40, marginLeft: 10, marginRight: 5, fontSize: 13 }}>{roomDetails.name ? roomDetails.name : "HiChaty"}</Text>
           <View style={styles.icons}>
             <View style={styles.users}>
@@ -219,7 +218,7 @@ const Groupchat = ({ navigation, route }) => {
             scrollEnabled={true}
             extraData={messages}
             ref={flatListRef}
-            onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end 
+            // onContentSizeChange={() => flatListRef?.current?.scrollToEnd()} // scroll end 
             keyExtractor={(item) => {
               return item.id;
             }}
@@ -230,11 +229,14 @@ const Groupchat = ({ navigation, route }) => {
               let itemStyle = inMessage ? styles.itemIn : styles.itemOut;
               return (
                 <View style={{ flex: 1 }}>
+                  {
+                    console.log("item", item)
+                  }
                   <View style={inMessage ? styles.row : styles.reverse}>
                     <Avatar
                       rounded
                       containerStyle={inMessage ? styles.avatar1 : styles.avatar2}
-                      source={{ uri: 'https://i.stack.imgur.com/uoVWQ.png' }}
+                      source={{ uri: item.userAvatar }}
                       size={30}
                     />
                     <LinearGradient

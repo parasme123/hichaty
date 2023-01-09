@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TextInput, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import {
-  Container,
-  Header,
-  Content,
   Card,
   CardItem,
-  Thumbnail,
   Text,
-  Button,
-  Left,
-  Body,
-  Right,
 } from 'native-base';
-import image from '../assets/bg.jpg';
+import image from '../assets/appicon.png';
 import { phonecall, chat, block, clear, del1, more, videocall } from '../assets/cardicons';
 import { SvgXml } from 'react-native-svg';
-import { voicecall } from '../assets/chaticons';
-import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import Menu, { MenuItem } from 'react-native-material-menu';
 
 function Cardset(props) {
 
@@ -35,7 +26,7 @@ function Cardset(props) {
     _menu.show();
   };
   useEffect(() => {
-    // console.log('props', props)
+    // console.log('props', props.data)
   }, [])
 
   return (
@@ -43,66 +34,68 @@ function Cardset(props) {
 
       <Card>
         <CardItem cardBody>
-          <Image source={image} style={{ height: 180, width: null, flex: 1 }} />
+          <Image source={data.avatar ? { uri: data.avatar } : image} style={{ height: 180, width: null, flex: 1 }} />
           <View style={styles.opacity}>
             <View></View>
-            <TouchableOpacity onPress={props?.blockuser}>
+            <TouchableOpacity onPress={() => props?.blockuser(data)}>
               <Text style={styles.heading} >{data.name ? data.name : 'HiChaty'}</Text>
             </TouchableOpacity>
-            <Text style={styles.subtext}>Love is life and love is family</Text>
+            <Text style={styles.subtext}>
+              Love is life and love is family
+            </Text>
           </View>
         </CardItem>
 
-          <View style={styles.icons}>
-            {/* <View>
+        <View style={styles.icons}>
+          {/* <View>
               <SvgXml xml={chat} onPress={props.chat} />
             </View> */}
 
-            <TouchableOpacity onPress={props.chat} style={styles.icon} >
-              <SvgXml xml={chat} />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={props.chat} style={styles.icon} >
+            <SvgXml xml={chat} />
+          </TouchableOpacity>
 
-            <TouchableOpacity onPress={props.phone} style={styles.icon}>
-              <SvgXml xml={phonecall} />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={props.phone} style={styles.icon}>
+            <SvgXml xml={phonecall} />
+          </TouchableOpacity>
 
-            <TouchableOpacity onPress={props.video} style={styles.icon}>
-              <SvgXml xml={videocall} />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={props.video} style={styles.icon}>
+            <SvgXml xml={videocall} />
+          </TouchableOpacity>
 
 
-            {/* <View>
+          {/* <View>
               <SvgXml xml={phonecall} onPress={props.phone} />
             </View>
             <View>
               <SvgXml xml={voicecall} onPress={props.video} />
             </View> */}
-            <Menu
-              ref={setMenuRef}
-              button={<SvgXml xml={more} style={styles.icon} onPress={showMenu} />}>
-              <MenuItem onPress={hideMenu}>
-                <View style={styles.ictext}>
-                  <SvgXml xml={block} />
-                  <Text style={styles.textred}>Block</Text>
-                </View>
-              </MenuItem>
-              <View style={{ borderBottomWidth: 1 }} />
-              <MenuItem onPress={hideMenu}>
-                <View style={styles.ictext}>
-                  <SvgXml xml={clear} />
-                  <Text style={styles.textred}>Clear</Text>
-                </View>
-              </MenuItem>
-              <View style={{ borderBottomWidth: 1 }} />
-              <MenuItem onPress={hideMenu}>
-                <View style={styles.ictext}>
-                  <SvgXml xml={del1} />
-                  <Text style={styles.textred}>Delete</Text>
-                </View>
-              </MenuItem>
-            </Menu>
+          <Menu
+            ref={setMenuRef}
+            button={<SvgXml xml={more} style={styles.icon} onPress={showMenu} />}>
+            <MenuItem onPress={hideMenu}>
+              <View style={styles.ictext}>
+                <SvgXml xml={block} />
+                <Text style={styles.textred}>Block</Text>
+              </View>
+            </MenuItem>
+            <View style={{ borderBottomWidth: 1 }} />
+            <MenuItem onPress={hideMenu}>
+              <View style={styles.ictext}>
+                <SvgXml xml={clear} />
+                <Text style={styles.textred}>Clear</Text>
+              </View>
+            </MenuItem>
+            <View style={{ borderBottomWidth: 1 }} />
+            <MenuItem onPress={hideMenu}>
+              <View style={styles.ictext}>
+                <SvgXml xml={del1} />
+                <Text style={styles.textred}>Delete</Text>
+              </View>
+            </MenuItem>
+          </Menu>
 
-          </View>
+        </View>
       </Card>
     </View>
 

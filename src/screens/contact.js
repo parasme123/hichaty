@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
+  Modal,
+  ImageBackground,
   StyleSheet, PermissionsAndroid, ActivityIndicator, Image, Text,
   View, Keyboard,
-  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView
+  TextInput, RefreshControl, TouchableOpacity, Share, DeviceEventEmitter, SafeAreaView, Dimensions, Platform
 } from 'react-native';
 import Card from '../components/card';
 import AppContext from '../context/AppContext';
@@ -14,6 +16,8 @@ import ModalAudioCall from '../components/modalAudioinvitation';
 import ModalChatInvitation from '../components/modalChatInvitation';
 import ModalChatCodeGen from '../components/modalChatCodeGen';
 import ModalChatCodeReceived from '../components/modalChatCodeReceveid';
+import ModalChatRequestAccept from '../components/modalChatRequestAccept';
+import ModalGroupChatRequestAccept from '../components/modalGroupChatAccept';
 import { SectionGrid } from 'react-native-super-grid';
 import Avatar from '../components/avatar';
 import { sync } from '../assets/loginsignupIcons';
@@ -23,17 +27,19 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Contacts from 'react-native-contacts';
 import AsyncStorageHelper from '../lib/AsyncStorageHelper'
 import { firebase } from '@react-native-firebase/functions';
+import Swiper from 'react-native-swiper'
 // const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921~3929184022" : "ca-app-pub-8577795871405921~3929184022";
-const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pub-8577795871405921/7203667321";
-
+// const adUnitId = __DEV__ ? "ca-app-pub-8577795871405921/7203667321" : "ca-app-pub-8577795871405921/7203667321";
+const adUnitId = "ca-app-pub-8577795871405921/6715450883";
 const usersCollection = firestore().collection('users');
 const roomsCollection = firestore().collection('rooms');
 let fcmUnsubscribe = null;
+const { width, height } = Dimensions.get('window')
 
 const contact = ({ navigation, route }) => {
-  const { user, users, contacts, setModalChatContact, notifications, setNotifications,
-    setModalVideoInvitation, setModalAudioInvitation,
-    myUnreadMessages, redirectToContacts, setRedirectToContacts,
+  const { comeFromNotification, user, users, contacts, setModalChatContact, notifications, setNotifications,
+    setModalVideoInvitation, setModalAudioInvitation, setTeamChatContacts,
+    myUnreadMessages, redirectToContacts, setRedirectToContacts, teamChatContacts, teamChatNotifications
   } = useContext(AppContext)
 
   const [modalChatInvitation, setModalChatInvitation] = useState(false);
@@ -62,7 +68,122 @@ const contact = ({ navigation, route }) => {
   const [searchlist, setsearchList] = useState([])
   const [ContactStatus, setContactStatus] = useState(false);
 
+  // ADD by TARACHAND
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const [submitttCode, setSubmitCode] = useState(null)
+  const [notificationcode, setNotificationcode] = useState("6")
+  const [ClearNotification, setClearNotification] = useState(false)
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [durationset, setDuration] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [modalGroupChatVisible, setModalGroupChatVisible] = useState(false)
 
+  useEffect(() => {
+    async function fetchData() {
+      const response = await AsyncStorageHelper.getData("tutorial");
+      if (response == null) {
+        setShowTutorial(true)
+      }
+    }
+    fetchData();
+  }, [])
+  useEffect(() => {
+    if (teamChatNotifications.length > 0) {
+      let lastTempNotif = teamChatNotifications[0];
+      setNotificationcode(lastTempNotif.codeConfirmation)
+      switch (lastTempNotif.type) {
+        case "code":
+          setTarget(lastTempNotif);
+          setModalVisible2(true);
+          setDuration(lastTempNotif.duration)
+          break;
+        case "groupChat":
+          setTarget(lastTempNotif);
+          setModalGroupChatVisible(true);
+          break;
+      }
+    }
+  }, [teamChatNotifications])
+
+  // useEffect(() => {
+  //   if (ClearNotification == true) {
+  //     gotoClearChatNotification();
+  //   }
+  // }, [ClearNotification])
+
+  // const gotoClearChatNotification = () => {
+  //   if (teamChatNotifications.length > 0) {
+  //     // setNotificationcode(lastTempNotif.codeConfirmation)
+  //     setTeamChatContacts([]);
+  //   }
+  // }
+
+  const submitCode = async () => {
+    if (submitttCode == null || submitttCode == "") {
+      alert("Enter your code.")
+    } else if (submitttCode != notificationcode) {
+      alert("User password and enter password do not match.")
+    } else {
+      setLoadingSubmit(true);
+      if (target && target.id) {
+        const docRef = await roomsCollection.add({
+          participants: [user.id, target.id],
+          temporary: true,
+          audio: {
+            answer: "",
+            from: "",
+            offer: "",
+            step: "",
+            type: "leave"
+          },
+          video: {
+            answer: "",
+            from: "",
+            offer: "",
+            step: "",
+            type: "leave"
+          }
+        });
+        let batch = firestore().batch();
+        const userRef = usersCollection.doc(user.id);
+        batch.update(userRef, {
+          groups:
+            firestore.FieldValue.arrayUnion(`/rooms/${docRef.id}`),
+          teamChatContact:
+            firestore.FieldValue.arrayUnion({ contactId: target.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) }),
+          teamChatNotification:
+            firestore.FieldValue.arrayRemove(teamChatNotifications[0])
+        })
+
+        const targetRef = usersCollection.doc(target.id);
+        targetRef.update({
+          teamChatContact:
+            firestore.FieldValue.arrayUnion({ type: "temporary room", roomRef: docRef.id, contactId: user.id, duration: durationset, startTime: Number(firestore.Timestamp.now().toMillis()) })
+        })
+
+        firebase.functions().httpsCallable('onNewQuiteResponse')({
+          senderId: user.id,
+          senderName: user.name,
+          receiverId: target.id,
+          desiredChat: "Temchat",
+          roomRef: docRef.id
+        })
+
+        batch.commit()
+          .then(() => console.log('submitted successfully ...'))
+          .then(() => {
+            setLoadingSubmit(false);
+            setModalVisible2(false);
+            navigation.navigate('temporary', { roomRef: docRef.id, remotePeerName: target.name, remotePeerId: target.id })
+            setClearNotification(true)
+          })
+      }
+
+    }
+
+  }
+
+  // ADD by TARACHAND
 
   const navigateTo = async (routeName, target) => {
     let roomRef;
@@ -73,21 +194,26 @@ const contact = ({ navigation, route }) => {
     }
     else {
       // navigation.navigate(routeName, { roomRef, remotePeerName: target.name, remotePeerId: target.id, remotePic: target.picture, type: 'caller' })
-      sharedGroups.forEach(group => group.split('/')[2]);
-      const querySnapshot = await roomsCollection.where(firebase.firestore.FieldPath.documentId(), "in", sharedGroups).get();
-      let doc = querySnapshot.filter(documentSnapshot => documentSnapshot.participants.length === 2)[0];
-      roomRef = doc.id;
+      let groupArr = [];
+      sharedGroups.forEach((group) => { groupArr.push(group.split('/')[2]); });
+      const querySnapshot = await roomsCollection.where(firebase.firestore.FieldPath.documentId(), "in", groupArr).get();
+      querySnapshot.forEach(documentSnapshot => {
+        if (documentSnapshot.data().participants.length == 2 && !documentSnapshot.data().admin) {
+          roomRef = documentSnapshot.id;
+        }
+      });
+      // roomRef = doc.id;
 
     }
     navigation.navigate(routeName, { roomRef, remotePeerName: target.name, remotePeerId: target.id, remotePic: target.picture, type: 'caller' })
   }
 
   const sendInvitation = (routeName, id, name) => {
-    console.log('-----sendInvitation:' + routeName, id, name)
+    // console.log('-----sendInvitation:' + routeName, id, name)
     setTarget({ id, name });
     setDesiredChat(routeName);
     setModalChatInvitation(true);
-    console.log(";;;;;;;");
+    // console.log(";;;;;;;");
   }
   const [data, setData] = useState("");
 
@@ -138,7 +264,7 @@ const contact = ({ navigation, route }) => {
     if (!showArray[0] && isRefreshing) {
       onScroll();
     }
-    console.log("oooo");
+    // console.log("oooo");
     // console.log(users, "sssssssssssssssssssss>>>>>>>>>>>>>>>>>");
     setshowArray(users)
     navigation.navigate('bottom')
@@ -159,54 +285,64 @@ const contact = ({ navigation, route }) => {
     }
   }, [showArray])
 
+  const processNotifation = (state, remoteMessage, fromBackground) => {
+    var val = remoteMessage.data.senderId;
+    let data = remoteMessage.data;
+    let type = data.msgType;
+    switch (type) {
+      case "new invitation":
+        if (user.id !== data.senderId) {
+          setTarget({ id: data.senderId, name: data.senderName });
+          setDesiredChat(data.desiredChat);
+          setModalChatContact(true);
+        } else {
+          console.log("new invitation_second>>>>>>>>>>>>>>>>>>>>>");
+        }
+        break;
+      case "invitation accepted":
+        if (user.id !== data.senderId && data.roomRef == "NotConfirmRequest") {
+          setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
+          setDesiredChat(data.desiredChat);
+          setRoomRef(data.roomRef);
+          setCode(data.code);
+          setModalChatCodeReceived(true);
+        }
+        else if (user.id !== data.senderId && data.roomRef != "NotConfirmRequest") {
+          setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
+          setDesiredChat(data.desiredChat);
+          setRoomRef(data.roomRef);
+          navigation.navigate(data.desiredChat, { roomRef: data.roomRef, remotePeerName: data.senderName, remotePeerId: data.senderId, remotePic: data.senderPicture, type: 'caller' })
+        }
+        break;
+    }
+  }
+
   useEffect(() => {
     fcmUnsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log("A new Message arrived to Contacts screen -- > : " + JSON.stringify(remoteMessage));
-      var val = remoteMessage.data.senderId;
-      let data = remoteMessage.data;
-      let type = data.msgType;
-      console.log('data>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + JSON.stringify(data))
-      console.log('type>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> :' + type)
-      switch (type) {
-        case "new invitation":
-          if (user.id !== data.senderId) {
-            setTarget({ id: data.senderId, name: data.senderName });
-            setDesiredChat(data.desiredChat);
-            setModalChatContact(true);
-            console.log("new invitation>>>>>>>>>>>>>>>>>>>>>");
-          } else {
-            console.log("new invitation_second>>>>>>>>>>>>>>>>>>>>>");
-
-          }
-          break;
-        case "invitation accepted":
-          console.log("data.code invitation accepted>>>>>>>>>>>>>>>>>>>>>", data.code);
-          if (user.id !== data.senderId && data.roomRef == "NotConfirmRequest") {
-            setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
-            setDesiredChat(data.desiredChat);
-            setRoomRef(data.roomRef);
-            setCode(data.code);
-            setModalChatCodeReceived(true);
-            console.log("invitation accepted>>>>>>>>>>>>>>>>>>>>>");
-
-          }
-          else if (user.id !== data.senderId && data.roomRef != "NotConfirmRequest") {
-            setTarget({ id: data.senderId, name: data.senderName, pic: data.senderPicture });
-            setDesiredChat(data.desiredChat);
-            setRoomRef(data.roomRef);
-            console.log("invitation accepted second>>>>>>>>>>>>>>>>>>>>>");
-            navigation.navigate(data.desiredChat, { roomRef: data.roomRef, remotePeerName: data.senderName, remotePeerId: data.senderId, remotePic: data.senderPicture, type: 'caller' })
-
-          }
-
-          break;
-      }
+      processNotifation("On Message", remoteMessage, true);
     })
+    if (comeFromNotification != null) {
+      processNotifation(comeFromNotification.state, comeFromNotification.remoteMessage, comeFromNotification.fromBackground);
+    }
     return fcmUnsubscribe;
   }, [])
 
 
+  useEffect(() => {
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log("background state notification on contact screen", remoteMessage.data)
+      processNotifation("background state", remoteMessage, true);
+    })
 
+    messaging().getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log("Quit state notification on contact screen", remoteMessage.data)
+          processNotifation("quit state", remoteMessage, true);
+        }
+      })
+
+  })
 
   // if not, so he was in another screen and we redirected him , we'll check that 
   // with the redirectToScreens page :
@@ -231,7 +367,6 @@ const contact = ({ navigation, route }) => {
           setTargetvideo(lastNotif);
           break;
         case "voicecall invitation":
-          console.log("from constacts", "voicecall");
           setAudioroomref(lastNotif.roomRef);
           setModalAudioInvitation(true);
           setTargetaudio(lastNotif);
@@ -256,17 +391,12 @@ const contact = ({ navigation, route }) => {
   }
 
   const getContractHistory = (arrContactList) => {
-    // console.log("list>>>>>>>>>>>>>>>>");
-
     if (arrContactList.length > 0) {
-      // console.log("yes>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       let ads = { isTemp: true }
       arrContactList.map((e, i) => {
         if ((i + 1) % 5 == 0) {
           arrContactList.splice(i, 0, ads);
-
         }
-
       });
       let totalPagec = Math.ceil((arrContactList.length) / perPageRecord);
       settotalPage(totalPagec);
@@ -277,13 +407,9 @@ const contact = ({ navigation, route }) => {
 
   }
   const onScroll = () => {
-    console.log("scroll>>>>>>>>>>>>>>>>");
-
     setisRefreshing(false)
     if (showLoaderPageing == false && currentPage < totalPage) {
       setshowLoaderPageing(true)
-      console.log("scroll test>>>>>>>>>>>>>>>>");
-
       let addItem = mainArray.length - currentPage * perPageRecord
       let mainArraycopy = [...mainArray]
       let newArray = [...showArray, ...mainArraycopy.splice(currentPage * perPageRecord, addItem > perPageRecord ? perPageRecord : addItem)];
@@ -297,7 +423,6 @@ const contact = ({ navigation, route }) => {
 
   }
   const render_Activity_footer = () => {
-    // console.log("yes")
     var footer_View = (
       <View style={{ flex: 1, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', padding: 15 }}>
         <ActivityIndicator size="large" color={"blue"} />
@@ -312,7 +437,6 @@ const contact = ({ navigation, route }) => {
 
 
   const renderGridItem = ({ item, index, rowIndex }) => {
-    // console.log(item, "item>>>>>>>>>");
     if (!item?.isTemp) {
       return (
         <Card
@@ -322,6 +446,8 @@ const contact = ({ navigation, route }) => {
           name={item?.id ? item?.name : item?.displayName}
           picture={item?.picture}
           unreadmsgs={myUnreadMessages[item?.id] && myUnreadMessages[item?.id] > 0 ? myUnreadMessages[item?.id] : 0}
+          // video={() => alert("Update you soon")}
+          // phone={() => alert("Update you soon")}
           video={() => item.block == true ? sendInvitation('videocall', item?.key, item?.name) : navigateTo('videocall', item)}
           phone={() => item.block == true ? sendInvitation('voicecall', item?.key, item?.name) : navigateTo('voicecall', item)}
           chat={() => item.block == true ? sendInvitation('chat', item?.key, item?.name) : navigateTo('chat', item)}
@@ -339,7 +465,7 @@ const contact = ({ navigation, route }) => {
         <View style={{ flex: 1, width: 180, height: 225, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', }}>
           <BannerAd
             unitId={adUnitId}
-            size={"180x225"}
+            size={`${Math.floor(width / 2) - 20}x225`}
             requestOptions={{
               requestNonPersonalizedAdsOnly: false,
             }}
@@ -356,22 +482,17 @@ const contact = ({ navigation, route }) => {
     try {
       const result = await Share.share({
         title: 'Hichaty',
-        message: 'We request you to all Hichaty users,share with your friends and family.https://hichaty.com/',
-        url: 'https://hichaty.com/'
+        message: "Let's connect on HiChaty, It's a Easy, Safe & secure App, We can use to Message and Call with Friends and Family free. \n https://play.google.com/store/apps/details?id=com.hichaty",
+        url: 'https://play.google.com/store/apps/details?id=com.hichaty'
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log("result.activityType", result.activityType);
           // shared with activity type of result.activityType
         } else {
           console.log("result");
-
-          // shared
         }
       } else if (result.action === Share.dismissedAction) {
-        // dismissed
         console.log("dismissed>>>>>>>>>>>>.");
-
       }
     } catch (error) {
       alert(error.message);
@@ -399,12 +520,9 @@ const contact = ({ navigation, route }) => {
 
   }
 
-
-
-
-
   const gosetting = () => {
     navigation.navigate('changetheme', { id: user && user.id })
+    // navigation.navigate('uploadphoto', { id: user && user.id })
   }
   const gotoSearch = (text) => {
     let lowercasedFilter = text.toLowerCase();
@@ -443,30 +561,24 @@ const contact = ({ navigation, route }) => {
       )
         .then(() => Contacts.getAll())
         .then(contacts => {
-          console.log(contacts, "contacts>>>>>>>>>>>>>>>");
           setcontactList(contacts)
           setshowLoaderPageing(true)
           let arrUserAndContact = [...mainArray, ...contactList]
           setshowArray(arrUserAndContact)
           AsyncStorageHelper.setData("Contact_Status", "status")
-          console.log(arrUserAndContact, "arrUserAndContact");
           setTimeout(() => {
             setshowLoaderPageing(false)
           }, 1000);
 
         }).catch((error) => {
-          console.log("Api call error");
           alert("Contacts not sync please try again.");
         });
 
     }
   }
 
-
-
   const showKeywordsearch = () => {
     setKeyword(true)
-    // console.log("kkk>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
   }
   const userFirstPositionInvitation = (UserId) => {
     var val = UserId;
@@ -491,10 +603,110 @@ const contact = ({ navigation, route }) => {
     setshowArray(tempUsers)
   }
 
+  const slides = [
+    {
+      key: 1,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/1.png'),
+      backgroundColor: '#59b2ab',
+    },
+    {
+      key: 2,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/2.png'),
+      backgroundColor: '#febe29',
+    },
+    {
+      key: 3,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/3.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 4,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/4.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 5,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/5.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 6,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/6.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 7,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/7.png'),
+      backgroundColor: '#22bcb5',
+    },
+    {
+      key: 8,
+      title: '',
+      text: '',
+      image: require('../assets/tutorial/8.png'),
+      backgroundColor: '#22bcb5',
+    }
+  ];
+
+  const nextHandle = (item) => {
+    if (item == slides.length - 1) {
+      setTimeout(() => {
+        finishHandle();
+      }, 4000);
+    }
+    // console.log("item : ", item)
+    // setActiveIndex(activeIndex + 1)
+  }
+
+  const finishHandle = () => {
+    setShowTutorial(false);
+    AsyncStorageHelper.setData("tutorial", false)
+  }
+
   return (
-
     <SafeAreaView style={styles.container}>
-
+      <Modal
+        animationType={'fade'}
+        transparent={true}
+        visible={true}
+        backdrops={true}
+      >
+        <Swiper style={{paddingVertical:12}} autoplay={true} showsPagination={false} autoplayTimeout={5} loop={false} onIndexChanged={(item) => nextHandle(item)}>
+          {
+            slides.map((item, index) => {
+              return (
+                <ImageBackground key={index} style={[styles.slide, index > 5 ? { justifyContent: 'flex-end' } : null]} source={item.image}>
+                  {
+                    index + 1 == slides.length ? (
+                      <TouchableOpacity onPress={() => finishHandle()} style={{ alignSelf: 'flex-end', marginRight: 15, marginBottom: 15 }}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>Finish</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity onPress={() => finishHandle()} style={{ alignSelf: 'flex-end', marginRight: 15, marginTop: 10, marginBottom: 10 }}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>Skip</Text>
+                      </TouchableOpacity>
+                    )
+                  }
+                </ImageBackground>
+              )
+            })
+          }
+        </Swiper>
+      </Modal>
       <View style={styles.container1} >
         <Avatar setting={() => { gosetting() }} />
         <View style={styles.searchSection}>
@@ -564,6 +776,16 @@ const contact = ({ navigation, route }) => {
         }
 
       </View>
+      {/* <Modal
+        animationType={'slide'}
+        transparent={true}
+        visible={updateSoonModal}>
+        <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent:'center' }}>
+          <View style={styles.modal}>
+            <Text style={styles.modalheading}>Update you soon</Text>
+          </View>
+        </View>
+      </Modal> */}
 
       {target && <ModalChatInvitation target={target} setVisible={setModalChatInvitation} visible={modalChatInvitation} desiredChat={desiredChat} positonItem={(selectUserid) => { userFirstPositionInvitation(selectUserid) }} />}
       {target && <ModalChatCodeGen target={target} setVisible={setModalChatCodeGen} visible={modalChatCodeGen} desiredChat={desiredChat} positonItem1={(selectUserid) => { userFirstPositionCodeGen(selectUserid) }} />}
@@ -572,6 +794,12 @@ const contact = ({ navigation, route }) => {
       {targetvideo && <ModalVideoCall roomRef={videoroomref} remotePeerName={targetvideo.name} remotePeerId={targetvideo.id} remotePic={targetvideo.picture} navigation={navigation} />}
       {targetaudio && <ModalAudioCall roomRef={audioroomref} remotePeerName={targetaudio.name} remotePeerId={targetaudio.id} remotePic={targetaudio.picture} navigation={navigation} />}
 
+      {/* Add By TaraChand */}
+
+      {target && <ModalChatRequestAccept target={target} setVisible={setModalVisible2} visible={modalVisible2} submitttCode={submitttCode} setSubmitCode={setSubmitCode} submitCode={submitCode} notificationcode={notificationcode} loadingSubmit={loadingSubmit} />}
+
+      {target && <ModalGroupChatRequestAccept target={target} navigate={navigation.navigate} setVisible={setModalGroupChatVisible} visible={modalGroupChatVisible} loadingSubmit={loadingSubmit} />}
+      {/* Add By Tarachand */}
     </SafeAreaView>
   );
 };
@@ -579,7 +807,16 @@ const contact = ({ navigation, route }) => {
 export default contact;
 
 const styles = StyleSheet.create({
-
+  slide: {
+    flex: 1,
+    resizeMode: 'cover',
+    // width: '100%', height: '90%'
+  },
+  text: {
+    color: '#333',
+    marginTop: 92,
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',

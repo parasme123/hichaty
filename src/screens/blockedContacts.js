@@ -54,7 +54,7 @@ const BlockedContacts = ({ navigation, route }) => {
         querySnapshot.forEach( documentSnapshot => {
           //log_message(user.id, 'roomRef', documentSnapshot.id);
           roomRef = documentSnapshot.id;
-          console.log(roomRef);
+          // console.log(roomRef);
         })
       }).then( () => {
         navigation.navigate( routeName, { roomRef , remotePeerName: target.name, remotePeerId: target.id, remotePic: target.picture, type: 'caller' })
@@ -74,7 +74,7 @@ const BlockedContacts = ({ navigation, route }) => {
   // if user was in is in contacts screen : 
 
   useEffect( () => {
-    console.log(blockedUsers.map(user => user.id))
+    // console.log(blockedUsers.map(user => user.id))
     fcmUnsubscribe = messaging().onMessage( async (remoteMessage) => {
       log_message("A new Message arrived to Contacts screen ", remoteMessage.data);
       let data = remoteMessage.data; 
@@ -120,7 +120,7 @@ const BlockedContacts = ({ navigation, route }) => {
           setTargetvideo(lastNotif);
           break;
         case "voicecall invitation":
-          console.log("from constacts", "voicecall");
+          // console.log("from constacts", "voicecall");
           setAudioroomref(lastNotif.roomRef);
           setModalAudioInvitation(true);
           setTargetaudio(lastNotif);

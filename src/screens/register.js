@@ -24,6 +24,8 @@ import {
   newlogo,
 } from '../assets/loginsignupIcons';
 import messaging from '@react-native-firebase/messaging';
+import CountryPicker from 'rn-country-picker';
+
 const { width, height } = Dimensions.get('window');
 const usersCollection = firestore().collection('users');
 const register = (props) => {
@@ -50,7 +52,7 @@ const register = (props) => {
   const [secondes, setSecondes] = useState(30)
   const [minutes, setMinutes] = useState(1)
   const [error, setError] = useState(null)
-  const { user, setUser } = useContext(AppContext)
+  const { user, setUser, permissions } = useContext(AppContext)
   const [isNew, setIsNew] = useState(false)
   const [fcmToken, setFcmToken] = useState("")
   const [userData, setUserData] = useState({
@@ -59,13 +61,13 @@ const register = (props) => {
     mobile: null,
     password: null
   })
-
+  const [countryCode, setCountryCode] = useState('91');
 
   useEffect(() => {
     checkToken();
 
     const Countdown = () => {
-      console.log(secondes, minutes)
+      // console.log(secondes, minutes)
       if (secondes > 0) {
         setSecondes(secondes - 1)
       }
@@ -82,11 +84,16 @@ const register = (props) => {
     }
   }, [secondes, minutes, user, confirmResult])
 
+  const setMobileNumber = (code, number) => {
+    setCountryCode(code);
+    setUserData({ ...userData, mobile: `+${code}${number}` })
+  }
+
   const checkToken = async () => {
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
       setFcmToken(fcmToken)
-      console.log('-------fcmToken: ' + fcmToken);
+      // console.log('-------fcmToken: ' + fcmToken);
     }
   }
 
@@ -104,16 +111,25 @@ const register = (props) => {
   }, [])
 
   const checkUserisNew = async () => {
-    // const querySnapshot = await usersCollection.where("mobile", "==", userData.mobile).limit(1).get()
-    // return querySnapshot.empty;
     const querySnapshot = await usersCollection.where("mobile", "==", userData.mobile).limit(1).get();
-    if (!querySnapshot.empty) {
-    }
     return querySnapshot.empty;
-
   }
 
-  const signInWithPhoneNumber = async (phoneNumber) => {
+  const resendOTP = () => {
+    setSecondes(30);
+    setMinutes(1);
+    auth().signInWithPhoneNumber(userData.mobile)
+      .then(confirmation => {
+        console.log('-----res>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ' + JSON.stringify(confirmation))
+      })
+      .catch(error => {
+        alert(`Sign In With Phone Number Error: ${error.message}`)
+        console.log(error.message, "error.message>>>>>>>>>>>");
+        // setError({ message: `Sign In With Phone Number Error: ${error.message}`})
+      });
+  }
+
+  const signInWithPhoneNumber = async () => {
     if (userData.name == '' || userData.name == null) {
       alert("Enter full name.")
       return false;
@@ -129,22 +145,14 @@ const register = (props) => {
     }
 
     else {
-
       setLoading(true);
-      console.log('phoneNumber', JSON.stringify(phoneNumber))
-      console.log('userData>>>>>>>>>', JSON.stringify(userData))
       let isNew = await checkUserisNew();
-
-      console.log(isNew, "isNew>>>>>>>>>>>>>>>>>>>>>>>");
-
       if (isNew === true) {
-        auth().signInWithPhoneNumber(phoneNumber)
+        auth().signInWithPhoneNumber(userData.mobile)
           .then(async (confirmation) => {
             setLoading(false);
+            console.log("register confirmation : ", confirmation)
             setConfirmResult(confirmation)
-            console.log('confiration', confirmation)
-            console.log('userData', userData)
-            console.log('fcmToken: ', fcmToken)
             await usersCollection.add({
               email: "abc@gmail.com",
               name: userData.name,
@@ -200,14 +208,10 @@ const register = (props) => {
       }
 
     }
-
-
   }
 
-
-
   useEffect(() => {
-    if (!user && !!confirmResult) {
+    if (!user && confirmResult) {
       setLoading(false);
       setModalVisible(true);
     }
@@ -226,12 +230,15 @@ const register = (props) => {
 
   const submitOtp = async () => {
     await confirmResult.confirm(code);
+    const querySnapshot = await usersCollection.where("mobile", "==", userData.mobile).limit(1).get();
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(documentSnapshot => {
+        setUser({ id: documentSnapshot.id, ...documentSnapshot.data() });
+      })
+    }
     setModalVisible(false);
-    console.log('----user: ' + savedUser)
-    setUser(savedUser)
-    navigation.navigate(permissions ? 'bottom' : 'permissions');
+    navigation.navigate(user && permissions ? 'bottom' : 'permissions');
   }
-
 
   const cancelCode = () => {
     setLoading(false);
@@ -270,11 +277,29 @@ const register = (props) => {
                 />
               </View>
               <View style={styles.sectionStyle}>
-                <SvgXml xml={mobile_} />
+                <CountryPicker
+                  disable={false}
+                  animationType={'slide'}
+                  containerStyle={styles.pickerStyle}
+                  // pickerTitleStyle={styles.pickerTitleStyle}
+                  // dropDownImage={require('./res/ic_drop_down.png')}
+                  // selectedCountryTextStyle={styles.selectedCountryTextStyle}
+                  // countryNameTextStyle={styles.countryNameTextStyle}
+                  pickerTitle={'Country Picker'}
+                  searchBarPlaceHolder={'Search......'}
+                  hideCountryFlag={false}
+                  hideCountryCode={true}
+                  // searchBarStyle={styles.searchBarStyle}
+                  // backButtonImage={require('./res/ic_back_black.png')}
+                  // searchButtonImage={require('./res/ic_search.png')}
+                  countryCode={countryCode}
+                  selectedValue={(val) => setMobileNumber(val, userData.mobile)}
+                />
+                {/* <SvgXml xml={mobile_} /> */}
                 <TextInput
                   style={styles.inputfield}
-                  onChange={(event) => setUserData({ ...userData, mobile: event.nativeEvent.text })}
-                  placeholder="+1650551234"
+                  onChange={(event) => setMobileNumber(countryCode, event.nativeEvent.text)}
+                  placeholder="Mobile Number"
                   keyboardType={'default'}
                   returnKeyType={'next'}
                   underlineColorAndroid="transparent"
@@ -334,7 +359,7 @@ const register = (props) => {
             </View>
             <TouchableOpacity
               style={styles.buttonregister}
-              onPress={() => { signInWithPhoneNumber(userData.mobile) }}>
+              onPress={() => { signInWithPhoneNumber() }}>
               <Text style={styles.buttontext}>Register</Text>
               {!!error && error.message &&
                 <Text>{!!error && error.message}</Text>
@@ -431,51 +456,62 @@ const register = (props) => {
           </View>
         </KeyboardAwareScrollView>
         <Modal
-        animationType={'slide'}
-        transparent={true}
-        visible={modalVisible}>
-        <View style={{ flex: 1, backgroundColor: '#000000aa' }}>
-          <View style={styles.modal1}>
-            {/* <SvgXml xml={success} /> */}
-            <Text style={styles.modaltext1}> Phone verification </Text>
-            <Text style={styles.modaltext1}>
-              Please enter the code you received in you phone!
-            </Text>
-            <Text style={styles.modaltext1}>
-              {minutes}:{secondes}
-            </Text>
-            <OTPInputView
-              style={{ width: "100%", height: 50 }}
-              pinCount={6}
-              autoFocusOnLoad={false}
-              codeInputFieldStyle={styles.underlineStyleBase}
-              codeInputHighlightStyle={styles.underlineStyleHighLighted}
-              onCodeFilled={(code) => {
-                setCode(code);
-                console.log(`Code is ${code}`);
-              }}
-            />
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
+          animationType={'slide'}
+          transparent={true}
+          visible={modalVisible}>
+          <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center' }}>
+            <View style={[styles.modal1, { width: '80%' }]}>
+              {/* <SvgXml xml={success} /> */}
+              <Text style={styles.modaltext1}> Phone verification </Text>
+              <Text style={styles.modaltext1}>
+                Please enter the code you received in your phone!
+              </Text>
+              <Text style={styles.modaltext1}>
+                {minutes}:{secondes}
+              </Text>
+              <OTPInputView
+                style={{ width: "100%", height: 50 }}
+                pinCount={6}
+                autoFocusOnLoad={false}
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled={(code) => {
+                  setCode(code);
+                  console.log(`Code is ${code}`);
+                }}
+              />
+              {
+                minutes === 0 && secondes === 0 ? (
+                  <View style={{ marginTop: 10, flexDirection: 'row' }}>
+                    <Text>Not Received ? </Text>
+                    <TouchableOpacity onPress={() => resendOTP()}>
+                      <Text style={{ color: '#53A8CB' }}> Resend</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : null
+              }
 
-                }]}
-                onPress={() => cancelCode()}>
-                <Text style={styles.buttontext}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.buttondone, {
-                  marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
-                }]}
-                onPress={() => confirmCode()}>
-                <Text style={styles.buttontext}>Submit</Text>
-              </TouchableOpacity>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginRight: 5, backgroundColor: '#FB5051', borderColor: '#FB5051',
+
+                  }]}
+                  onPress={() => cancelCode()}>
+                  <Text style={styles.buttontext}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.buttondone, {
+                    marginLeft: 5, backgroundColor: '#53A8CB', borderColor: '#53A8CB',
+                  }]}
+                  onPress={() => confirmCode()}>
+                  <Text style={styles.buttontext}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
-
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </SafeAreaView>
 
       {loading ?
@@ -485,7 +521,7 @@ const register = (props) => {
         </View>
         : null}
 
-    
+
     </View>
   );
 };
@@ -510,6 +546,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  pickerStyle: {
+    height: 40,
+    width: 70,
+    marginBottom: 10,
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 0,
+    borderColor: '#303030',
+    // backgroundColor: 'white',
   },
   content: {
     alignContent: 'center',

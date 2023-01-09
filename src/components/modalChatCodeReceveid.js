@@ -29,7 +29,7 @@ const ModalChatCodeReceived = (props) => {
     } else {
       setLoading(true);
       // console.log("desiredChat>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", desiredChat, { roomRef: roomRef, remotePeerName: name, remotePeerId: id, remotePic: pic, type: 'caller' });
-      console.log('sending ....');
+      // console.log('sending ....');
       createNewRoom(user.id, target.id)
         .then(roomRef => {
           firebase.functions().httpsCallable('onNewResponse')({
@@ -42,7 +42,7 @@ const ModalChatCodeReceived = (props) => {
           setLoading(false);
           setVisible(false);
           navigate(desiredChat, { roomRef: roomRef, remotePeerName: name, remotePeerId: id, remotePic: pic, type: 'caller' })
-          console.log("desiredChat>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", desiredChat, { roomRef: roomRef, remotePeerName: name, remotePeerId: id, remotePic: pic, type: 'caller' });
+          // console.log("desiredChat>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", desiredChat, { roomRef: roomRef, remotePeerName: name, remotePeerId: id, remotePic: pic, type: 'caller' });
         })
   
 
@@ -77,7 +77,7 @@ const ModalChatCodeReceived = (props) => {
             codeInputHighlightStyle={styles.underlineStyleHighLighted}
             onCodeFilled={(codeenter) => {
               setCodeenter(codeenter);
-              console.log(`Code is ${code}, you are good to go!`);
+              // console.log(`Code is ${code}, you are good to go!`);
             }}
           />
           <TouchableOpacity

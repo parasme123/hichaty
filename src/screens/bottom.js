@@ -1,13 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import auth from '@react-native-firebase/auth';
 import Cont from './contact';
 import Group from './group';
 import hist from './history';
 import Temchat from './temchat';
-import Alert from './alert';
-import Updateaccount from './updateAccount';
-import Changetheme from './changetheme';
 import {
   history,
   activecontact,
@@ -16,26 +12,27 @@ import {
   group,
   activehistory,
   activetempchat,
-  alert,
 } from '../assets/tabicons';
 import { user as user_ } from '../assets/loginsignupIcons';
 import { SvgXml } from 'react-native-svg';
 import { Text, StyleSheet, View, DeviceEventEmitter, Platform } from 'react-native';
-import { getContacts } from '../lib/helpers';
-import { ActivityIndicator } from 'react-native';
 import AppContext from '../context/AppContext';
 import firestore from '@react-native-firebase/firestore';
 const usersCollection = firestore().collection('users');
 const messageCollection = firestore().collection('messages');
 
-
 const Tab = createBottomTabNavigator();
 
-
-export default function Bottom() {
+export default function Bottom({ route }) {
   const [loading, setLoading] = useState(false);
-  const { user, users, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
+  const { user, users, teamChatNotifications, setUser, setUsers, setHistory, setNotifications, setTeamChatNotifications, blockedUsers,
     setTeamChatContacts, setAcceptedRequests, setRooms, setBlockedUsers } = useContext(AppContext);
+
+  // useEffect(() => {
+  //   if (teamChatNotifications.length > 0 && teamChatNotifications[0].type == "code") {
+  //     console.log("Temchat");
+  //   }
+  // }, [teamChatNotifications])
 
   useEffect(() => {
     if (user) {
@@ -49,12 +46,11 @@ export default function Bottom() {
 
   useEffect(() => {
     let subscription11 = DeviceEventEmitter.addListener("GotoHomePage", (event) => { gotoReloadeetss() })
-
-    // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    // setLoading(true)
     const friends = user && user.friends;
     const blockedUsersFromDatabase = user && user.blockedUsers;
-
+    if (user == null) {
+      return;
+    }
     const getContacts = usersCollection.onSnapshot(
       querySnapshot => {
         const users = [];
@@ -65,13 +61,8 @@ export default function Bottom() {
             block = !friends.includes(documentSnapshot.id);
           }
           if (documentSnapshot.id !== user.id && blockedUsersFromDatabase.length > 0 && blockedUsersFromDatabase.includes(documentSnapshot.id)) {
-            console.log('blockedUser', documentSnapshot.id);
             blockedUsers.push({ ...documentSnapshot.data(), key: documentSnapshot.id, id: documentSnapshot.id, block: true })
           } else {
-            // console.log('-----documentSnapshot.id !== user.id: ' + JSON.stringify(documentSnapshot.id !== user.id));
-            // console.log('-----documentSnapshot.id ' + JSON.stringify(documentSnapshot.id));
-            // console.log('--------------- user.id: ' + JSON.stringify(user.id));
-
             documentSnapshot.id !== user.id ?
               users.push({
                 ...documentSnapshot.data(),
@@ -84,11 +75,7 @@ export default function Bottom() {
           }
         })
         setUsers(users);
-        // console.log(users, ">:user list     hhhh   hhh   hjhh>>>>>>>>>>>>>>>>>>");
         setBlockedUsers(blockedUsers);
-        // setLoading(false);
-        // console.log('-----userData: ' + JSON.stringify(users));
-
       }
     )
 
@@ -115,7 +102,7 @@ export default function Bottom() {
 
 
   const gotoReloadeetss = () => {
-    console.log("lllllllllllllllllllllllllll");
+    // console.log("lllllllllllllllllllllllllll");
     const friends = user && user.friends;
     const blockedUsersFromDatabase = user && user.blockedUsers;
 
@@ -129,7 +116,7 @@ export default function Bottom() {
             block = !friends.includes(documentSnapshot.id);
           }
           if (documentSnapshot.id !== user.id && blockedUsersFromDatabase.length > 0 && blockedUsersFromDatabase.includes(documentSnapshot.id)) {
-            console.log('blockedUser', documentSnapshot.id);
+            // console.log('blockedUser', documentSnapshot.id);
             blockedUsers.push({ ...documentSnapshot.data(), key: documentSnapshot.id, id: documentSnapshot.id, block: true })
           } else {
             // console.log('-----documentSnapshot.id !== user.id: ' + JSON.stringify(documentSnapshot.id !== user.id));
@@ -147,9 +134,6 @@ export default function Bottom() {
               null
           }
         })
-
-
-
         setUsers(users);
         // console.log(users, ">:user list     hhhh   hhh   hjhh>>>>>>>>>>>>>>>>>>");
         setBlockedUsers(blockedUsers);
@@ -158,13 +142,9 @@ export default function Bottom() {
 
       }
     )
-
-
-    console.log("kkkkk");
+    // console.log("kkkkk");
     return getContacts;
-
   }
-
 
   // if (loading) {
   //   // console.log(users, "usersusersusersusersusersusersusersusers>>>>>>>>>>>>>>>>>>");
@@ -178,7 +158,7 @@ export default function Bottom() {
       tabBarOptions={{
         style: {
           // flex:1,
-          flexDirection:'row',
+          flexDirection: 'row',
           // height:Platform.OS=="ios"?0: 57,
           // paddingVertical: 28,
           // paddingHorizontal: 2.2,
@@ -187,6 +167,7 @@ export default function Bottom() {
           // marginBottom: 5
         },
       }}
+      initialRouteName={route?.params?.initialParams == "Temchat" ? route.params.initialParams : "Contacts" }
     >
       <Tab.Screen
         name="Contacts"
@@ -230,7 +211,7 @@ export default function Bottom() {
           tabBarLabel: ({ tintColor, focused }) => (
             <View style={[styles.notSelected, focused ? styles.selected : null]}>
               <SvgXml xml={focused ? activetempchat : tempchat} style={styles.icon} />
-              <Text style={focused ? styles.selectedtext : styles.unselectedtext}>Tem. Chat</Text>
+              <Text style={focused ? styles.selectedtext : styles.unselectedtext}>Quiet mode</Text>
             </View>
           ),
         }}
@@ -257,9 +238,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#184564',
   },
   notSelected: {
-    flex:1,
+    flex: 1,
     textAlign: 'center',
-    width:'100%',
+    width: '100%',
   },
   unselectedtext: {
     color: '#184564',
